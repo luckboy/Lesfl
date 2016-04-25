@@ -1,0 +1,1578 @@
+/****************************************************************************
+ *   Copyright (C) 2016 Łukasz Szpakowski.                                  *
+ *                                                                          *
+ *   This software is licensed under the GNU Lesser General Public          *
+ *   License v3 or later. See the LICENSE file and the GPL file for         *
+ *   the full licensing terms.                                              *
+ ****************************************************************************/
+#ifndef _LESFL_FRONTEND_TREE_H
+#define _LESFL_FRONTEND_TREE_H
+
+#include <cstdint>
+#include <memory>
+#include <lesfl/frontend/builtin.hpp>
+#include <lesfl/comp.hpp>
+
+namespace lesfl
+{
+  namespace frontend
+  {
+    class Definition;
+    class Variable;
+    class Function;
+    class FunctionInstance;
+    class Argument;
+    class Annotation;
+    class Expression;
+    class ExpressionNamedFieldPair;
+    class Bind;
+    class TupleBindVariable;
+    class Case;
+    class Pattern;
+    class PatternNamedFieldPair;
+    class LiteralValue;
+    class Value;
+    class ValueNamedFieldPair;
+    class TypeVariable;
+    class TypeFunction;
+    class TypeFunctionInstance;
+    class Datatype;
+    class Constructor;
+    class TypeArgument;
+    class TypeParameter;
+    class TypeNamedFieldPair;
+    class TypeExpression;
+
+    enum class IntType
+    {
+      INT8,
+      INT16,
+      INT32,
+      INT64
+    };
+
+    enum class FloatType
+    {
+      SINGLE,
+      DOUBLE
+    };
+
+    enum class AccessModifier
+    {
+      NONE,
+      PRIVATE
+    };
+
+    enum class FunctionModifier
+    {
+      NONE,
+      PRIMITIVE
+    };
+    
+    class Positional
+    {
+    protected:
+      Position _M_pos;
+
+      Positional(const Position &pos) : _M_pos(pos) {}
+    public:
+      virtual ~Positional();
+      
+      const Position &pos() const { return _M_pos; }      
+    };
+
+    class Identifier
+    {
+    protected:
+      std::list<std::string> _M_idents;
+
+      Identifier(const std::list<std::string> &idents) : _M_idents(idents) {}
+    public:
+      virtual ~Identifier();
+
+      const std::list<std::string> &idents() const { return _M_idents; }
+
+      std::list<std::string> &idents() { return _M_idents; }
+    };
+
+    class AbsoluteIdentifier : public Identifier
+    {
+    public:
+      AbsoluteIdentifier(const std::list<std::string> &idents) : Identifier(idents) {}
+
+      ~AbsoluteIdentifier();
+    };
+
+    class RelativeIdentifier : public Identifier
+    {
+    public:
+      RelativeIdentifier(const std::list<std::string> &idents) : Identifier(idents) {}
+
+      ~RelativeIdentifier();
+    };
+
+    class Tree
+    {
+      std::unique_ptr<const std::list<std::unique_ptr<Definition>>> _M_defs;
+    public:
+      Tree(const std::list<std::unique_ptr<Definition>> *defs) : _M_defs(defs) {}
+
+      virtual ~Tree();
+
+      const std::list<std::unique_ptr<Definition>> &defs() const { return *_M_defs; }
+    };
+
+    class Definition : public Positional
+    {
+    protected:
+      Definition(const Position &pos) : Positional(pos) {}
+    public:
+      ~Definition();
+    };
+    
+    class Import : public Definition
+    {
+      std::unique_ptr<Identifier> _M_module_ident;
+    public:
+      Import(Identifier *module_ident, const Position &pos) :
+        Definition(pos), _M_module_ident(module_ident) {}
+
+      ~Import();
+
+      Identifier *module_ident() const { return _M_module_ident.get(); }
+    };
+
+    class ModuleDefinition : public Definition
+    {
+      std::unique_ptr<Identifier> _M_ident;
+      std::unique_ptr<const std::list<std::unique_ptr<Definition>>> _M_defs;
+    public:
+      ModuleDefinition(Identifier *ident, const std::list<std::unique_ptr<Definition>> *defs, const Position &pos) :
+        Definition(pos), _M_ident(ident), _M_defs(defs) {}
+
+      ~ModuleDefinition();
+
+      Identifier *ident() const { return _M_ident.get(); }
+
+      const std::list<std::unique_ptr<Definition>> &defs() const { return *_M_defs; }
+    };
+
+    class VariableDefinition : public Definition
+    {
+      AccessModifier _M_access_modifier;
+      std::string _M_ident;
+      std::shared_ptr<Variable> _M_var;
+    public:
+      VariableDefinition(AccessModifier access_modifier, const std::string &ident, Variable *var, const Position &pos) :
+        Definition(pos), _M_access_modifier(access_modifier), _M_ident(ident), _M_var(var) {}
+
+      ~VariableDefinition();
+
+      AccessModifier access_modifier() const { return _M_access_modifier; }
+
+      const std::string &ident() const { return _M_ident; }
+
+      const std::shared_ptr<Variable> &var() const { return _M_var; }
+    };
+
+    class FunctionDefinition : public Definition
+    {
+      AccessModifier _M_access_modifier;
+      std::string _M_ident;
+      std::shared_ptr<Function> _M_fun;
+    public:
+      FunctionDefinition(AccessModifier access_modifier, const std::string &ident, Function *fun, const Position &pos) :
+        Definition(pos), _M_access_modifier(access_modifier), _M_ident(ident), _M_fun(fun) {}
+
+      ~FunctionDefinition();
+
+      AccessModifier access_modifier() const { return _M_access_modifier; }
+
+      const std::string &ident() const { return _M_ident; }
+
+      const std::shared_ptr<Function> &fun() const { return _M_fun; }
+    };
+
+    class FunctionInstanceDefinition : public Definition
+    {
+      AccessModifier _M_access_modifier;
+      std::string _M_ident;
+      std::shared_ptr<FunctionInstance> _M_fun_inst;
+    public:
+      FunctionInstanceDefinition(AccessModifier access_modifier, const std::string &ident, FunctionInstance *fun_inst, const Position &pos) :
+        Definition(pos), _M_access_modifier(access_modifier), _M_ident(ident), _M_fun_inst(fun_inst) {}
+
+      ~FunctionInstanceDefinition();
+
+      AccessModifier access_modifier() const { return _M_access_modifier; }
+
+      const std::string &ident() const { return _M_ident; }
+
+      const std::shared_ptr<FunctionInstance> &fun_inst() const { return _M_fun_inst; }
+    };
+
+    class TypeVariableDefinition : public Definition
+    {
+      AccessModifier _M_access_modifier;
+      std::string _M_ident;
+      std::shared_ptr<TypeVariable> _M_var;
+    public:
+      TypeVariableDefinition(AccessModifier access_modifier, const std::string &ident, TypeVariable *var, const Position &pos) :
+        Definition(pos), _M_access_modifier(), _M_ident(ident), _M_var(var) {}
+
+      ~TypeVariableDefinition();
+
+      AccessModifier access_modifier() const { return _M_access_modifier; }
+
+      const std::string &ident() const { return _M_ident; }
+
+      const std::shared_ptr<TypeVariable> &var() const { return _M_var; }
+    };
+
+    class TypeFunctionDefinition : public Definition
+    {
+      AccessModifier _M_access_modifier;
+      std::string _M_ident;
+      std::shared_ptr<TypeFunction> _M_fun;
+    public:
+      TypeFunctionDefinition(AccessModifier access_modifier, const std::string &ident, TypeFunction *fun, const Position &pos) :
+        Definition(pos), _M_access_modifier(), _M_ident(ident), _M_fun(fun) {}
+
+      ~TypeFunctionDefinition();
+
+      AccessModifier access_modifier() const { return _M_access_modifier; }
+
+      const std::string &ident() const { return _M_ident; }
+
+      const std::shared_ptr<TypeFunction> &fun() const { return _M_fun; }
+    };
+
+    class TypeFunctionInstanceDefinition : public Definition
+    {
+      AccessModifier _M_access_modifier;
+      std::string _M_ident;
+      std::shared_ptr<TypeFunctionInstance> _M_fun_inst;
+    public:
+      TypeFunctionInstanceDefinition(AccessModifier access_modifier, const std::string &ident, TypeFunctionInstance *fun_inst, const Position &pos) :
+        Definition(pos), _M_access_modifier(), _M_ident(ident), _M_fun_inst(fun_inst) {}
+
+      ~TypeFunctionInstanceDefinition();
+
+      AccessModifier access_modifier() const { return _M_access_modifier; }
+
+      const std::string &ident() const { return _M_ident; }
+
+      const std::shared_ptr<TypeFunctionInstance> &fun_inst() const { return _M_fun_inst; }
+    };
+
+    class Variable
+    {
+      std::unique_ptr<TypeExpression> _M_type_expr;
+    public:
+      Variable() : _M_type_expr(nullptr) {}
+
+      Variable(TypeExpression *type_expr) : _M_type_expr(type_expr) {}
+
+      ~Variable();
+
+      TypeExpression *type_expr() const { return _M_type_expr.get(); }
+    };
+
+    class UserDefinedVariable : public Variable
+    {
+      std::unique_ptr<Value> _M_value;
+    public:
+      UserDefinedVariable(Value *value) : _M_value(value) {}
+
+      UserDefinedVariable(TypeExpression *type_expr, Value *value) :
+        Variable(type_expr), _M_value(value) {}
+
+      ~UserDefinedVariable();
+
+      Value *value() const { return _M_value.get(); }
+    };
+
+    class ExternalVariable : public Variable
+    {
+      std::unique_ptr<Identifier> _M_external_var_ident;
+    public:
+      ExternalVariable(TypeExpression *type_expr, Identifier *external_var_ident) :
+        Variable(type_expr), _M_external_var_ident(external_var_ident) {}
+
+      ~ExternalVariable();
+
+      Identifier *external_var_ident() const { return _M_external_var_ident.get(); }
+    };
+
+    class FunctionVariable : public Variable
+    {
+      std::shared_ptr<Function> _M_fun;
+    public:
+      FunctionVariable(const std::shared_ptr<Function> &fun) : _M_fun(fun) {}
+
+      ~FunctionVariable();
+
+      const std::shared_ptr<Function> &fun() const { return _M_fun; }
+    };
+
+    class Function
+    {
+    protected:
+      std::unique_ptr<const std::list<std::unique_ptr<TypeParameter>>> _M_inst_type_params;
+      FunctionModifier _M_fun_modifier;
+      std::unique_ptr<const std::list<std::unique_ptr<Argument>>> _M_args;
+      std::unique_ptr<TypeExpression> _M_result_type_expr;
+
+      Function(FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args) :
+        _M_inst_type_params(nullptr), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(nullptr) {}
+
+      Function(FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr) :
+        _M_inst_type_params(nullptr),  _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(result_type_expr) {}
+
+      Function(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args) :
+        _M_inst_type_params(inst_type_params),  _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(nullptr) {}
+
+      Function(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr) :
+        _M_inst_type_params(inst_type_params),  _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(result_type_expr) {}
+    public:
+      virtual ~Function();
+
+      bool is_template() const { return _M_inst_type_params.get() != nullptr; }
+
+      const std::list<std::unique_ptr<TypeParameter>> *inst_type_params() const { return _M_inst_type_params.get(); }
+
+      FunctionModifier fun_modifier() const { return _M_fun_modifier; }
+
+      const std::list<std::unique_ptr<Argument>> &args() const { return *_M_args; }
+
+      std::size_t arg_count() const { return _M_args->size(); }
+      
+      TypeExpression *result_type_expr() const { return _M_result_type_expr.get(); }
+    };
+
+    class DefinedFunction : public Function
+    {
+    protected:
+      std::unique_ptr<const std::list<std::unique_ptr<Annotation>>> _M_annotations;
+
+      DefinedFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args) :
+        Function(fun_modifier, args), _M_annotations(annotations) {}
+
+      DefinedFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr) :
+        Function(fun_modifier, args, result_type_expr), _M_annotations(annotations) {}
+
+      DefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args) :
+        Function(inst_type_params, fun_modifier, args), _M_annotations(annotations) {}
+
+      DefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr) :
+        Function(inst_type_params, fun_modifier, args, result_type_expr), _M_annotations(annotations) {}
+    public:
+      ~DefinedFunction();
+
+      const std::list<std::unique_ptr<Annotation>> &annotations() const { return *_M_annotations; }
+    };
+
+    class UserDefinedFunction : public DefinedFunction
+    {
+      std::unique_ptr<Expression> _M_body;
+    public:
+      UserDefinedFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, Expression *body, const Position &pos) :
+        DefinedFunction(annotations, fun_modifier, args), _M_body(body) {}
+
+      UserDefinedFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
+        DefinedFunction(annotations, fun_modifier, args, result_type_expr), _M_body(body) {}
+
+      UserDefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
+        DefinedFunction(inst_type_params, annotations, fun_modifier, args), _M_body(body) {}
+
+      UserDefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
+        DefinedFunction(inst_type_params, annotations, fun_modifier, args, result_type_expr), _M_body(body) {}
+
+      ~UserDefinedFunction();
+
+      Expression *body() const { return _M_body.get(); }
+    };
+
+    class ExternalFunction : public Function
+    {
+      std::unique_ptr<Identifier> _M_external_fun_ident;
+    public:
+      ExternalFunction(FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Identifier *external_fun_ident) :
+        Function(fun_modifier, args, result_type_expr), _M_external_fun_ident(external_fun_ident) {}
+
+      ~ExternalFunction();
+
+      Identifier *external_fun_ident() const { return _M_external_fun_ident.get(); }
+    };
+
+    class NativeFunction : DefinedFunction
+    {
+      std::unique_ptr<Identifier> _M_native_fun_ident;
+    public:
+      NativeFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Identifier *native_fun_ident) :
+        DefinedFunction(annotations, fun_modifier, args, result_type_expr), _M_native_fun_ident(native_fun_ident) {}
+
+      ~NativeFunction();
+
+      Identifier *native_fun_ident() const { return _M_native_fun_ident.get(); }
+    };
+
+    class FunctionInstance
+    {
+      bool _M_is_template;
+      std::shared_ptr<Function> _M_fun;
+    public:
+      FunctionInstance(bool is_template, Function *fun) : _M_fun(fun) {}
+
+      ~FunctionInstance();
+
+      bool is_template() const { return _M_is_template; }
+
+      const std::shared_ptr<Function> &fun() const { return _M_fun; }
+    };
+
+    class Argument : public Positional
+    {
+      std::string _M_ident;
+      std::unique_ptr<TypeExpression> _M_type_expr;
+    public:
+      Argument(const std::string &ident, const Position &pos) :
+        Positional(pos), _M_ident(ident), _M_type_expr(nullptr) {}
+
+      Argument(const std::string &ident, TypeExpression *type_expr, const Position &pos) :
+        Positional(pos), _M_ident(ident), _M_type_expr(type_expr) {}
+
+      ~Argument();
+
+      const std::string &ident() const { return _M_ident; }
+
+      TypeExpression *type_expr() const { return _M_type_expr.get(); }
+    };
+
+    class Annotation : public Positional
+    {
+      std::string _M_ident;
+    public:
+      Annotation(const std::string &ident, const Position &pos) :
+        Positional(pos), _M_ident(ident) {}
+
+      ~Annotation();
+
+      const std::string &ident() const { return _M_ident; }
+    };
+
+    class Expression : public Positional
+    {
+    protected:
+      Expression(const Position &pos) : Positional(pos) {}
+    public:
+      ~Expression();
+    };
+
+    class Literal : public Expression
+    {
+      std::unique_ptr<LiteralValue> _M_value;
+    public:
+      Literal(LiteralValue *value, const Position &pos) : Expression(pos), _M_value(value) {}
+
+      ~Literal();
+
+      LiteralValue *value() const { return _M_value.get(); }
+    };
+
+    class Collection : public Expression
+    {
+    protected:
+      std::unique_ptr<const std::list<std::unique_ptr<Expression>>> _M_elems;
+
+      Collection(const std::list<std::unique_ptr<Expression>> *elems, const Position &pos) :
+        Expression(pos), _M_elems(elems) {}
+    public:
+      ~Collection();
+
+      const std::list<std::unique_ptr<Expression>> &elems() const { return *_M_elems; } 
+    };
+    
+    class List : public Collection
+    {
+    public:
+      List(const std::list<std::unique_ptr<Expression>> *elems, const Position &pos) : Collection(elems, pos) {}
+
+      ~List();
+    };
+
+    class Array : public Collection
+    {
+    protected:
+      Array(const std::list<std::unique_ptr<Expression>> *elems, const Position &pos) : Collection(elems, pos) {}
+    public:
+      ~Array();
+    };
+
+    class NonUniqueArray : public Array
+    {
+    public:
+      NonUniqueArray(const std::list<std::unique_ptr<Expression>> *elems, const Position &pos) : Array(elems, pos) {}
+
+      ~NonUniqueArray();
+    };
+
+    class UniqueArray : public Array
+    {
+    public:
+      UniqueArray(const std::list<std::unique_ptr<Expression>> *elems, const Position &pos) : Array(elems, pos) {}
+
+      ~UniqueArray();
+    };
+
+    class Tuple : public Expression
+    {
+    protected:
+      std::unique_ptr<const std::list<std::unique_ptr<Expression>>> _M_fields;
+
+      Tuple(const std::list<std::unique_ptr<Expression>> *fields, const Position &pos) :
+        Expression(pos), _M_fields(fields) {}
+    public:
+      ~Tuple();
+
+      const std::list<std::unique_ptr<Expression>> &fields() const { return *_M_fields; }
+    };
+
+    class NonUniqueTuple : public Tuple
+    {
+    public:
+      NonUniqueTuple(const std::list<std::unique_ptr<Expression>> *fields, const Position &pos) : Tuple(fields, pos) {}
+
+      ~NonUniqueTuple();
+    };
+
+    class UniqueTuple : public Tuple
+    {
+    public:
+      UniqueTuple(const std::list<std::unique_ptr<Expression>> *fields, const Position &pos) : Tuple(fields, pos) {}
+
+      ~UniqueTuple();
+    };
+
+    class VariableExpression : public Expression
+    {
+      std::unique_ptr<Identifier> _M_ident;
+    public:
+      VariableExpression(Identifier *ident, const Position &pos) : Expression(pos), _M_ident(ident) {}
+
+      ~VariableExpression(); 
+
+      Identifier *ident() const { return _M_ident.get(); }
+    };
+
+    class NamedFieldConstructorApplication : public Expression
+    {
+    protected:
+      std::unique_ptr<Identifier> _M_constr_ident;
+      std::unique_ptr<const std::list<std::unique_ptr<ExpressionNamedFieldPair>>> _M_fields;
+
+      NamedFieldConstructorApplication(Identifier *constr_ident, const std::list<std::unique_ptr<ExpressionNamedFieldPair>> *fields, const Position &pos) :
+        Expression(pos), _M_constr_ident(constr_ident), _M_fields(fields) {}
+    public:
+      ~NamedFieldConstructorApplication();
+
+      Identifier *constr_ident() const { return _M_constr_ident.get(); }
+
+      const std::list<std::unique_ptr<ExpressionNamedFieldPair>> &fields() const { return *_M_fields; }
+    };
+
+    class NonUniqueNamedFieldConstructorApplication : public NamedFieldConstructorApplication
+    {
+    public:
+      NonUniqueNamedFieldConstructorApplication(Identifier *constr_ident, const std::list<std::unique_ptr<ExpressionNamedFieldPair>> *fields, const Position &pos) :
+        NamedFieldConstructorApplication(constr_ident, fields, pos) {}
+
+      ~NonUniqueNamedFieldConstructorApplication();
+    };
+
+    class UniqueNamedFieldConstructorApplication : public NamedFieldConstructorApplication
+    {
+    public:
+      UniqueNamedFieldConstructorApplication(Identifier *constr_ident, const std::list<std::unique_ptr<ExpressionNamedFieldPair>> *fields, const Position &pos) :
+        NamedFieldConstructorApplication(constr_ident, fields, pos) {}
+
+      ~UniqueNamedFieldConstructorApplication();
+    };
+
+    class Application : public Expression
+    {
+      std::unique_ptr<Expression> _M_fun;
+      std::unique_ptr<const std::list<std::unique_ptr<Expression>>> _M_args;
+    protected:
+      Application(Expression *fun, const std::list<std::unique_ptr<Expression>> *args, const Position &pos) :
+        Expression(pos), _M_fun(fun), _M_args(args) {}
+    public:
+      ~Application();
+
+      Expression *fun() const { return _M_fun.get(); }
+
+      const std::list<std::unique_ptr<Expression>> &args() const { return *_M_args; }
+    };
+
+    class NonUniqueApplication : public Application
+    {
+      FunctionModifier _M_fun_modifier;
+    public:
+      NonUniqueApplication(FunctionModifier fun_modifier, Expression *fun, const std::list<std::unique_ptr<Expression>> *args, const Position &pos) :
+        Application(fun, args, pos), _M_fun_modifier(fun_modifier) {}
+
+      ~NonUniqueApplication();
+
+      FunctionModifier fun_modifier() const { return _M_fun_modifier; }
+    };
+
+    class UniqueApplication : public Application
+    {
+    public:
+      UniqueApplication(Expression *fun, const std::list<std::unique_ptr<Expression>> *args, const Position &pos) :
+        Application(fun, args, pos) {}
+
+      ~UniqueApplication();
+    };
+
+    class BuiltinApplication : public Expression
+    {
+      BuiltinFunction _M_fun;
+      std::unique_ptr<const std::list<std::unique_ptr<Expression>>> _M_args;
+    public:
+      BuiltinApplication(BuiltinFunction fun, const std::list<std::unique_ptr<Expression>> *args, const Position &pos) :
+        Expression(pos), _M_fun(fun), _M_args(args) {}
+
+      ~BuiltinApplication();
+
+      BuiltinFunction fun() const { return _M_fun; }
+
+      const std::list<std::unique_ptr<Expression>> &args() const { return *_M_args; }
+    };
+
+    class FieldOperator : public Expression
+    {
+    protected:
+      std::unique_ptr<Expression> _M_expr;
+      std::int64_t _M_i;
+
+      FieldOperator(Expression *expr, std::int64_t i, const Position &pos) :
+        Expression(pos), _M_expr(expr), _M_i(i) {}
+    public:
+      ~FieldOperator();
+
+      Expression *expr() const { return _M_expr.get(); }
+
+      std::int64_t i() const { return _M_i; }
+    };
+
+    class Field : public FieldOperator
+    {
+    public:
+      Field(Expression *expr, std::int64_t i, const Position &pos) :
+        FieldOperator(expr, i, pos) {}
+
+      ~Field();
+    };
+
+    class UniqueField : public FieldOperator
+    {
+    public:
+      UniqueField(Expression *expr, std::int64_t i, const Position &pos) :
+        FieldOperator(expr, i, pos) {}
+
+      ~UniqueField();
+    };
+
+    class SetUniqueField : public FieldOperator
+    {
+      std::unique_ptr<Expression> _M_value_expr;
+    public:
+      SetUniqueField(Expression *expr, std::int64_t i, Expression *value_expr, const Position &pos) :
+        FieldOperator(expr, i, pos), _M_value_expr(value_expr) {}
+
+      ~SetUniqueField();
+
+      Expression *value_expr() const { return _M_value_expr.get(); }
+    };
+
+    class TypedExpression : public Expression
+    {
+      std::unique_ptr<Expression> _M_expr;
+      std::unique_ptr<TypeExpression> _M_type_expr;
+    public:
+      TypedExpression(Expression *expr, TypeExpression *type_expr, const Position &pos) :
+        Expression(pos), _M_expr(expr), _M_type_expr(type_expr) {}
+
+      ~TypedExpression();
+      
+      Expression *expr() const { return _M_expr.get(); }
+
+      TypeExpression *type_expr() const { return _M_type_expr.get(); }
+    };
+
+    class Let : public Expression
+    {
+      std::unique_ptr<const std::list<std::unique_ptr<Bind>>> _M_binds;
+      std::unique_ptr<Expression> _M_expr;
+    public:
+      Let(const std::list<std::unique_ptr<Bind>> *binds, Expression *expr, const Position &pos) :
+        Expression(pos), _M_binds(binds), _M_expr(expr) {}
+
+      ~Let();
+
+      const std::list<std::unique_ptr<Bind>> &binds() const { return *_M_binds; }
+
+      Expression *expr() const { return _M_expr.get(); }
+    };
+    
+    class Match : public Expression
+    {
+      std::unique_ptr<Expression> _M_expr;
+      std::unique_ptr<const std::list<std::unique_ptr<Case>>> _M_cases;
+    public:
+      Match(Expression *expr, const std::list<std::unique_ptr<Case>> *cases, const Position &pos) :
+        Expression(pos), _M_expr(expr), _M_cases(cases) {}
+
+      ~Match();
+
+      Expression *expr() const { return _M_expr.get(); }
+
+      const std::list<std::unique_ptr<Case>> &cases() const { return *_M_cases; }      
+    };
+
+    class Throw : public Expression
+    {
+      std::unique_ptr<Expression> _M_expr;
+    public:
+      Throw(Expression *expr, const Position &pos) : Expression(pos), _M_expr(expr) {}
+
+      ~Throw();
+
+      Expression *expr() const { return _M_expr.get(); }
+    };
+
+    class ExpressionNamedFieldPair : public Positional
+    {
+      std::string _M_ident;
+      std::unique_ptr<Expression> _M_expr;
+    public:
+      ExpressionNamedFieldPair(const std::string &ident, Expression *expr, const Position &pos) :
+        Positional(pos), _M_ident(ident), _M_expr(expr) {}
+
+      ~ExpressionNamedFieldPair();
+
+      const std::string &ident() const { return _M_ident; }
+
+      Expression *expr() const { return _M_expr.get(); }
+    };
+
+    class Bind
+    {
+    protected:
+      Bind() {}
+    public:
+      virtual ~Bind();
+    };
+
+    class VariableBind : public Bind, public Positional
+    {
+      std::string _M_ident;
+      Expression *_M_expr;
+    public:
+      VariableBind(const std::string &ident, Expression *expr, const Position &pos) :
+        Positional(pos), _M_ident(ident), _M_expr(expr) {}
+
+      ~VariableBind();
+
+      const std::string &ident() const { return _M_ident; }
+
+      Expression *expr() const { return _M_expr; }
+    };
+    
+    class TupleBind : public Bind
+    {
+      std::unique_ptr<const std::list<std::unique_ptr<TupleBindVariable>>> _M_vars;
+      Expression *_M_expr;
+    public:
+      TupleBind(const std::list<std::unique_ptr<TupleBindVariable>> *vars, Expression *expr) :
+        _M_vars(vars), _M_expr(expr) {}
+
+      ~TupleBind();
+
+      const std::list<std::unique_ptr<TupleBindVariable>> &vars() const { return *_M_vars; }
+
+      Expression *expr() const { return _M_expr; }
+    };
+
+    class TupleBindVariable : public Positional
+    {
+      const std::string _M_ident;
+    public:
+      TupleBindVariable(const std::string &ident, const Position &pos) :
+        Positional(pos), _M_ident(ident) {}
+
+      ~TupleBindVariable();
+
+      const std::string &ident() const { return _M_ident; }
+    };
+
+    class Case
+    {
+      std::unique_ptr<Pattern> _M_pattern;
+      std::unique_ptr<Expression> _M_expr;
+    public:
+      Case(Pattern *pattern, Expression *expr) : _M_pattern(pattern), _M_expr(expr) {} 
+
+      virtual ~Case();
+
+      Pattern *pattern() const { return _M_pattern.get(); }
+
+      Expression *expr() const { return _M_expr.get(); }
+    };
+
+    class Pattern : public Positional
+    {
+    protected:
+      Pattern(const Position &pos) : Positional(pos) {}
+    public:
+      virtual ~Pattern();
+    };
+
+    class ConstructorPattern : public Pattern
+    {
+    protected:
+      std::unique_ptr<Identifier> _M_constr_ident;
+    
+      ConstructorPattern(Identifier *constr_ident, const Position &pos) :
+        Pattern(pos), _M_constr_ident(constr_ident) {}
+    public:
+      ~ConstructorPattern();
+
+      Identifier *constr_ident() const { return _M_constr_ident.get(); }
+    };
+    
+    class UnnamedFieldConstructorPattern : public ConstructorPattern
+    {
+      std::unique_ptr<const std::list<std::unique_ptr<Pattern>>> _M_field_patterns;
+    public:
+      UnnamedFieldConstructorPattern(Identifier *constr_ident, const std::list<std::unique_ptr<Pattern>> *field_patterns, const Position &pos) :
+        ConstructorPattern(constr_ident, pos), _M_field_patterns(field_patterns) {}
+
+      ~UnnamedFieldConstructorPattern();
+
+      const std::list<std::unique_ptr<Pattern>> &field_patterns() const { return *_M_field_patterns; }
+    };
+
+    class NamedFieldConstructorPattern : public ConstructorPattern
+    {
+      std::unique_ptr<const std::list<std::unique_ptr<PatternNamedFieldPair>>> _M_field_patterns;
+    public:
+      NamedFieldConstructorPattern(Identifier *constr_ident, const std::list<std::unique_ptr<PatternNamedFieldPair>> *field_patterns, const Position &pos) :
+        ConstructorPattern(constr_ident, pos), _M_field_patterns(field_patterns) {}
+
+      ~NamedFieldConstructorPattern();
+
+      const std::list<std::unique_ptr<PatternNamedFieldPair>> &field_patterns() const { return *_M_field_patterns; }
+    };
+
+    class CollectionPattern : public Pattern
+    {
+    protected:
+      std::unique_ptr<const std::list<std::unique_ptr<Pattern>>> _M_elem_patterns;
+
+      CollectionPattern(const std::list<std::unique_ptr<Pattern>> *elem_patterns, const Position &pos) :
+        Pattern(pos), _M_elem_patterns(elem_patterns) {}
+    public:
+      ~CollectionPattern();
+
+      const std::list<std::unique_ptr<Pattern>> &elem_patterns() const { return *_M_elem_patterns; }
+    };
+
+    class ListPattern : public CollectionPattern
+    {
+    public:
+      ListPattern(const std::list<std::unique_ptr<Pattern>> *elem_patterns, const Position &pos) :
+        CollectionPattern(elem_patterns, pos) {}
+
+      ~ListPattern();
+    };
+
+    class ArrayPattern : public CollectionPattern
+    {
+    protected:
+      ArrayPattern(const std::list<std::unique_ptr<Pattern>> *elem_patterns, const Position &pos) :
+        CollectionPattern(elem_patterns, pos) {}
+    public:
+      ~ArrayPattern();
+    };
+
+    class NonUniqueArrayPattern : public ArrayPattern
+    {
+    public:
+      NonUniqueArrayPattern(const std::list<std::unique_ptr<Pattern>> *elem_patterns, const Position &pos) :
+        ArrayPattern(elem_patterns, pos) {}
+
+      ~NonUniqueArrayPattern();
+    };
+
+    class UniqueArrayPattern : public ArrayPattern
+    {
+    public:
+      UniqueArrayPattern(const std::list<std::unique_ptr<Pattern>> *elem_patterns, const Position &pos) :
+        ArrayPattern(elem_patterns, pos) {}
+
+      ~UniqueArrayPattern();
+    };
+
+    class TuplePattern : public Pattern
+    {
+    protected:
+      std::unique_ptr<const std::list<std::unique_ptr<Pattern>>> _M_field_patterns;
+
+      TuplePattern(const std::list<std::unique_ptr<Pattern>> *field_patterns, const Position &pos) :
+        Pattern(pos), _M_field_patterns(field_patterns) {}
+    public:
+      ~TuplePattern();
+
+      const std::list<std::unique_ptr<Pattern>> &field_patterns() const { return *_M_field_patterns; }
+    };
+
+    class NonUniqueTuplePattern : public TuplePattern
+    {
+    public:
+      NonUniqueTuplePattern(const std::list<std::unique_ptr<Pattern>> *field_patterns, const Position &pos) :
+        TuplePattern(field_patterns, pos) {}
+
+      ~NonUniqueTuplePattern();
+    };
+
+    class UniqueTuplePattern : public TuplePattern
+    {
+    public:
+      UniqueTuplePattern(const std::list<std::unique_ptr<Pattern>> *field_patterns, const Position &pos) :
+        TuplePattern(field_patterns, pos) {}
+
+      ~UniqueTuplePattern();
+    };
+
+    class LiteralPattern : public Pattern
+    {
+      std::unique_ptr<LiteralValue> _M_value;
+    public:
+      LiteralPattern(LiteralValue *value, const Position &pos) : Pattern(pos), _M_value(value) {}
+
+      ~LiteralPattern();
+
+      LiteralValue *value() const { return _M_value.get(); }
+    };
+    
+    class VariablePattern : public Pattern
+    {
+      std::string _M_ident;
+    public:
+      VariablePattern(const std::string &ident, const Position &pos) :
+        Pattern(pos), _M_ident(ident) {}
+
+      ~VariablePattern();
+        
+      const std::string &ident() const { return _M_ident; }
+    };
+
+    class PatternNamedFieldPair : public Positional
+    {
+      std::string _M_ident;
+      std::unique_ptr<Pattern> _M_pattern;
+    public:
+      PatternNamedFieldPair(const std::string &ident, Pattern *pattern, const Position &pos) :
+        Positional(pos), _M_ident(ident), _M_pattern(pattern) {}
+
+      ~PatternNamedFieldPair();
+
+      const std::string &ident() const { return _M_ident; }
+
+      Pattern *pattern() const { return _M_pattern.get(); }
+    };
+
+    class LiteralValue
+    {
+    protected:
+      LiteralValue() {}
+    public:
+      ~LiteralValue();
+    };
+
+    class NonUniqueLiteralValue : public LiteralValue
+    {
+    protected:
+      NonUniqueLiteralValue() {}
+    public:
+      ~NonUniqueLiteralValue();
+    };
+    
+    class CharValue : public NonUniqueLiteralValue
+    {
+      char _M_c;
+    public:
+      CharValue(char c) : _M_c(c) {}
+
+      ~CharValue();
+
+      char c() const { return _M_c; }
+    };
+
+    class IntValue : public NonUniqueLiteralValue
+    {
+      IntType _M_int_type;
+      std::int64_t _M_i;
+    public:
+      IntValue(IntType int_type, std::int64_t i) : _M_int_type(int_type), _M_i(i) {}
+
+      ~IntValue();
+
+      IntType int_type() const { return _M_int_type; }
+
+      std::int64_t i() const { return _M_i; }
+    };
+
+    class FloatValue : public NonUniqueLiteralValue
+    {
+      FloatType _M_float_type;
+      double _M_f;
+    public:
+      FloatValue(FloatType float_type, double f) : _M_float_type(float_type), _M_f(f) {}
+
+      ~FloatValue();
+
+      FloatType float_type() const { return _M_float_type; }
+
+      double f() const { return _M_f; }
+    };
+
+    class StringValue : public LiteralValue
+    {
+      std::string _M_string;
+    public:
+      StringValue(const std::string &str) : _M_string(str) {}
+
+      ~StringValue();
+
+      const std::string &string() const { return _M_string; }
+    };
+
+    class LambdaValue : public LiteralValue
+    {
+    protected:
+      std::unique_ptr<const std::list<std::unique_ptr<Argument>>> _M_args;
+      std::unique_ptr<Expression> _M_body;
+
+      LambdaValue(const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
+        _M_args(args), _M_body(body) {}
+    public:
+      ~LambdaValue();
+
+      const std::list<std::unique_ptr<Argument>> &args() const { return *_M_args; }
+
+      Expression *body() const { return _M_body.get(); }
+    };
+
+    class NonUniqueLambdaValue : public virtual LambdaValue, public virtual NonUniqueLiteralValue
+    {
+      FunctionModifier _M_fun_modifier;
+    public:
+      NonUniqueLambdaValue(FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
+        LambdaValue(args, body), _M_fun_modifier(fun_modifier) {}
+
+      ~NonUniqueLambdaValue();
+
+      FunctionModifier fun_modifier() const { return _M_fun_modifier; }
+    };
+
+    class UniqueLambdaValue : public LambdaValue
+    {
+    public:
+      UniqueLambdaValue(const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
+        LambdaValue(args, body) {}
+
+      ~UniqueLambdaValue();
+    };
+
+    class Value : public Positional
+    {
+    protected:
+      Value(const Position &pos) : Positional(pos) {}
+    public:
+      virtual ~Value();
+    };
+
+    class VariableLiteralValue : public Value
+    {
+      std::unique_ptr<NonUniqueLiteralValue> _M_literal_value;
+    public:
+      VariableLiteralValue(NonUniqueLiteralValue *literal_value, const Position &pos) :
+        Value(pos), _M_literal_value(literal_value) {}
+
+      ~VariableLiteralValue();
+
+      NonUniqueLiteralValue *literal_value() const { return _M_literal_value.get(); }
+    };
+
+    class CollectionValue : public Value
+    {
+    protected:
+      std::unique_ptr<const std::list<std::unique_ptr<Value>>> _M_elems;
+
+      CollectionValue(const std::list<std::unique_ptr<Value>> *elems, const Position &pos) :
+        Value(pos), _M_elems(elems) {} 
+    public:
+      ~CollectionValue();
+
+      const std::list<std::unique_ptr<Value>> &elems() const { return *_M_elems; }
+    };
+
+    class ListValue : public CollectionValue
+    {
+    public:
+      ListValue(const std::list<std::unique_ptr<Value>> *elems, const Position &pos) :
+        CollectionValue(elems, pos) {}
+
+      ~ListValue();
+    };
+
+    class ArrayValue : public CollectionValue
+    {
+    public:
+      ArrayValue(const std::list<std::unique_ptr<Value>> *elems, const Position &pos) :
+        CollectionValue(elems, pos) {}
+
+      ~ArrayValue();
+    };
+
+    class TupleValue : public Value
+    {
+      std::unique_ptr<const std::list<std::unique_ptr<Value>>> _M_fields;
+    public:
+      TupleValue(const std::list<std::unique_ptr<Value>> *fields, const Position &pos) :
+        Value(pos), _M_fields(fields) {}
+
+      ~TupleValue();
+    };
+
+    class ConstructorValue : public Value
+    {
+    protected:
+      std::string _M_constr_ident;
+    public:
+      ConstructorValue(const std::string constr_ident, const Position &pos) :
+        Value(pos), _M_constr_ident(constr_ident) {}
+
+      ~ConstructorValue();
+
+      const std::string &constr_ident() const { return _M_constr_ident; }
+    };
+
+    class UnnamedFieldConstructorValue : public ConstructorValue
+    {
+      std::unique_ptr<const std::list<std::unique_ptr<Value>>> _M_field_values;
+    public:
+      UnnamedFieldConstructorValue(const std::string constr_ident, const std::list<std::unique_ptr<Value>> *field_values, const Position &pos) :
+        ConstructorValue(constr_ident, pos), _M_field_values(field_values) {}
+
+      ~UnnamedFieldConstructorValue();
+
+      const std::list<std::unique_ptr<Value>> &field_values() const { return *_M_field_values; }
+    };
+
+    class NamedFieldConstructorValue : public ConstructorValue
+    {
+      std::unique_ptr<const std::list<std::unique_ptr<ValueNamedFieldPair>>> _M_field_values;
+    public:
+      NamedFieldConstructorValue(const std::string constr_ident, const std::list<std::unique_ptr<ValueNamedFieldPair>> *field_values, const Position &pos) :
+        ConstructorValue(constr_ident, pos), _M_field_values(field_values) {}
+
+      ~NamedFieldConstructorValue();
+
+      const std::list<std::unique_ptr<ValueNamedFieldPair>> &field_values() const { return *_M_field_values; }
+    };
+
+    class ValueNamedFieldPair : public Positional
+    {
+      std::string _M_ident;
+      std::unique_ptr<Value> _M_value;
+    public:
+      ValueNamedFieldPair(const std::string &ident, Value *value, const Position &pos) :
+        Positional(pos), _M_ident(ident), _M_value(value) {}
+
+      ~ValueNamedFieldPair();
+
+      const std::string &ident() const { return _M_ident; }
+
+      Value *value() const { return _M_value.get(); }
+    };
+
+    class TypeVariable
+    {
+    protected:
+      TypeVariable() {}
+    public:
+      virtual ~TypeVariable();
+    };
+
+    class SynonymTypeVariable : public TypeVariable
+    {
+      std::unique_ptr<TypeExpression> _M_expr;
+    public:
+      SynonymTypeVariable(TypeExpression *expr) : _M_expr(expr) {}
+
+      ~SynonymTypeVariable();
+
+      TypeExpression *expr() const { return _M_expr.get(); }
+    };
+
+    class DatatypeVariable : public TypeVariable
+    {
+      std::unique_ptr<Datatype> _M_datatype;
+    public:
+      DatatypeVariable(Datatype *datatype) : _M_datatype(datatype) {}
+
+      ~DatatypeVariable();
+
+      Datatype *datatype() const { return _M_datatype.get(); }
+    };
+
+    class BuiltinTypeVariable : public TypeVariable
+    {
+      BuiltinType _M_builtin_type;
+    public:
+      BuiltinTypeVariable(BuiltinType builtin_type) : _M_builtin_type(builtin_type) {}
+
+      ~BuiltinTypeVariable();
+
+      BuiltinType builtin_type() const { return _M_builtin_type; }
+    };
+
+    class TypeFunction
+    {
+    protected:
+      std::unique_ptr<const std::list<std::unique_ptr<TypeParameter>>> _M_inst_type_params;
+      std::unique_ptr<const std::list<std::unique_ptr<TypeArgument>>> _M_args;
+      std::size_t _M_arg_count;
+
+      TypeFunction(std::size_t arg_count) :
+        _M_inst_type_params(new std::list<std::unique_ptr<TypeParameter>>()), _M_args(nullptr), _M_arg_count(arg_count) {}
+
+      TypeFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<TypeArgument>> *args) :
+        _M_inst_type_params(inst_type_params), _M_args(args), _M_arg_count(0) {}
+    public:
+      virtual ~TypeFunction();
+
+      bool is_template() const { return true; }
+
+      const std::list<std::unique_ptr<TypeParameter>> &inst_type_params() const { return *_M_inst_type_params; }
+
+      const std::list<std::unique_ptr<TypeArgument>> &args() const { return *_M_args; }
+
+      std::size_t arg_count() const
+      { return _M_args.get() != nullptr ? _M_args->size() : _M_arg_count; }
+    };
+
+    class SynonymTypeFunction : public TypeFunction
+    {
+      std::unique_ptr<TypeExpression> _M_body;
+    public:
+      SynonymTypeFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<TypeArgument>> *args, TypeExpression *body) :
+        TypeFunction(inst_type_params, args), _M_body(body) {}
+
+      ~SynonymTypeFunction();
+
+      TypeExpression *body() const { return _M_body.get(); }
+    };
+    
+    class DatatypeFunction : public TypeFunction
+    {
+      std::unique_ptr<Datatype> _M_datatype;
+    public:
+      DatatypeFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<TypeArgument>> *args, Datatype *datatype) :
+        TypeFunction(inst_type_params, args), _M_datatype(datatype) {}
+
+      ~DatatypeFunction();
+
+      Datatype *datatype() const { return _M_datatype.get(); }
+    };
+
+    class BuiltinTypeFunction : public TypeFunction
+    {
+      BuiltinTypeTemplate _M_builtin_type_temlate;
+    public:
+      BuiltinTypeFunction(std::size_t arg_count, BuiltinTypeTemplate builtin_type_template) :
+        TypeFunction(arg_count), _M_builtin_type_temlate(builtin_type_template) {}
+
+      ~BuiltinTypeFunction();
+
+      BuiltinTypeTemplate builtin_type_template() const { return _M_builtin_type_temlate; }
+    };
+
+    class TypeFunctionInstance
+    {
+    protected:
+      bool _M_is_template;
+      std::unique_ptr<const std::list<std::unique_ptr<TypeExpression>>> _M_args;
+
+      TypeFunctionInstance(bool is_template, const std::list<std::unique_ptr<TypeExpression>> *args) :
+        _M_is_template(is_template), _M_args(args) {}
+    public:
+      virtual ~TypeFunctionInstance();
+      
+      bool is_template() const { return _M_is_template; }
+
+      const std::list<std::unique_ptr<TypeExpression>> &args() const { return *_M_args; }
+    };
+
+    class SynonymTypeFunctionInstance : public TypeFunctionInstance
+    {
+      std::unique_ptr<TypeExpression> _M_body;
+    public:
+      SynonymTypeFunctionInstance(bool is_template, const std::list<std::unique_ptr<TypeExpression>> *args, TypeExpression *body) :
+        TypeFunctionInstance(is_template, args), _M_body(body) {}
+
+      ~SynonymTypeFunctionInstance();
+
+      TypeExpression *body() const { return _M_body.get(); }
+    };
+
+    class DatatypeFunctionInstance : public TypeFunctionInstance
+    {
+      std::unique_ptr<Datatype> _M_datatype;
+    public:
+      DatatypeFunctionInstance(bool is_template, const std::list<std::unique_ptr<TypeExpression>> *args, Datatype *datatype) :
+        TypeFunctionInstance(is_template, args), _M_datatype(datatype) {}
+
+      ~DatatypeFunctionInstance();
+
+      Datatype *datatype() const { return _M_datatype.get(); }
+    };
+
+    class Datatype
+    {
+    protected:
+      std::unique_ptr<const std::list<std::unique_ptr<Constructor>>> _M_constrs;
+
+      Datatype(const std::list<std::unique_ptr<Constructor>> *constrs) :
+        _M_constrs(constrs) {}
+    public:
+      virtual ~Datatype();
+
+      const std::list<std::unique_ptr<Constructor>> &constrs() const { return *_M_constrs; }
+    };
+
+    class NonUniqueDatatype : public Datatype
+    {
+    public:
+      NonUniqueDatatype(const std::list<std::unique_ptr<Constructor>> *constrs) :
+        Datatype(constrs) {}
+
+      ~NonUniqueDatatype();
+    };
+
+    class UniqueDatatype : public Datatype
+    {
+    public:
+      UniqueDatatype(const std::list<std::unique_ptr<Constructor>> *constrs) :
+        Datatype(constrs) {}
+
+      ~UniqueDatatype();
+    };
+
+    class Constructor : public Positional
+    {
+    protected:
+      std::unique_ptr<const std::list<std::unique_ptr<Annotation>>> _M_annotations;
+      std::string _M_ident;
+
+      Constructor(const std::list<std::unique_ptr<Annotation>> *annotations, const std::string &ident, const Position &pos) :
+        Positional(pos), _M_annotations(annotations), _M_ident(ident) {}
+    public:
+      ~Constructor();
+
+      const std::string &ident() const { return _M_ident; }
+    };
+
+    class UnnamedFieldConstructor : public Constructor
+    {
+      std::unique_ptr<const std::list<std::unique_ptr<TypeExpression>>> _M_field_types;
+    public:
+      UnnamedFieldConstructor(const std::list<std::unique_ptr<Annotation>> *annotations, const std::string &ident, const std::list<std::unique_ptr<TypeExpression>> *field_types, const Position &pos) :
+        Constructor(annotations, ident, pos), _M_field_types(field_types) {}
+
+      ~UnnamedFieldConstructor();
+
+      const std::list<std::unique_ptr<TypeExpression>> &field_types() const { return *_M_field_types; }
+    };
+
+    class NamedFieldConstructor : public Constructor
+    {
+      std::unique_ptr<const std::list<std::unique_ptr<TypeNamedFieldPair>>> _M_field_types;
+    public:
+      NamedFieldConstructor(const std::list<std::unique_ptr<Annotation>> *annotations, const std::string &ident, const std::list<std::unique_ptr<TypeNamedFieldPair>> *field_types, const Position &pos) :
+        Constructor(annotations, ident, pos), _M_field_types(field_types) {}
+
+      ~NamedFieldConstructor();
+
+      const std::list<std::unique_ptr<TypeNamedFieldPair>> &field_types() const { return *_M_field_types; }
+    };
+
+    class TypeArgument : public Positional
+    {
+      std::string _M_ident;
+    public:
+      TypeArgument(const std::string &ident, const Position &pos) : Positional(pos), _M_ident(ident) {}
+
+      ~TypeArgument();
+
+      const std::string &ident() const { return _M_ident; }
+    };
+
+    class TypeParameter : public Positional
+    {
+      std::string _M_ident;
+    public:
+      TypeParameter(const std::string &ident, const Position &pos) : Positional(pos), _M_ident(ident) {}
+
+      ~TypeParameter();
+
+      const std::string &ident() const { return _M_ident; }
+    };
+
+    class TypeNamedFieldPair : public Positional
+    {
+      std::string _M_ident;
+      std::unique_ptr<TypeExpression> _M_type_expr;
+    public:
+      TypeNamedFieldPair(const std::string &ident, TypeExpression *type_expr, const Position &pos) :
+        Positional(pos), _M_ident(ident), _M_type_expr(type_expr) {}
+
+      ~TypeNamedFieldPair();
+
+      const std::string &ident() const { return _M_ident; }
+
+      TypeExpression *type_expr() const { return _M_type_expr.get(); }
+    };
+    
+    class TypeExpression : public Positional
+    {
+    protected:
+      TypeExpression(const Position &pos) : Positional(pos) {}
+    public:
+      ~TypeExpression();
+    };
+
+    class TypeVariableExpression : public TypeExpression
+    {
+      std::unique_ptr<Identifier> _M_ident;
+    public:
+      TypeVariableExpression(Identifier *ident, const Position &pos) :
+        TypeExpression(pos), _M_ident(ident) {}
+
+      ~TypeVariableExpression();
+
+      Identifier *ident() const { return _M_ident.get(); }
+    };
+
+    class TypeParameterExpression : public TypeExpression
+    {
+      std::string  _M_ident;
+    public:
+      TypeParameterExpression(const std::string &ident, const Position &pos) :
+        TypeExpression(pos), _M_ident(ident) {}
+
+      ~TypeParameterExpression();
+
+      const std::string ident() const { return _M_ident; }
+    };
+
+    class TupleType : public TypeExpression
+    {
+    protected:
+      std::unique_ptr<const std::list<std::unique_ptr<TypeExpression>>> _M_field_types;
+
+      TupleType(const std::list<std::unique_ptr<TypeExpression>> *field_types, const Position &pos) :
+        TypeExpression(pos), _M_field_types(field_types) {}
+    public:
+      ~TupleType();
+
+      const std::list<std::unique_ptr<TypeExpression>> &field_types() const { return *_M_field_types; }
+    };
+
+    class NonUniqueTupleType : public TupleType
+    {
+    public:
+      NonUniqueTupleType(const std::list<std::unique_ptr<TypeExpression>> *field_types, const Position &pos) :
+        TupleType(field_types, pos) {}
+
+      ~NonUniqueTupleType();
+    };
+
+    class UniqueTupleType : public TupleType
+    {
+    public:
+      UniqueTupleType(const std::list<std::unique_ptr<TypeExpression>> *field_types, const Position &pos) :
+        TupleType(field_types, pos) {}
+
+      ~UniqueTupleType();
+    };
+
+    class FunctionType : public TypeExpression
+    {
+    protected:
+      std::unique_ptr<const std::list<std::unique_ptr<TypeExpression>>> _M_arg_types;
+      std::unique_ptr<TypeExpression> _M_result_type;
+
+      FunctionType(const std::list<std::unique_ptr<TypeExpression>> *arg_types, TypeExpression *result_type, const Position &pos) :
+        TypeExpression(pos), _M_arg_types(arg_types), _M_result_type(result_type) {}
+    public:
+      ~FunctionType();
+
+      const std::list<std::unique_ptr<TypeExpression>> &arg_types() const { return *_M_arg_types; }
+
+      TypeExpression *result_type() const { return _M_result_type.get(); }
+    };
+
+    class NonUniqueFunctionType : public FunctionType
+    {
+      FunctionModifier _M_fun_modifier;
+    public:
+      NonUniqueFunctionType(FunctionModifier fun_modifier, const std::list<std::unique_ptr<TypeExpression>> *arg_types, TypeExpression *result_type, const Position &pos) :
+        FunctionType(arg_types, result_type, pos) {}
+
+      ~NonUniqueFunctionType();
+
+      FunctionModifier fun_modifier() const { return _M_fun_modifier; }
+    };
+
+    class UniqueFunctionType : public FunctionType
+    {
+    public:
+      UniqueFunctionType(const std::list<std::unique_ptr<TypeExpression>> *arg_types, TypeExpression *result_type, const Position &pos) :
+        FunctionType(arg_types, result_type, pos) {}
+
+      ~UniqueFunctionType();
+    };
+
+    class TypeApplication : public TypeExpression
+    {
+      std::unique_ptr<Identifier> _M_fun_ident;
+      std::unique_ptr<const std::list<std::unique_ptr<TypeExpression>>> _M_args;
+    public:
+      TypeApplication(Identifier *fun_ident, const std::list<std::unique_ptr<TypeExpression>> *args, const Position &pos) :
+        TypeExpression(pos), _M_fun_ident(fun_ident), _M_args(args) {}
+
+      ~TypeApplication();
+
+      Identifier *fun_ident() const { return _M_fun_ident.get(); }
+
+      const std::list<std::unique_ptr<TypeExpression>> &args() const { return *_M_args; }
+    };
+  }
+}
+
+#endif
