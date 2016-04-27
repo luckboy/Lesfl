@@ -8,6 +8,7 @@
 #ifndef _LESFL_FRONTEND_TREE_H
 #define _LESFL_FRONTEND_TREE_H
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <lesfl/frontend/builtin.hpp>
@@ -19,14 +20,17 @@ namespace lesfl
   {
     class Definition;
     class Variable;
+    class DefinableVariable;
+    class VariableInstance;
     class Function;
+    class DefinableFunction;
     class FunctionInstance;
     class Argument;
     class Annotation;
     class Expression;
     class ExpressionNamedFieldPair;
-    class Bind;
-    class TupleBindVariable;
+    class Binding;
+    class TupleBindingVariable;
     class Case;
     class Pattern;
     class PatternNamedFieldPair;
@@ -34,10 +38,13 @@ namespace lesfl
     class Value;
     class ValueNamedFieldPair;
     class TypeVariable;
+    class DefinableTypeVariable;
     class TypeFunction;
+    class DefinableTypeFunction;
     class TypeFunctionInstance;
     class Datatype;
     class Constructor;
+    class FunctionConstructor;
     class TypeArgument;
     class TypeParameter;
     class TypeNamedFieldPair;
@@ -113,13 +120,15 @@ namespace lesfl
 
     class Tree
     {
-      std::unique_ptr<const std::list<std::unique_ptr<Definition>>> _M_defs;
+      std::list<std::unique_ptr<Definition>> _M_defs;
     public:
-      Tree(const std::list<std::unique_ptr<Definition>> *defs) : _M_defs(defs) {}
+      Tree() {}
 
       virtual ~Tree();
 
-      const std::list<std::unique_ptr<Definition>> &defs() const { return *_M_defs; }
+      const std::list<std::unique_ptr<Definition>> &defs() const { return _M_defs; }
+
+      void add_def(Definition *def) { _M_defs.push_back(std::unique_ptr<Definition>(def)); }
     };
 
     class Definition : public Positional
@@ -161,10 +170,10 @@ namespace lesfl
     {
       AccessModifier _M_access_modifier;
       std::string _M_ident;
-      std::shared_ptr<Variable> _M_var;
+      std::shared_ptr<DefinableVariable> _M_fun;
     public:
-      VariableDefinition(AccessModifier access_modifier, const std::string &ident, Variable *var, const Position &pos) :
-        Definition(pos), _M_access_modifier(access_modifier), _M_ident(ident), _M_var(var) {}
+      VariableDefinition(AccessModifier access_modifier, const std::string &ident, DefinableVariable *var, const Position &pos) :
+        Definition(pos), _M_access_modifier(access_modifier), _M_ident(ident), _M_fun(var) {}
 
       ~VariableDefinition();
 
@@ -172,16 +181,31 @@ namespace lesfl
 
       const std::string &ident() const { return _M_ident; }
 
-      const std::shared_ptr<Variable> &var() const { return _M_var; }
+      const std::shared_ptr<DefinableVariable> &var() const { return _M_fun; }
+    };
+
+    class VariableInstanceDefinition : public Definition
+    {
+      std::string _M_ident;
+      std::shared_ptr<VariableInstance> _M_var_inst;
+    public:
+      VariableInstanceDefinition(const std::string &ident, VariableInstance *fun_inst, const Position &pos) :
+        Definition(pos), _M_ident(ident), _M_var_inst(fun_inst) {}
+
+      ~VariableInstanceDefinition();
+
+      const std::string &ident() const { return _M_ident; }
+
+      const std::shared_ptr<VariableInstance> &var_inst() const { return _M_var_inst; }
     };
 
     class FunctionDefinition : public Definition
     {
       AccessModifier _M_access_modifier;
       std::string _M_ident;
-      std::shared_ptr<Function> _M_fun;
+      std::shared_ptr<DefinableFunction> _M_fun;
     public:
-      FunctionDefinition(AccessModifier access_modifier, const std::string &ident, Function *fun, const Position &pos) :
+      FunctionDefinition(AccessModifier access_modifier, const std::string &ident, DefinableFunction *fun, const Position &pos) :
         Definition(pos), _M_access_modifier(access_modifier), _M_ident(ident), _M_fun(fun) {}
 
       ~FunctionDefinition();
@@ -190,34 +214,31 @@ namespace lesfl
 
       const std::string &ident() const { return _M_ident; }
 
-      const std::shared_ptr<Function> &fun() const { return _M_fun; }
+      const std::shared_ptr<DefinableFunction> &fun() const { return _M_fun; }
     };
 
     class FunctionInstanceDefinition : public Definition
     {
-      AccessModifier _M_access_modifier;
       std::string _M_ident;
       std::shared_ptr<FunctionInstance> _M_fun_inst;
     public:
-      FunctionInstanceDefinition(AccessModifier access_modifier, const std::string &ident, FunctionInstance *fun_inst, const Position &pos) :
-        Definition(pos), _M_access_modifier(access_modifier), _M_ident(ident), _M_fun_inst(fun_inst) {}
+      FunctionInstanceDefinition(const std::string &ident, FunctionInstance *fun_inst, const Position &pos) :
+        Definition(pos), _M_ident(ident), _M_fun_inst(fun_inst) {}
 
       ~FunctionInstanceDefinition();
 
-      AccessModifier access_modifier() const { return _M_access_modifier; }
-
       const std::string &ident() const { return _M_ident; }
 
-      const std::shared_ptr<FunctionInstance> &fun_inst() const { return _M_fun_inst; }
+      const std::shared_ptr<FunctionInstance> &var_inst() const { return _M_fun_inst; }
     };
 
     class TypeVariableDefinition : public Definition
     {
       AccessModifier _M_access_modifier;
       std::string _M_ident;
-      std::shared_ptr<TypeVariable> _M_var;
+      std::shared_ptr<DefinableTypeVariable> _M_var;
     public:
-      TypeVariableDefinition(AccessModifier access_modifier, const std::string &ident, TypeVariable *var, const Position &pos) :
+      TypeVariableDefinition(AccessModifier access_modifier, const std::string &ident, DefinableTypeVariable *var, const Position &pos) :
         Definition(pos), _M_access_modifier(), _M_ident(ident), _M_var(var) {}
 
       ~TypeVariableDefinition();
@@ -226,16 +247,16 @@ namespace lesfl
 
       const std::string &ident() const { return _M_ident; }
 
-      const std::shared_ptr<TypeVariable> &var() const { return _M_var; }
+      const std::shared_ptr<DefinableTypeVariable> &var() const { return _M_var; }
     };
 
     class TypeFunctionDefinition : public Definition
     {
       AccessModifier _M_access_modifier;
       std::string _M_ident;
-      std::shared_ptr<TypeFunction> _M_fun;
+      std::shared_ptr<DefinableTypeFunction> _M_fun;
     public:
-      TypeFunctionDefinition(AccessModifier access_modifier, const std::string &ident, TypeFunction *fun, const Position &pos) :
+      TypeFunctionDefinition(AccessModifier access_modifier, const std::string &ident, DefinableTypeFunction *fun, const Position &pos) :
         Definition(pos), _M_access_modifier(), _M_ident(ident), _M_fun(fun) {}
 
       ~TypeFunctionDefinition();
@@ -244,21 +265,18 @@ namespace lesfl
 
       const std::string &ident() const { return _M_ident; }
 
-      const std::shared_ptr<TypeFunction> &fun() const { return _M_fun; }
+      const std::shared_ptr<DefinableTypeFunction> &fun() const { return _M_fun; }
     };
 
     class TypeFunctionInstanceDefinition : public Definition
     {
-      AccessModifier _M_access_modifier;
       std::string _M_ident;
       std::shared_ptr<TypeFunctionInstance> _M_fun_inst;
     public:
-      TypeFunctionInstanceDefinition(AccessModifier access_modifier, const std::string &ident, TypeFunctionInstance *fun_inst, const Position &pos) :
-        Definition(pos), _M_access_modifier(), _M_ident(ident), _M_fun_inst(fun_inst) {}
+      TypeFunctionInstanceDefinition(const std::string &ident, TypeFunctionInstance *fun_inst, const Position &pos) :
+        Definition(pos), _M_ident(ident), _M_fun_inst(fun_inst) {}
 
       ~TypeFunctionInstanceDefinition();
-
-      AccessModifier access_modifier() const { return _M_access_modifier; }
 
       const std::string &ident() const { return _M_ident; }
 
@@ -267,37 +285,65 @@ namespace lesfl
 
     class Variable
     {
-      std::unique_ptr<TypeExpression> _M_type_expr;
+    protected:
+      Variable() {}
     public:
-      Variable() : _M_type_expr(nullptr) {}
-
-      Variable(TypeExpression *type_expr) : _M_type_expr(type_expr) {}
-
-      ~Variable();
-
-      TypeExpression *type_expr() const { return _M_type_expr.get(); }
+      virtual ~Variable();
     };
 
-    class UserDefinedVariable : public Variable
+    class DefinableVariable : public Variable
+    {
+    protected:
+      std::unique_ptr<const std::list<std::unique_ptr<TypeParameter>>> _M_inst_type_params;
+      std::unique_ptr<TypeExpression> _M_type_expr;
+
+      DefinableVariable() : _M_inst_type_params(nullptr), _M_type_expr(nullptr) {}
+
+      DefinableVariable(TypeExpression *type_expr) :
+        _M_inst_type_params(nullptr), _M_type_expr(type_expr) {}
+
+      DefinableVariable(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params) :
+        _M_inst_type_params(inst_type_params), _M_type_expr(nullptr) {}
+
+      DefinableVariable(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, TypeExpression *type_expr) :
+        _M_inst_type_params(inst_type_params), _M_type_expr(type_expr) {}
+    public:
+      ~DefinableVariable();
+
+      bool is_template() const { return _M_inst_type_params.get() != nullptr; }
+      
+      TypeExpression *type_expr() const { return _M_type_expr.get(); }
+    };    
+    
+    class UserDefinedVariable : public DefinableVariable
     {
       std::unique_ptr<Value> _M_value;
     public:
       UserDefinedVariable(Value *value) : _M_value(value) {}
 
       UserDefinedVariable(TypeExpression *type_expr, Value *value) :
-        Variable(type_expr), _M_value(value) {}
+        DefinableVariable(type_expr), _M_value(value) {}
+
+      UserDefinedVariable(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, Value *value) :
+        DefinableVariable(inst_type_params), _M_value(value) {}
+
+      UserDefinedVariable(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, TypeExpression *type_expr, Value *value) :
+        DefinableVariable(inst_type_params, type_expr), _M_value(value) {}
+
+      UserDefinedVariable(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, TypeExpression *type_expr) :
+        DefinableVariable(inst_type_params, type_expr), _M_value(nullptr) {}
 
       ~UserDefinedVariable();
 
       Value *value() const { return _M_value.get(); }
     };
 
-    class ExternalVariable : public Variable
+    class ExternalVariable : public DefinableVariable
     {
       std::unique_ptr<Identifier> _M_external_var_ident;
     public:
       ExternalVariable(TypeExpression *type_expr, Identifier *external_var_ident) :
-        Variable(type_expr), _M_external_var_ident(external_var_ident) {}
+        DefinableVariable(type_expr), _M_external_var_ident(external_var_ident) {}
 
       ~ExternalVariable();
 
@@ -315,102 +361,120 @@ namespace lesfl
       const std::shared_ptr<Function> &fun() const { return _M_fun; }
     };
 
+    class ConstructorVariable : public Variable
+    {
+      std::shared_ptr<Constructor> _M_fun;
+    public:
+      ConstructorVariable(const std::shared_ptr<Constructor> &constr) : _M_fun(constr) {}
+
+      ~ConstructorVariable();
+
+      const std::shared_ptr<Constructor> &constr() const { return _M_fun; }
+    };
+
+    class VariableInstance
+    {
+      std::shared_ptr<DefinableVariable> _M_var;
+    public:
+      VariableInstance(DefinableVariable *var) : _M_var(var) {}
+
+      virtual ~VariableInstance();
+
+      const std::shared_ptr<DefinableVariable> &var() const { return _M_var; }
+    };
+
     class Function
     {
     protected:
+      std::size_t _M_arg_count;
+
+      Function(std::size_t arg_count) : _M_arg_count(arg_count) {}
+    public:
+      virtual ~Function();
+
+      std::size_t arg_count() const { return _M_arg_count; }
+    };
+
+    class DefinableFunction : public Function
+    {
+    protected:
       std::unique_ptr<const std::list<std::unique_ptr<TypeParameter>>> _M_inst_type_params;
+      std::unique_ptr<const std::list<std::unique_ptr<Annotation>>> _M_annotations;
       FunctionModifier _M_fun_modifier;
       std::unique_ptr<const std::list<std::unique_ptr<Argument>>> _M_args;
       std::unique_ptr<TypeExpression> _M_result_type_expr;
 
-      Function(FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args) :
-        _M_inst_type_params(nullptr), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(nullptr) {}
+      DefinableFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args) :
+        Function(args->size()), _M_inst_type_params(nullptr), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(nullptr) {}
 
-      Function(FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr) :
-        _M_inst_type_params(nullptr),  _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(result_type_expr) {}
+      DefinableFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr) :
+        Function(args->size()), _M_inst_type_params(nullptr), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(result_type_expr) {}
 
-      Function(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args) :
-        _M_inst_type_params(inst_type_params),  _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(nullptr) {}
+      DefinableFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args) :
+        Function(args->size()), _M_inst_type_params(inst_type_params), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(nullptr) {}
 
-      Function(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr) :
-        _M_inst_type_params(inst_type_params),  _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(result_type_expr) {}
+      DefinableFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr) :
+        Function(args->size()), _M_inst_type_params(inst_type_params), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(result_type_expr) {}
     public:
-      virtual ~Function();
+      ~DefinableFunction();
 
       bool is_template() const { return _M_inst_type_params.get() != nullptr; }
 
       const std::list<std::unique_ptr<TypeParameter>> *inst_type_params() const { return _M_inst_type_params.get(); }
 
+      const std::list<std::unique_ptr<Annotation>> &annotations() const { return *_M_annotations; }
+
       FunctionModifier fun_modifier() const { return _M_fun_modifier; }
 
       const std::list<std::unique_ptr<Argument>> &args() const { return *_M_args; }
 
-      std::size_t arg_count() const { return _M_args->size(); }
+      std::size_t arg_count() const { return _M_arg_count; }
       
       TypeExpression *result_type_expr() const { return _M_result_type_expr.get(); }
     };
 
-    class DefinedFunction : public Function
-    {
-    protected:
-      std::unique_ptr<const std::list<std::unique_ptr<Annotation>>> _M_annotations;
-
-      DefinedFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args) :
-        Function(fun_modifier, args), _M_annotations(annotations) {}
-
-      DefinedFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr) :
-        Function(fun_modifier, args, result_type_expr), _M_annotations(annotations) {}
-
-      DefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args) :
-        Function(inst_type_params, fun_modifier, args), _M_annotations(annotations) {}
-
-      DefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr) :
-        Function(inst_type_params, fun_modifier, args, result_type_expr), _M_annotations(annotations) {}
-    public:
-      ~DefinedFunction();
-
-      const std::list<std::unique_ptr<Annotation>> &annotations() const { return *_M_annotations; }
-    };
-
-    class UserDefinedFunction : public DefinedFunction
+    class UserDefinedFunction : public DefinableFunction
     {
       std::unique_ptr<Expression> _M_body;
     public:
       UserDefinedFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, Expression *body, const Position &pos) :
-        DefinedFunction(annotations, fun_modifier, args), _M_body(body) {}
+        DefinableFunction(annotations, fun_modifier, args), _M_body(body) {}
 
       UserDefinedFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
-        DefinedFunction(annotations, fun_modifier, args, result_type_expr), _M_body(body) {}
+        DefinableFunction(annotations, fun_modifier, args, result_type_expr), _M_body(body) {}
 
       UserDefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
-        DefinedFunction(inst_type_params, annotations, fun_modifier, args), _M_body(body) {}
+        DefinableFunction(inst_type_params, annotations, fun_modifier, args), _M_body(body) {}
 
       UserDefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
-        DefinedFunction(inst_type_params, annotations, fun_modifier, args, result_type_expr), _M_body(body) {}
+        DefinableFunction(inst_type_params, annotations, fun_modifier, args, result_type_expr), _M_body(body) {}
+
+      UserDefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr) :
+        DefinableFunction(inst_type_params, annotations, fun_modifier, args, result_type_expr), _M_body(nullptr) {}
 
       ~UserDefinedFunction();
 
       Expression *body() const { return _M_body.get(); }
     };
 
-    class ExternalFunction : public Function
+    class ExternalFunction : public DefinableFunction
     {
       std::unique_ptr<Identifier> _M_external_fun_ident;
     public:
       ExternalFunction(FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Identifier *external_fun_ident) :
-        Function(fun_modifier, args, result_type_expr), _M_external_fun_ident(external_fun_ident) {}
+        DefinableFunction(new std::list<std::unique_ptr<Annotation>>(), fun_modifier, args, result_type_expr), _M_external_fun_ident(external_fun_ident) {}
 
       ~ExternalFunction();
 
       Identifier *external_fun_ident() const { return _M_external_fun_ident.get(); }
     };
 
-    class NativeFunction : DefinedFunction
+    class NativeFunction : DefinableFunction
     {
       std::unique_ptr<Identifier> _M_native_fun_ident;
     public:
       NativeFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Identifier *native_fun_ident) :
-        DefinedFunction(annotations, fun_modifier, args, result_type_expr), _M_native_fun_ident(native_fun_ident) {}
+        DefinableFunction(annotations, fun_modifier, args, result_type_expr), _M_native_fun_ident(native_fun_ident) {}
 
       ~NativeFunction();
 
@@ -419,16 +483,13 @@ namespace lesfl
 
     class FunctionInstance
     {
-      bool _M_is_template;
-      std::shared_ptr<Function> _M_fun;
+      std::shared_ptr<DefinableFunction> _M_fun;
     public:
-      FunctionInstance(bool is_template, Function *fun) : _M_fun(fun) {}
+      FunctionInstance(DefinableFunction *fun) : _M_fun(fun) {}
 
-      ~FunctionInstance();
+      virtual ~FunctionInstance();
 
-      bool is_template() const { return _M_is_template; }
-
-      const std::shared_ptr<Function> &fun() const { return _M_fun; }
+      const std::shared_ptr<DefinableFunction> &fun() const { return _M_fun; }
     };
 
     class Argument : public Positional
@@ -713,15 +774,15 @@ namespace lesfl
 
     class Let : public Expression
     {
-      std::unique_ptr<const std::list<std::unique_ptr<Bind>>> _M_binds;
+      std::unique_ptr<const std::list<std::unique_ptr<Binding>>> _M_binds;
       std::unique_ptr<Expression> _M_expr;
     public:
-      Let(const std::list<std::unique_ptr<Bind>> *binds, Expression *expr, const Position &pos) :
+      Let(const std::list<std::unique_ptr<Binding>> *binds, Expression *expr, const Position &pos) :
         Expression(pos), _M_binds(binds), _M_expr(expr) {}
 
       ~Let();
 
-      const std::list<std::unique_ptr<Bind>> &binds() const { return *_M_binds; }
+      const std::list<std::unique_ptr<Binding>> &binds() const { return *_M_binds; }
 
       Expression *expr() const { return _M_expr.get(); }
     };
@@ -767,52 +828,52 @@ namespace lesfl
       Expression *expr() const { return _M_expr.get(); }
     };
 
-    class Bind
+    class Binding
     {
     protected:
-      Bind() {}
+      Binding() {}
     public:
-      virtual ~Bind();
+      virtual ~Binding();
     };
 
-    class VariableBind : public Bind, public Positional
+    class VariableBinding : public Binding, public Positional
     {
       std::string _M_ident;
       Expression *_M_expr;
     public:
-      VariableBind(const std::string &ident, Expression *expr, const Position &pos) :
+      VariableBinding(const std::string &ident, Expression *expr, const Position &pos) :
         Positional(pos), _M_ident(ident), _M_expr(expr) {}
 
-      ~VariableBind();
+      ~VariableBinding();
 
       const std::string &ident() const { return _M_ident; }
 
       Expression *expr() const { return _M_expr; }
     };
     
-    class TupleBind : public Bind
+    class TupleBinding : public Binding
     {
-      std::unique_ptr<const std::list<std::unique_ptr<TupleBindVariable>>> _M_vars;
+      std::unique_ptr<const std::list<std::unique_ptr<TupleBindingVariable>>> _M_vars;
       Expression *_M_expr;
     public:
-      TupleBind(const std::list<std::unique_ptr<TupleBindVariable>> *vars, Expression *expr) :
+      TupleBinding(const std::list<std::unique_ptr<TupleBindingVariable>> *vars, Expression *expr) :
         _M_vars(vars), _M_expr(expr) {}
 
-      ~TupleBind();
+      ~TupleBinding();
 
-      const std::list<std::unique_ptr<TupleBindVariable>> &vars() const { return *_M_vars; }
+      const std::list<std::unique_ptr<TupleBindingVariable>> &vars() const { return *_M_vars; }
 
       Expression *expr() const { return _M_expr; }
     };
 
-    class TupleBindVariable : public Positional
+    class TupleBindingVariable : public Positional
     {
       const std::string _M_ident;
     public:
-      TupleBindVariable(const std::string &ident, const Position &pos) :
+      TupleBindingVariable(const std::string &ident, const Position &pos) :
         Positional(pos), _M_ident(ident) {}
 
-      ~TupleBindVariable();
+      ~TupleBindingVariable();
 
       const std::string &ident() const { return _M_ident; }
     };
@@ -851,25 +912,43 @@ namespace lesfl
 
       Identifier *constr_ident() const { return _M_constr_ident.get(); }
     };
-    
-    class UnnamedFieldConstructorPattern : public ConstructorPattern
+
+    class VariableConstructorPattern : public ConstructorPattern
+    {
+    public:
+      VariableConstructorPattern(Identifier *constr_ident, const Position &pos) :
+        ConstructorPattern(constr_ident, pos) {}
+
+      ~VariableConstructorPattern();
+    };
+
+    class FunctionConstructorPattern : public ConstructorPattern
+    {
+    protected:
+      FunctionConstructorPattern(Identifier *constr_ident, const Position &pos) :
+        ConstructorPattern(constr_ident, pos) {}
+    public:
+      ~FunctionConstructorPattern();
+    };
+
+    class UnnamedFieldConstructorPattern : public FunctionConstructorPattern
     {
       std::unique_ptr<const std::list<std::unique_ptr<Pattern>>> _M_field_patterns;
     public:
       UnnamedFieldConstructorPattern(Identifier *constr_ident, const std::list<std::unique_ptr<Pattern>> *field_patterns, const Position &pos) :
-        ConstructorPattern(constr_ident, pos), _M_field_patterns(field_patterns) {}
+        FunctionConstructorPattern(constr_ident, pos), _M_field_patterns(field_patterns) {}
 
       ~UnnamedFieldConstructorPattern();
 
       const std::list<std::unique_ptr<Pattern>> &field_patterns() const { return *_M_field_patterns; }
     };
 
-    class NamedFieldConstructorPattern : public ConstructorPattern
+    class NamedFieldConstructorPattern : public FunctionConstructorPattern
     {
       std::unique_ptr<const std::list<std::unique_ptr<PatternNamedFieldPair>>> _M_field_patterns;
     public:
       NamedFieldConstructorPattern(Identifier *constr_ident, const std::list<std::unique_ptr<PatternNamedFieldPair>> *field_patterns, const Position &pos) :
-        ConstructorPattern(constr_ident, pos), _M_field_patterns(field_patterns) {}
+        FunctionConstructorPattern(constr_ident, pos), _M_field_patterns(field_patterns) {}
 
       ~NamedFieldConstructorPattern();
 
@@ -979,6 +1058,21 @@ namespace lesfl
       const std::string &ident() const { return _M_ident; }
     };
 
+    class TypedPattern : public Pattern
+    {
+      std::unique_ptr<Pattern> _M_pattern;
+      std::unique_ptr<TypeExpression> _M_type_expr;
+    public:
+      TypedPattern(Pattern *pattern, TypeExpression *type_expr, const Position &pos) :
+        Pattern(pos), _M_pattern(pattern), _M_type_expr(type_expr) {} 
+
+      ~TypedPattern();
+
+      Pattern *pattern() const { return _M_pattern.get(); }
+
+      TypeExpression *type_expr() const { return _M_type_expr.get(); }
+    };
+
     class PatternNamedFieldPair : public Positional
     {
       std::string _M_ident;
@@ -1064,10 +1158,14 @@ namespace lesfl
     {
     protected:
       std::unique_ptr<const std::list<std::unique_ptr<Argument>>> _M_args;
+      std::unique_ptr<TypeExpression> _M_result_type_expr;
       std::unique_ptr<Expression> _M_body;
 
       LambdaValue(const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
-        _M_args(args), _M_body(body) {}
+        _M_args(args), _M_result_type_expr(nullptr), _M_body(body) {}
+
+      LambdaValue(const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
+        _M_args(args), _M_result_type_expr(result_type_expr), _M_body(body) {}
     public:
       ~LambdaValue();
 
@@ -1083,6 +1181,9 @@ namespace lesfl
       NonUniqueLambdaValue(FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
         LambdaValue(args, body), _M_fun_modifier(fun_modifier) {}
 
+      NonUniqueLambdaValue(FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
+        LambdaValue(args, result_type_expr, body), _M_fun_modifier(fun_modifier) {}
+
       ~NonUniqueLambdaValue();
 
       FunctionModifier fun_modifier() const { return _M_fun_modifier; }
@@ -1093,6 +1194,9 @@ namespace lesfl
     public:
       UniqueLambdaValue(const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
         LambdaValue(args, body) {}
+
+      UniqueLambdaValue(const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
+        LambdaValue(args, result_type_expr, body) {}
 
       ~UniqueLambdaValue();
     };
@@ -1161,40 +1265,73 @@ namespace lesfl
     class ConstructorValue : public Value
     {
     protected:
-      std::string _M_constr_ident;
-    public:
-      ConstructorValue(const std::string constr_ident, const Position &pos) :
+      std::unique_ptr<Identifier> _M_constr_ident;
+    
+      ConstructorValue(Identifier *constr_ident, const Position &pos) :
         Value(pos), _M_constr_ident(constr_ident) {}
-
+    public:
       ~ConstructorValue();
 
-      const std::string &constr_ident() const { return _M_constr_ident; }
+      Identifier *constr_ident() const { return _M_constr_ident.get(); }
     };
 
-    class UnnamedFieldConstructorValue : public ConstructorValue
+    class VariableConstructorValue : public ConstructorValue
+    {
+    public:
+      VariableConstructorValue(Identifier *constr_ident, const Position &pos) :
+        ConstructorValue(constr_ident, pos) {}
+
+      ~VariableConstructorValue();
+    };
+
+    class FunctionConstructorValue : public ConstructorValue
+    {
+    protected:
+      FunctionConstructorValue(Identifier *constr_ident, const Position &pos) :
+        ConstructorValue(constr_ident, pos) {}
+    public:
+      ~FunctionConstructorValue();
+    };
+
+    class UnnamedFieldConstructorValue : public FunctionConstructorValue
     {
       std::unique_ptr<const std::list<std::unique_ptr<Value>>> _M_field_values;
     public:
-      UnnamedFieldConstructorValue(const std::string constr_ident, const std::list<std::unique_ptr<Value>> *field_values, const Position &pos) :
-        ConstructorValue(constr_ident, pos), _M_field_values(field_values) {}
+      UnnamedFieldConstructorValue(Identifier *constr_ident, const std::list<std::unique_ptr<Value>> *field_values, const Position &pos) :
+        FunctionConstructorValue(constr_ident, pos), _M_field_values(field_values) {}
 
       ~UnnamedFieldConstructorValue();
 
       const std::list<std::unique_ptr<Value>> &field_values() const { return *_M_field_values; }
     };
 
-    class NamedFieldConstructorValue : public ConstructorValue
+    class NamedFieldConstructorValue : public FunctionConstructorValue
     {
       std::unique_ptr<const std::list<std::unique_ptr<ValueNamedFieldPair>>> _M_field_values;
     public:
-      NamedFieldConstructorValue(const std::string constr_ident, const std::list<std::unique_ptr<ValueNamedFieldPair>> *field_values, const Position &pos) :
-        ConstructorValue(constr_ident, pos), _M_field_values(field_values) {}
+      NamedFieldConstructorValue(Identifier *constr_ident, const std::list<std::unique_ptr<ValueNamedFieldPair>> *field_values, const Position &pos) :
+        FunctionConstructorValue(constr_ident, pos), _M_field_values(field_values) {}
 
       ~NamedFieldConstructorValue();
 
       const std::list<std::unique_ptr<ValueNamedFieldPair>> &field_values() const { return *_M_field_values; }
     };
 
+    class TypedValue : public Value
+    {
+      std::unique_ptr<Value> _M_value;
+      std::unique_ptr<TypeExpression> _M_type_expr;
+    public:
+      TypedValue(Value *value, TypeExpression *type_expr, const Position &pos) :
+        Value(pos), _M_value(value), _M_type_expr(type_expr) {}
+
+      ~TypedValue();
+
+      Value *value() const { return _M_value.get(); }
+
+      TypeExpression *type_expr() const { return _M_type_expr.get(); }
+    };
+    
     class ValueNamedFieldPair : public Positional
     {
       std::string _M_ident;
@@ -1218,7 +1355,15 @@ namespace lesfl
       virtual ~TypeVariable();
     };
 
-    class SynonymTypeVariable : public TypeVariable
+    class DefinableTypeVariable : TypeVariable
+    {
+    protected:
+      DefinableTypeVariable() {}
+    public:
+      ~DefinableTypeVariable();
+    };
+    
+    class SynonymTypeVariable : public DefinableTypeVariable
     {
       std::unique_ptr<TypeExpression> _M_expr;
     public:
@@ -1229,7 +1374,7 @@ namespace lesfl
       TypeExpression *expr() const { return _M_expr.get(); }
     };
 
-    class DatatypeVariable : public TypeVariable
+    class DatatypeVariable : public DefinableTypeVariable
     {
       std::unique_ptr<Datatype> _M_datatype;
     public:
@@ -1254,46 +1399,52 @@ namespace lesfl
     class TypeFunction
     {
     protected:
-      std::unique_ptr<const std::list<std::unique_ptr<TypeParameter>>> _M_inst_type_params;
-      std::unique_ptr<const std::list<std::unique_ptr<TypeArgument>>> _M_args;
       std::size_t _M_arg_count;
 
-      TypeFunction(std::size_t arg_count) :
-        _M_inst_type_params(new std::list<std::unique_ptr<TypeParameter>>()), _M_args(nullptr), _M_arg_count(arg_count) {}
-
-      TypeFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<TypeArgument>> *args) :
-        _M_inst_type_params(inst_type_params), _M_args(args), _M_arg_count(0) {}
+      TypeFunction(std::size_t arg_count) : _M_arg_count(arg_count) {}
     public:
       virtual ~TypeFunction();
 
-      bool is_template() const { return true; }
+      std::size_t arg_count() const { return _M_arg_count; }
+    };
+
+    class DefinableTypeFunction : public TypeFunction
+    {
+    protected:
+      std::unique_ptr<const std::list<std::unique_ptr<TypeParameter>>> _M_inst_type_params;
+      std::unique_ptr<const std::list<std::unique_ptr<TypeArgument>>> _M_args;
+    public:
+      DefinableTypeFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<TypeArgument>> *args) :
+        TypeFunction(args->size()), _M_inst_type_params(inst_type_params), _M_args(args) {}
+
+      ~DefinableTypeFunction();
 
       const std::list<std::unique_ptr<TypeParameter>> &inst_type_params() const { return *_M_inst_type_params; }
 
       const std::list<std::unique_ptr<TypeArgument>> &args() const { return *_M_args; }
-
-      std::size_t arg_count() const
-      { return _M_args.get() != nullptr ? _M_args->size() : _M_arg_count; }
     };
 
-    class SynonymTypeFunction : public TypeFunction
+    class SynonymTypeFunction : public DefinableTypeFunction
     {
       std::unique_ptr<TypeExpression> _M_body;
     public:
       SynonymTypeFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<TypeArgument>> *args, TypeExpression *body) :
-        TypeFunction(inst_type_params, args), _M_body(body) {}
+        DefinableTypeFunction(inst_type_params, args), _M_body(body) {}
 
+      SynonymTypeFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<TypeArgument>> *args) :
+        DefinableTypeFunction(inst_type_params, args), _M_body(nullptr) {}
+        
       ~SynonymTypeFunction();
 
       TypeExpression *body() const { return _M_body.get(); }
     };
-    
-    class DatatypeFunction : public TypeFunction
+
+    class DatatypeFunction : public DefinableTypeFunction
     {
       std::unique_ptr<Datatype> _M_datatype;
     public:
       DatatypeFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<TypeArgument>> *args, Datatype *datatype) :
-        TypeFunction(inst_type_params, args), _M_datatype(datatype) {}
+        DefinableTypeFunction(inst_type_params, args), _M_datatype(datatype) {}
 
       ~DatatypeFunction();
 
@@ -1355,66 +1506,87 @@ namespace lesfl
     class Datatype
     {
     protected:
-      std::unique_ptr<const std::list<std::unique_ptr<Constructor>>> _M_constrs;
-
-      Datatype(const std::list<std::unique_ptr<Constructor>> *constrs) :
-        _M_constrs(constrs) {}
+      Datatype() {}
     public:
       virtual ~Datatype();
-
-      const std::list<std::unique_ptr<Constructor>> &constrs() const { return *_M_constrs; }
     };
 
     class NonUniqueDatatype : public Datatype
     {
+      std::unique_ptr<const std::list<std::shared_ptr<Constructor>>> _M_constrs;
     public:
-      NonUniqueDatatype(const std::list<std::unique_ptr<Constructor>> *constrs) :
-        Datatype(constrs) {}
+      NonUniqueDatatype(const std::list<std::shared_ptr<Constructor>> *constrs) :
+        _M_constrs(constrs) {}
 
       ~NonUniqueDatatype();
+
+      const std::list<std::shared_ptr<Constructor>> &constrs() const { return *_M_constrs; }
     };
 
     class UniqueDatatype : public Datatype
     {
+      std::unique_ptr<const std::list<std::shared_ptr<FunctionConstructor>>> _M_constrs;
     public:
-      UniqueDatatype(const std::list<std::unique_ptr<Constructor>> *constrs) :
-        Datatype(constrs) {}
+      UniqueDatatype(const std::list<std::shared_ptr<FunctionConstructor>> *constrs) :
+        _M_constrs(constrs) {}
 
       ~UniqueDatatype();
+
+      const std::list<std::shared_ptr<FunctionConstructor>> &constrs() const { return *_M_constrs; }
     };
 
     class Constructor : public Positional
     {
     protected:
-      std::unique_ptr<const std::list<std::unique_ptr<Annotation>>> _M_annotations;
       std::string _M_ident;
 
-      Constructor(const std::list<std::unique_ptr<Annotation>> *annotations, const std::string &ident, const Position &pos) :
-        Positional(pos), _M_annotations(annotations), _M_ident(ident) {}
+      Constructor(const std::string &ident, const Position &pos) :
+        Positional(pos), _M_ident(ident) {}
     public:
       ~Constructor();
 
       const std::string &ident() const { return _M_ident; }
     };
 
-    class UnnamedFieldConstructor : public Constructor
+    class VariableConstructor : public Constructor
+    {
+    public:
+      VariableConstructor(const std::string &ident, const Position &pos) :
+        Constructor(ident, pos) {}
+
+      ~VariableConstructor();
+    };
+
+    class FunctionConstructor : public Constructor
+    {
+      std::unique_ptr<const std::list<std::unique_ptr<Annotation>>> _M_annotations;
+    public:
+      FunctionConstructor(const std::list<std::unique_ptr<Annotation>> *annotations, const std::string &ident, const Position &pos) :
+        Constructor(ident, pos), _M_annotations(annotations) {}
+
+      ~FunctionConstructor();
+
+      const std::list<std::unique_ptr<Annotation>> &annotations() const { return *_M_annotations; }
+    };
+
+    class UnnamedFieldConstructor : public FunctionConstructor
     {
       std::unique_ptr<const std::list<std::unique_ptr<TypeExpression>>> _M_field_types;
     public:
       UnnamedFieldConstructor(const std::list<std::unique_ptr<Annotation>> *annotations, const std::string &ident, const std::list<std::unique_ptr<TypeExpression>> *field_types, const Position &pos) :
-        Constructor(annotations, ident, pos), _M_field_types(field_types) {}
+        FunctionConstructor(annotations, ident, pos), _M_field_types(field_types) {}
 
       ~UnnamedFieldConstructor();
 
       const std::list<std::unique_ptr<TypeExpression>> &field_types() const { return *_M_field_types; }
     };
 
-    class NamedFieldConstructor : public Constructor
+    class NamedFieldConstructor : public FunctionConstructor
     {
       std::unique_ptr<const std::list<std::unique_ptr<TypeNamedFieldPair>>> _M_field_types;
     public:
       NamedFieldConstructor(const std::list<std::unique_ptr<Annotation>> *annotations, const std::string &ident, const std::list<std::unique_ptr<TypeNamedFieldPair>> *field_types, const Position &pos) :
-        Constructor(annotations, ident, pos), _M_field_types(field_types) {}
+        FunctionConstructor(annotations, ident, pos), _M_field_types(field_types) {}
 
       ~NamedFieldConstructor();
 

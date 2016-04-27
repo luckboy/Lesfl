@@ -66,6 +66,18 @@ namespace lesfl
     VariableDefinition::~VariableDefinition() {}
 
     //
+    // A VariableInstanceDefinition class.
+    //
+
+    VariableInstanceDefinition::~VariableInstanceDefinition() {}
+
+    //
+    // A TypeVariableDefinition class.
+    //
+
+    TypeVariableDefinition::~TypeVariableDefinition() {}
+
+    //
     // A FunctionDefinition class.
     //
 
@@ -76,12 +88,6 @@ namespace lesfl
     //
 
     FunctionInstanceDefinition::~FunctionInstanceDefinition() {}
-
-    //
-    // A TypeVariableDefinition class.
-    //
-
-    TypeVariableDefinition::~TypeVariableDefinition() {}
 
     //
     // A TypeFunctionDefinition class.
@@ -102,6 +108,12 @@ namespace lesfl
     Variable::~Variable() {}
 
     //
+    // A DefinableVariable class.
+    //
+
+    DefinableVariable::~DefinableVariable() {}
+
+    //
     // An UserDefinedVariable class.
     //
 
@@ -120,16 +132,28 @@ namespace lesfl
     FunctionVariable::~FunctionVariable() {}
 
     //
+    // A ConstructorVariable class.
+    //
+
+    ConstructorVariable::~ConstructorVariable() {}
+
+    //
+    // A VariableInstance class.
+    //
+
+    VariableInstance::~VariableInstance() {}
+
+    //
     // A Function class.
     //
 
     Function::~Function() {}
 
     //
-    // A DefinedFunction class.
+    // A DefinableFunction class.
     //
 
-    DefinedFunction::~DefinedFunction() {}
+    DefinableFunction::~DefinableFunction() {}
 
     //
     // An UserDefinedFunction class.
@@ -330,28 +354,28 @@ namespace lesfl
     ExpressionNamedFieldPair::~ExpressionNamedFieldPair() {}
 
     //
-    // A Bind class.
+    // A Binding class.
     //
 
-    Bind::~Bind() {}
+    Binding::~Binding() {}
 
     //
-    // A VariableBind class.
+    // A VariableBinding class.
     //
 
-    VariableBind::~VariableBind() {}
+    VariableBinding::~VariableBinding() {}
 
     //
-    // A TupleBind class.
+    // A TupleBinding class.
     //
 
-    TupleBind::~TupleBind() {}
+    TupleBinding::~TupleBinding() {}
 
     //
-    // A TupleBindVariable class.
+    // A TupleBindingVariable class.
     //
 
-    TupleBindVariable::~TupleBindVariable() {}
+    TupleBindingVariable::~TupleBindingVariable() {}
 
     //
     // A Case class.
@@ -370,6 +394,18 @@ namespace lesfl
     //
 
     ConstructorPattern::~ConstructorPattern() {}
+
+    //
+    // A VariableConstructorPattern class.
+    //
+
+    VariableConstructorPattern::~VariableConstructorPattern() {}
+
+    //
+    // A FunctionConstructorPattern class.
+    //
+
+    FunctionConstructorPattern::~FunctionConstructorPattern() {}
 
     //
     // An UnnamedFieldConstructorPattern class.
@@ -444,6 +480,12 @@ namespace lesfl
     VariablePattern::~VariablePattern() {}
 
     //
+    // A TypedPattern class.
+    //
+
+    TypedPattern::~TypedPattern() {}
+
+    //
     // A PatternNamedFieldPair class.
     //
 
@@ -510,6 +552,72 @@ namespace lesfl
     Value::~Value() {}
 
     //
+    // A VariableLiteralValue class.
+    //
+
+    VariableLiteralValue::~VariableLiteralValue() {}
+
+    //
+    // A CollectionValue class.
+    //
+
+    CollectionValue::~CollectionValue() {}
+
+    //
+    // A ListValue class.
+    //
+
+    ListValue::~ListValue() {}
+
+    //
+    // An ArrayValue class.
+    //
+
+    ArrayValue::~ArrayValue() {}
+
+    //
+    // A TupleValue class.
+    //
+
+    TupleValue::~TupleValue() {}
+
+    //
+    // A ConstructorValue class.
+    //
+
+    ConstructorValue::~ConstructorValue() {}
+
+    //
+    // A VariableConstructorValue class.
+    //
+
+    VariableConstructorValue::~VariableConstructorValue() {}
+
+    //
+    // A FunctionConstructorValue class.
+    //
+
+    FunctionConstructorValue::~FunctionConstructorValue() {}
+
+    //
+    // An UnnamedFieldConstructorValue class.
+    //
+
+    UnnamedFieldConstructorValue::~UnnamedFieldConstructorValue() {}
+
+    //
+    // A NamedFieldConstructorValue class.
+    //
+
+    NamedFieldConstructorValue::~NamedFieldConstructorValue() {}
+
+    //
+    // A TypedValue class.
+    //
+
+    TypedValue::~TypedValue() {}
+
+    //
     // A ValueNamedFieldPair class.
     //
 
@@ -522,10 +630,46 @@ namespace lesfl
     TypeVariable::~TypeVariable() {}
 
     //
+    // A SynonymTypeVariable class.
+    //
+
+    SynonymTypeVariable::~SynonymTypeVariable() {}
+
+    //
+    // A DatatypeVariable class.
+    //
+
+    DatatypeVariable::~DatatypeVariable() {}
+
+    //
+    // A BuiltinTypeVariable class.
+    //
+
+    BuiltinTypeVariable::~BuiltinTypeVariable() {}
+
+    //
     // A TypeFunction class.
     //
 
     TypeFunction::~TypeFunction() {}
+
+    //
+    // A SynonymTypeFunction class.
+    //
+
+    SynonymTypeFunction::~SynonymTypeFunction() {}
+
+    //
+    // A DatatypeFunction class.
+    //
+
+    DatatypeFunction::~DatatypeFunction() {}
+
+    //
+    // A BuiltinTypeFunction class.
+    //
+
+    BuiltinTypeFunction::~BuiltinTypeFunction() {}
 
     //
     // A TypeFunctionInstance class.
@@ -534,28 +678,34 @@ namespace lesfl
     TypeFunctionInstance::~TypeFunctionInstance() {}
 
     //
-    // A Datatype class.
+    // A SynonymTypeFunctionInstance class.
     //
 
-    Datatype::~Datatype() {}
+    SynonymTypeFunctionInstance::~SynonymTypeFunctionInstance() {}
 
     //
-    // A NonUniqueDatatype class.
+    // A DatatypeFunctionInstance class.
     //
 
-    NonUniqueDatatype::~NonUniqueDatatype() {}
-
-    //
-    // An UniqueDatatype class.
-    //
-
-    UniqueDatatype::~UniqueDatatype() {}
+    DatatypeFunctionInstance::~DatatypeFunctionInstance() {}
 
     //
     // A Constructor class.
     //
 
     Constructor::~Constructor() {}
+
+    //
+    // A VariableConstructor class.
+    //
+
+    VariableConstructor::~VariableConstructor() {}
+
+    //
+    // A FunctionConstructor class.
+    //
+
+    FunctionConstructor::~FunctionConstructor() {}
 
     //
     // An UnnamedFieldConstructor class.
@@ -592,5 +742,59 @@ namespace lesfl
     //
 
     TypeExpression::~TypeExpression() {}
+
+    //
+    // A TypeVariableExpression class.
+    //
+
+    TypeVariableExpression::~TypeVariableExpression() {}
+
+    //
+    // A TypeParameterExpression class.
+    //
+
+    TypeParameterExpression::~TypeParameterExpression() {}
+
+    //
+    // A TupleType class.
+    //
+
+    TupleType::~TupleType() {}
+
+    //
+    // A NonUniqueTupleType class.
+    //
+
+    NonUniqueTupleType::~NonUniqueTupleType() {}
+
+    //
+    // An UniqueTupleType class.
+    //
+
+    UniqueTupleType::~UniqueTupleType() {}
+
+    //
+    // A FunctionType class.
+    //
+
+    FunctionType::~FunctionType() {}
+
+    //
+    // A NonUniqueFunctionType class.
+    //
+
+    NonUniqueFunctionType::~NonUniqueFunctionType() {}
+
+    //
+    // An UniqueFunctionType class.
+    //
+
+    UniqueFunctionType::~UniqueFunctionType() {}
+
+    //
+    // A TypeApplication class.
+    //
+
+    TypeApplication::~TypeApplication() {}
   }
 }
