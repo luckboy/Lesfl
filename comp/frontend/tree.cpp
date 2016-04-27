@@ -642,10 +642,10 @@ namespace lesfl
     TypeVariable::~TypeVariable() {}
 
     //
-    // A SynonymTypeVariable class.
+    // A TypeSynonymVariable class.
     //
 
-    SynonymTypeVariable::~SynonymTypeVariable() {}
+    TypeSynonymVariable::~TypeSynonymVariable() {}
 
     //
     // A DatatypeVariable class.
@@ -666,10 +666,10 @@ namespace lesfl
     TypeFunction::~TypeFunction() {}
 
     //
-    // A SynonymTypeFunction class.
+    // A TypeSynonymFunction class.
     //
 
-    SynonymTypeFunction::~SynonymTypeFunction() {}
+    TypeSynonymFunction::~TypeSynonymFunction() {}
 
     //
     // A DatatypeFunction class.
@@ -690,10 +690,10 @@ namespace lesfl
     TypeFunctionInstance::~TypeFunctionInstance() {}
 
     //
-    // A SynonymTypeFunctionInstance class.
+    // A TypeSynonymFunctionInstance class.
     //
 
-    SynonymTypeFunctionInstance::~SynonymTypeFunctionInstance() {}
+    TypeSynonymFunctionInstance::~TypeSynonymFunctionInstance() {}
 
     //
     // A DatatypeFunctionInstance class.

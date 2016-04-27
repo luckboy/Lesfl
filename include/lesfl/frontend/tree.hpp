@@ -1385,13 +1385,13 @@ namespace lesfl
       ~DefinableTypeVariable();
     };
     
-    class SynonymTypeVariable : public DefinableTypeVariable
+    class TypeSynonymVariable : public DefinableTypeVariable
     {
       std::unique_ptr<TypeExpression> _M_expr;
     public:
-      SynonymTypeVariable(TypeExpression *expr) : _M_expr(expr) {}
+      TypeSynonymVariable(TypeExpression *expr) : _M_expr(expr) {}
 
-      ~SynonymTypeVariable();
+      ~TypeSynonymVariable();
 
       TypeExpression *expr() const { return _M_expr.get(); }
     };
@@ -1446,17 +1446,17 @@ namespace lesfl
       const std::list<std::unique_ptr<TypeArgument>> &args() const { return *_M_args; }
     };
 
-    class SynonymTypeFunction : public DefinableTypeFunction
+    class TypeSynonymFunction : public DefinableTypeFunction
     {
       std::unique_ptr<TypeExpression> _M_body;
     public:
-      SynonymTypeFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<TypeArgument>> *args, TypeExpression *body) :
+      TypeSynonymFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<TypeArgument>> *args, TypeExpression *body) :
         DefinableTypeFunction(inst_type_params, args), _M_body(body) {}
 
-      SynonymTypeFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<TypeArgument>> *args) :
+      TypeSynonymFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<TypeArgument>> *args) :
         DefinableTypeFunction(inst_type_params, args), _M_body(nullptr) {}
         
-      ~SynonymTypeFunction();
+      ~TypeSynonymFunction();
 
       TypeExpression *body() const { return _M_body.get(); }
     };
@@ -1501,14 +1501,14 @@ namespace lesfl
       const std::list<std::unique_ptr<TypeExpression>> &args() const { return *_M_args; }
     };
 
-    class SynonymTypeFunctionInstance : public TypeFunctionInstance
+    class TypeSynonymFunctionInstance : public TypeFunctionInstance
     {
       std::unique_ptr<TypeExpression> _M_body;
     public:
-      SynonymTypeFunctionInstance(bool is_template, const std::list<std::unique_ptr<TypeExpression>> *args, TypeExpression *body) :
+      TypeSynonymFunctionInstance(bool is_template, const std::list<std::unique_ptr<TypeExpression>> *args, TypeExpression *body) :
         TypeFunctionInstance(is_template, args), _M_body(body) {}
 
-      ~SynonymTypeFunctionInstance();
+      ~TypeSynonymFunctionInstance();
 
       TypeExpression *body() const { return _M_body.get(); }
     };
