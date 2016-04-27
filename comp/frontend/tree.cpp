@@ -126,6 +126,12 @@ namespace lesfl
     ExternalVariable::~ExternalVariable() {}
 
     //
+    // An AliasVariable class.
+    //
+
+    AliasVariable::~AliasVariable() {}
+
+    //
     // A FunctionVariable class.
     //
 
@@ -136,6 +142,12 @@ namespace lesfl
     //
 
     ConstructorVariable::~ConstructorVariable() {}
+
+    //
+    // A LibraryVariable class.
+    //
+
+    LibraryVariable::~LibraryVariable() {}
 
     //
     // A VariableInstance class.

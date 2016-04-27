@@ -350,6 +350,20 @@ namespace lesfl
       Identifier *external_var_ident() const { return _M_external_var_ident.get(); }
     };
 
+    class AliasVariable : public DefinableVariable
+    {
+      std::unique_ptr<Identifier> _M_ident;
+    public:
+      AliasVariable(Identifier *ident) : _M_ident(ident) {}
+
+      AliasVariable(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, Identifier *ident) :
+        DefinableVariable(inst_type_params), _M_ident(ident) {}
+
+      ~AliasVariable();
+
+      Identifier *ident() const { return _M_ident.get(); }
+    };
+
     class FunctionVariable : public Variable
     {
       std::shared_ptr<Function> _M_fun;
@@ -370,6 +384,14 @@ namespace lesfl
       ~ConstructorVariable();
 
       const std::shared_ptr<Constructor> &constr() const { return _M_fun; }
+    };
+
+    class LibraryVariable : public Variable
+    {
+    public:
+      LibraryVariable();
+
+      ~LibraryVariable();
     };
 
     class VariableInstance
