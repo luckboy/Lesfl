@@ -340,14 +340,14 @@ namespace lesfl
 
     class ExternalVariable : public DefinableVariable
     {
-      std::unique_ptr<Identifier> _M_external_var_ident;
+      std::string _M_external_var_ident;
     public:
-      ExternalVariable(TypeExpression *type_expr, Identifier *external_var_ident) :
+      ExternalVariable(TypeExpression *type_expr, const std::string &external_var_ident) :
         DefinableVariable(type_expr), _M_external_var_ident(external_var_ident) {}
 
       ~ExternalVariable();
 
-      Identifier *external_var_ident() const { return _M_external_var_ident.get(); }
+      const std::string &external_var_ident() const { return _M_external_var_ident; }
     };
 
     class AliasVariable : public DefinableVariable
@@ -481,26 +481,26 @@ namespace lesfl
 
     class ExternalFunction : public DefinableFunction
     {
-      std::unique_ptr<Identifier> _M_external_fun_ident;
+      std::string _M_external_fun_ident;
     public:
-      ExternalFunction(FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Identifier *external_fun_ident) :
+      ExternalFunction(FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, const std::string &external_fun_ident) :
         DefinableFunction(new std::list<std::unique_ptr<Annotation>>(), fun_modifier, args, result_type_expr), _M_external_fun_ident(external_fun_ident) {}
 
       ~ExternalFunction();
 
-      Identifier *external_fun_ident() const { return _M_external_fun_ident.get(); }
+      const std::string &external_fun_ident() const { return _M_external_fun_ident; }
     };
 
     class NativeFunction : DefinableFunction
     {
-      std::unique_ptr<Identifier> _M_native_fun_ident;
+      std::string _M_native_fun_ident;
     public:
-      NativeFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Identifier *native_fun_ident) :
+      NativeFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, const std::string &native_fun_ident) :
         DefinableFunction(annotations, fun_modifier, args, result_type_expr), _M_native_fun_ident(native_fun_ident) {}
 
       ~NativeFunction();
 
-      Identifier *native_fun_ident() const { return _M_native_fun_ident.get(); }
+      const std::string &native_fun_ident() const { return _M_native_fun_ident; }
     };
 
     class FunctionInstance

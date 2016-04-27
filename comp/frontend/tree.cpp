@@ -642,6 +642,12 @@ namespace lesfl
     TypeVariable::~TypeVariable() {}
 
     //
+    // A DefinableTypeVariable class.
+    //
+
+    DefinableTypeVariable::~DefinableTypeVariable() {}
+
+    //
     // A TypeSynonymVariable class.
     //
 
@@ -664,6 +670,12 @@ namespace lesfl
     //
 
     TypeFunction::~TypeFunction() {}
+
+    //
+    // A DefinableTypeFunction class.
+    //
+
+    DefinableTypeFunction::~DefinableTypeFunction() {}
 
     //
     // A TypeSynonymFunction class.
