@@ -471,8 +471,8 @@ namespace lesfl
       UserDefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
         DefinableFunction(inst_type_params, annotations, fun_modifier, args, result_type_expr), _M_body(body) {}
 
-      UserDefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr) :
-        DefinableFunction(inst_type_params, annotations, fun_modifier, args, result_type_expr), _M_body(nullptr) {}
+      UserDefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr) :
+        DefinableFunction(inst_type_params, new std::list<std::unique_ptr<Annotation>>(), fun_modifier, args, result_type_expr), _M_body(nullptr) {}
 
       ~UserDefinedFunction();
 
