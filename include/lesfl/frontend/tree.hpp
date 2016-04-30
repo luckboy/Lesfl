@@ -779,6 +779,52 @@ namespace lesfl
       Expression *value_expr() const { return _M_value_expr.get(); }
     };
 
+    class NamedFieldOperator : public Expression
+    {
+    protected:
+      std::unique_ptr<Expression> _M_expr;
+      std::string _M_ident;
+
+      NamedFieldOperator(Expression *expr, const std::string &ident, const Position &pos) :
+        Expression(pos), _M_expr(expr), _M_ident(ident) {}
+    public:
+      ~NamedFieldOperator();
+
+      Expression *expr() const { return _M_expr.get(); }
+
+      const std::string &ident() const { return _M_ident; }
+    };
+
+    class NamedField : public NamedFieldOperator
+    {
+    public:
+      NamedField(Expression *expr, const std::string &ident, const Position &pos) :
+        NamedFieldOperator(expr, ident, pos) {}
+
+      ~NamedField();
+    };
+
+    class UniqueNamedField : public NamedFieldOperator
+    {
+    public:
+      UniqueNamedField(Expression *expr, const std::string &ident, const Position &pos) :
+        NamedFieldOperator(expr, ident, pos) {}
+
+      ~UniqueNamedField();
+    };
+
+    class SetUniqueNamedField : public NamedFieldOperator
+    {
+      std::unique_ptr<Expression> _M_value_expr;
+    public:
+      SetUniqueNamedField(Expression *expr, const std::string &ident, Expression *value_expr, const Position &pos) :
+        NamedFieldOperator(expr, ident, pos), _M_value_expr(value_expr) {}
+
+      ~SetUniqueNamedField();
+
+      Expression *value_expr() const { return _M_value_expr.get(); }
+    };
+
     class TypedExpression : public Expression
     {
       std::unique_ptr<Expression> _M_expr;

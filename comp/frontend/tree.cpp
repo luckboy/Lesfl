@@ -336,6 +336,30 @@ namespace lesfl
     SetUniqueField::~SetUniqueField() {}
 
     //
+    // A NamedFieldOperator class.
+    //
+
+    NamedFieldOperator::~NamedFieldOperator() {}
+
+    //
+    // A NamedField class.
+    //
+
+    NamedField::~NamedField() {}
+
+    //
+    // An UniqueField class.
+    //
+
+    UniqueNamedField::~UniqueNamedField() {}
+
+    //
+    // A SetUniqueField class.
+    //
+
+    SetUniqueNamedField::~SetUniqueNamedField() {}
+
+    //
     // A TypedExpression class.
     //
 
