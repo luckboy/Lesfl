@@ -276,18 +276,6 @@ namespace lesfl
     NamedFieldConstructorApplication::~NamedFieldConstructorApplication() {}
 
     //
-    // A NonUniqueNamedFieldConstructorApplication class.
-    //
-
-    NonUniqueNamedFieldConstructorApplication::~NonUniqueNamedFieldConstructorApplication() {}
-
-    //
-    // An UniqueNamedFieldConstructorApplication class.
-    //
-
-    UniqueNamedFieldConstructorApplication::~UniqueNamedFieldConstructorApplication() {}
-
-    //
     // An Application class.
     //
 

@@ -650,36 +650,17 @@ namespace lesfl
 
     class NamedFieldConstructorApplication : public Expression
     {
-    protected:
       std::unique_ptr<Identifier> _M_constr_ident;
       std::unique_ptr<const std::list<std::unique_ptr<ExpressionNamedFieldPair>>> _M_fields;
-
+    public:
       NamedFieldConstructorApplication(Identifier *constr_ident, const std::list<std::unique_ptr<ExpressionNamedFieldPair>> *fields, const Position &pos) :
         Expression(pos), _M_constr_ident(constr_ident), _M_fields(fields) {}
-    public:
+
       ~NamedFieldConstructorApplication();
 
       Identifier *constr_ident() const { return _M_constr_ident.get(); }
 
       const std::list<std::unique_ptr<ExpressionNamedFieldPair>> &fields() const { return *_M_fields; }
-    };
-
-    class NonUniqueNamedFieldConstructorApplication : public NamedFieldConstructorApplication
-    {
-    public:
-      NonUniqueNamedFieldConstructorApplication(Identifier *constr_ident, const std::list<std::unique_ptr<ExpressionNamedFieldPair>> *fields, const Position &pos) :
-        NamedFieldConstructorApplication(constr_ident, fields, pos) {}
-
-      ~NonUniqueNamedFieldConstructorApplication();
-    };
-
-    class UniqueNamedFieldConstructorApplication : public NamedFieldConstructorApplication
-    {
-    public:
-      UniqueNamedFieldConstructorApplication(Identifier *constr_ident, const std::list<std::unique_ptr<ExpressionNamedFieldPair>> *fields, const Position &pos) :
-        NamedFieldConstructorApplication(constr_ident, fields, pos) {}
-
-      ~UniqueNamedFieldConstructorApplication();
     };
 
     class Application : public Expression
