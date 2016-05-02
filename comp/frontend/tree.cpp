@@ -504,6 +504,18 @@ namespace lesfl
     VariablePattern::~VariablePattern() {}
 
     //
+    // An AsPattern class.
+    //
+
+    AsPattern::~AsPattern() {}
+
+    //
+    // A WildcardPattern class.
+    //
+
+    WildcardPattern::~WildcardPattern() {}
+
+    //
     // A TypedPattern class.
     //
 

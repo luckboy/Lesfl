@@ -1103,8 +1103,31 @@ namespace lesfl
         Pattern(pos), _M_ident(ident) {}
 
       ~VariablePattern();
-        
+
       const std::string &ident() const { return _M_ident; }
+    };
+
+    class AsPattern : public Pattern
+    {
+      std::string _M_ident;
+      std::unique_ptr<Pattern> _M_pattern;
+    public:
+      AsPattern(const std::string &ident, Pattern *pattern, const Position &pos) :
+        Pattern(pos), _M_ident(ident), _M_pattern(pattern) {}
+
+      ~AsPattern();
+
+      const std::string &ident() const { return _M_ident; }
+
+      Pattern *pattern() const { return _M_pattern.get(); }
+    };
+    
+    class WildcardPattern : public Pattern
+    {
+    public:
+      WildcardPattern(const Position &pos) : Pattern(pos) {}
+
+      ~WildcardPattern();
     };
 
     class TypedPattern : public Pattern
