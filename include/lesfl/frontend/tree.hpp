@@ -120,15 +120,17 @@ namespace lesfl
 
     class Tree
     {
-      std::list<std::unique_ptr<Definition>> _M_defs;
+      std::list<std::unique_ptr<const std::list<std::unique_ptr<Definition>>>> _M_defs;
     public:
       Tree() {}
 
       virtual ~Tree();
 
-      const std::list<std::unique_ptr<Definition>> &defs() const { return _M_defs; }
+      const std::list<std::unique_ptr<const std::list<std::unique_ptr<Definition>>>> &defs() const
+      { return _M_defs; }
 
-      void add_def(Definition *def) { _M_defs.push_back(std::unique_ptr<Definition>(def)); }
+      void add_defs(const std::list<std::unique_ptr<Definition>> *def)
+      { _M_defs.push_back(std::unique_ptr<const std::list<std::unique_ptr<Definition>>>(def)); }
     };
 
     class Definition : public Positional
