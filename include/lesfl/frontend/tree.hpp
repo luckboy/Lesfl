@@ -93,6 +93,10 @@ namespace lesfl
     protected:
       std::list<std::string> _M_idents;
 
+      Identifier(const char *ident) : _M_idents(std::list<std::string> { ident }) {}
+
+      Identifier(const std::string &ident) : _M_idents(std::list<std::string> { ident }) {}
+
       Identifier(const std::list<std::string> &idents) : _M_idents(idents) {}
     public:
       virtual ~Identifier();
@@ -105,6 +109,10 @@ namespace lesfl
     class AbsoluteIdentifier : public Identifier
     {
     public:
+      AbsoluteIdentifier(const char *ident) : Identifier(ident) {}
+
+      AbsoluteIdentifier(const std::string &ident) : Identifier(ident) {}
+
       AbsoluteIdentifier(const std::list<std::string> &idents) : Identifier(idents) {}
 
       ~AbsoluteIdentifier();
@@ -113,6 +121,10 @@ namespace lesfl
     class RelativeIdentifier : public Identifier
     {
     public:
+      RelativeIdentifier(const char *ident) : Identifier(ident) {}
+
+      RelativeIdentifier(const std::string &ident) : Identifier(ident) {}
+
       RelativeIdentifier(const std::list<std::string> &idents) : Identifier(idents) {}
 
       ~RelativeIdentifier();
@@ -461,7 +473,7 @@ namespace lesfl
     {
       std::unique_ptr<Expression> _M_body;
     public:
-      UserDefinedFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, Expression *body, const Position &pos) :
+      UserDefinedFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
         DefinableFunction(annotations, fun_modifier, args), _M_body(body) {}
 
       UserDefinedFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
@@ -684,7 +696,7 @@ namespace lesfl
     {
       FunctionModifier _M_fun_modifier;
     public:
-      NonUniqueApplication(FunctionModifier fun_modifier, Expression *fun, const std::list<std::unique_ptr<Expression>> *args, const Position &pos) :
+      NonUniqueApplication(Expression *fun, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Expression>> *args, const Position &pos) :
         Application(fun, args, pos), _M_fun_modifier(fun_modifier) {}
 
       ~NonUniqueApplication();
@@ -1787,7 +1799,7 @@ namespace lesfl
     {
       FunctionModifier _M_fun_modifier;
     public:
-      NonUniqueFunctionType(FunctionModifier fun_modifier, const std::list<std::unique_ptr<TypeExpression>> *arg_types, TypeExpression *result_type, const Position &pos) :
+      NonUniqueFunctionType(const std::list<std::unique_ptr<TypeExpression>> *arg_types, FunctionModifier fun_modifier, TypeExpression *result_type, const Position &pos) :
         FunctionType(arg_types, result_type, pos) {}
 
       ~NonUniqueFunctionType();
