@@ -82,7 +82,7 @@ namespace lesfl
       ITOI16,
       ITOI32,
       SFTOF,
-      FTOSF,
+      FTOSF
     };
 
     enum class BuiltinType

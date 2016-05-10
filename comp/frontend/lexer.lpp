@@ -1,0 +1,339 @@
+/****************************************************************************
+ *   Copyright (C) 2016 Łukasz Szpakowski.                                  *
+ *                                                                          *
+ *   This software is licensed under the GNU Lesser General Public          *
+ *   License v3 or later. See the LICENSE file and the GPL file for         *
+ *   the full licensing terms.                                              *
+ ****************************************************************************/
+%{
+#include <cfloat>
+#include <cstdint>
+#include <cstring>
+#include <iomanip>
+#include <sstream>
+#include <string>
+#include "frontend/driver.hpp"
+#include "frontend/lexer.hpp"
+
+#define YY_USER_ACTION         update_loc(*loc, yytext); 
+
+  using namespace lesfl;
+  using namespace lesfl::frontend;
+  using namespace lesfl::frontend::priv;
+
+  static char escape_to_char(const char *escape);
+
+  static bool string_to_int(const char *str, std::int64_t &i, std::int64_t max);
+
+  static bool string_to_float(const char *str, double &f, double max);
+
+  static void update_loc(BisonParser::location_type &loc, const char *str);
+%}
+
+%option c++
+%option yyclass="lesfl::frontend::priv::Lexer"
+%option prefix="LesflFrontendPriv"
+%option stack
+%option noyywrap
+
+INT	        ([1-9][0-9]+)|("0"[0-9]*)|("0"[Xx][0-9A-Fa-f]+)
+FLOAT           ([0-9]+"."[0-9]*([Ee][+\-]?[0-9]+)?)|([0-9]+([Ee][+\-]?[0-9]+)?)
+CONSTR_IDENT    [A-Z][_A-Za-z0-9]*
+VAR_IDENT       [_a-z][_A-Za-z0-9]*
+ESCAPE          "\\"([abtnvfr\"\'\\]|([0-3]?[0-7]{1,2})|("x"[0-9A-Fa-f]{1,2}))
+
+%x IN_COMMENT
+%x IN_CHAR
+%x IN_STRING
+%x AFTER_SYMBOL
+%x AFTER_KEYWORD
+%x IN_PAREN
+
+%%
+
+%{
+  loc->step();
+%}
+
+<IN_COMMENT>{
+  "/*"                          { yy_push_state(IN_COMMENT); }
+  "*/"                          { yy_pop_state(); }
+  .
+}
+
+<IN_CHAR>{
+  "\'"                          {
+    yy_pop_state();
+    if(buffer.length() == 0) throw syntax_error(*loc, "empty character literal");
+    value->c = buffer[0];
+  }
+  [^\n\'\\]                     {
+    if(buffer.length() > 1) throw syntax_error(*loc, "unclosed character literal");
+    buffer += yytext[0];
+  }
+  "\\\n"
+  {ESCAPE}                      {
+    if(buffer.length() > 1) throw syntax_error(*loc, "unclosed character literal");
+    buffer += escape_to_char(yytext);
+  }
+  "\n"                          { throw syntax_error(*loc, "unclosed character literal"); }
+}
+
+<IN_STRING>{
+  "\""                          {
+    yy_pop_state();
+    value->string = new std::string(buffer);
+  }
+  [^\n\'\\]                     { buffer += yytext[0]; }
+  "\\\n"
+  {ESCAPE}                      { buffer += escape_to_char(yytext); }
+  "\n"                          { throw syntax_error(*loc, "unclosed string literal"); }
+}
+
+<INITIAL,AFTER_SYMBOL,AFTER_KEYWORD,IN_PAREN>{
+  "//"[^\n]*
+
+  "/*"                          { yy_push_state(IN_COMMENT); }
+
+  "\'"                          { yy_push_state(IN_CHAR); buffer = std::string(); }
+
+  
+  {INT}"i8"                     {
+    if(!string_to_int(yytext, value->i, INT8_MAX))
+      throw syntax_error(*loc, "integer number is too large");
+    return token::INT8;
+  }
+
+  {INT}"i16"                    {
+    if(!string_to_int(yytext, value->i, INT16_MAX))
+      throw syntax_error(*loc, "integer number is too large");
+    return token::INT16;
+  }
+
+  {INT}"i32"                    {
+    if(!string_to_int(yytext, value->i, INT32_MAX))
+      throw syntax_error(*loc, "integer number is too large");
+    return token::INT32;
+  }
+
+  {INT}"i64"?                   {
+    if(string_to_int(yytext, value->i, INT64_MAX))
+      throw syntax_error(*loc, "integer number is too large");
+    return token::INT64;
+  }
+
+  {FLOAT}"f"                    {
+    if(!string_to_float(yytext, value->f, FLT_MAX))
+      throw syntax_error(*loc, "floating-point number is too large");
+    return token::FLOAT;
+  }
+
+  {FLOAT}"d"?                   {
+    if(!string_to_float(yytext, value->f, DBL_MAX))
+      throw syntax_error(*loc, "floating-point number is too large");
+    return token::DOUBLE;
+  }
+
+  "\""                          { yy_push_state(IN_STRING); buffer = std::string(); }
+
+  "("                           { yy_push_state(IN_PAREN); return '('; }
+
+  ")"                           {
+    int state = yy_top_state();
+    yy_pop_state();
+    if(state == AFTER_SYMBOL) BEGIN(INITIAL);
+    return ')';
+  }
+
+  "["                           { yy_push_state(IN_PAREN); return '['; }
+
+  "]"                           {
+    yy_pop_state();
+    BEGIN(INITIAL);
+    return ']';
+  }
+  
+  '\{'                         { yy_push_state(INITIAL); return '{'; }
+
+  '\}'                         { yy_pop_state(); return '}'; }
+
+  "!"|"#"|"%"|"&"|"*"|"+"|","|"-"|"."|"/"|":"|";"|"<"|"="|">"|"@"|"["|"\\"|"]"|"^"|"_"|"|"|"~" {
+    BEGIN(AFTER_SYMBOL);
+    return yytext[0];
+  }
+
+  "!="                          { BEGIN(AFTER_SYMBOL); return token::EXEQ; }
+
+  "&&"                          { BEGIN(AFTER_SYMBOL); return token::AMPAMP; }
+
+  "->"                          { BEGIN(AFTER_SYMBOL); return token::RARROW; }
+  
+  "::"                          { BEGIN(AFTER_SYMBOL); return token::CLNCLN; }
+
+  "<<"                          { BEGIN(AFTER_SYMBOL); return token::LTLT; }
+
+  "<-"                          { BEGIN(AFTER_SYMBOL); return token::LARROW; }
+
+  "<="                          { BEGIN(AFTER_SYMBOL); return token::LTEQ; }
+
+  "=="                          { BEGIN(AFTER_SYMBOL); return token::EQEQ; }
+
+  ">="                          { BEGIN(AFTER_SYMBOL); return token::LTEQ; }
+
+  ">>"                          { BEGIN(AFTER_SYMBOL); return token::GTGT; }
+
+  ">>>"                         { BEGIN(AFTER_SYMBOL); return token::GTGTGT; }
+
+  "||"                          { BEGIN(AFTER_SYMBOL); return token::BARBAR; }
+
+  "datatype"                    { BEGIN(AFTER_KEYWORD); return token::DATATYPE; }
+
+  "else"                        { BEGIN(AFTER_KEYWORD); return token::ELSE; }
+
+  "extern"                      { BEGIN(AFTER_KEYWORD); return token::EXTERN; }
+
+  "if"                          { BEGIN(AFTER_KEYWORD); return token::IF; }
+
+  "import"                      { BEGIN(AFTER_KEYWORD); return token::IMPORT; }
+
+  "in"                          { BEGIN(AFTER_KEYWORD); return token::IN; }
+
+  "instance"                    { BEGIN(AFTER_KEYWORD); return token::INSTANCE; }
+
+  "let"                         { BEGIN(AFTER_KEYWORD); return token::LET; }
+
+  "match"                       { BEGIN(AFTER_KEYWORD); return token::MATCH; }
+
+  "module"                      { BEGIN(AFTER_KEYWORD); return token::MODULE; }
+
+  "native"                      { BEGIN(AFTER_KEYWORD); return token::NATIVE; }
+
+  "primitive"                   { BEGIN(AFTER_KEYWORD); return token::PRIMITIVE; }
+
+  "private"                     { BEGIN(AFTER_KEYWORD); return token::PRIVATE; }
+
+  "template"                    { BEGIN(AFTER_KEYWORD); return token::TEMPLATE; }
+
+  "throw"                       { BEGIN(AFTER_KEYWORD); return token::THROW; }
+
+  "type"                        { BEGIN(AFTER_KEYWORD); return token::TYPE; }
+
+  "unique"                      { BEGIN(AFTER_KEYWORD); return token::UNIQUE; }
+
+  {CONSTR_IDENT}                {
+    BEGIN(INITIAL);
+    value->string = new std::string(yytext);
+    return token::CONSTR_IDENT;
+  }
+
+  {VAR_IDENT}                   {
+    BEGIN(INITIAL);
+    value->string = new std::string(yytext);
+    return token::VAR_IDENT;
+  }
+  
+  ``[^\n]+``                    {
+    value->string = new std::string(yytext + 2, yytext + std::strlen(yytext) - 4);
+    return token::CONSTR_IDENT;
+  }
+
+  `[^\n]+`                      {
+    value->string = new std::string(yytext + 1, yytext + std::strlen(yytext) - 2);
+    return token::VAR_IDENT;
+  }
+}
+
+[ \t\r]                         { loc->step(); }
+
+"\n"([ \t\r]*"\n")*             { return '\n'; }
+
+<AFTER_SYMBOL,AFTER_KEYWORD,IN_PAREN>{
+  [ \t\n\r]                     { loc->step(); }
+}
+
+.                               { throw syntax_error(*loc, "incorrect character"); }
+
+%%
+
+namespace lesfl
+{
+  namespace frontend
+  {
+    namespace priv
+    {
+      void Lexer::set_state_for_name_fields()
+      { BEGIN(IN_PAREN); }
+    }
+  }
+}
+
+static char escape_to_char(const char *escape)
+{
+  switch(escape[1]) {
+    case 'a':
+      return '\a';
+    case 'b':
+      return '\b';
+    case 't':
+      return '\t';
+    case 'n':
+      return '\n';
+    case 'v':
+      return '\v';
+    case 'f':
+      return '\f';
+    case 'r':
+      return '\r';
+    default:
+      if(escape[1] >= '0' && escape[1] <= '7') {
+        std::istringstream iss(escape + 1);
+        int i;
+        iss >> std::oct >> i;
+        return i;
+      } else if((escape[1] == 'X' || escape[1] == 'x') && std::strlen(escape) >= 3) {
+        std::istringstream iss(escape + 2);
+        int i;
+        iss >> std::hex >> i;
+        return i;
+      } else
+        return escape[1];
+  }
+}
+
+static bool string_to_int(const char *str, std::int64_t &i, std::int64_t max)
+{
+  if(str[0] == '0') {
+    if(str[1] == 'X' || str[1] == 'x') {
+      std::istringstream iss(str + 2);
+      iss >> std::hex >> i;
+      if(iss.fail()) return false;
+    } else {
+      std::istringstream iss(str);
+      iss >> std::oct >> i;
+      if(iss.fail()) return false;
+    }
+  } else {
+    std::istringstream iss(str);
+    iss >> std::hex >> i;
+    if(iss.fail()) return false;
+  }
+  if(i > max) return false;
+  return true;
+}
+
+static bool string_to_float(const char *str, double &f, double max)
+{
+  std::istringstream iss(str);
+  iss >> f;
+  return !iss.fail() && f <= max;
+}
+
+static void update_loc(BisonParser::location_type &loc, const char *str)
+{
+  for(std::size_t i = 0; str[i] != 0; i++) {
+    if(str[i] == '\n')
+      loc.lines();
+    else
+      loc.columns();
+  }
+}

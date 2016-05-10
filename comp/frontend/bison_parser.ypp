@@ -1,0 +1,1282 @@
+/****************************************************************************
+ *   Copyright (C) 2016 Łukasz Szpakowski.                                  *
+ *                                                                          *
+ *   This software is licensed under the GNU Lesser General Public          *
+ *   License v3 or later. See the LICENSE file and the GPL file for         *
+ *   the full licensing terms.                                              *
+ ****************************************************************************/
+%skeleton "glr.cc"
+%defines
+%define namespace "lesfl::frontend::priv"
+%define parser_class_name "BisonParser"
+
+%code requires {
+#include <unordered_map>
+#include <utility>
+#include <lesfl/frontend/tree.hpp>
+#include "frontend/driver.hpp"
+
+#define P(loc)          loc_to_pos(loc, driver)
+
+  namespace lesfl
+  {
+    namespace frontend
+    {
+      namespace priv
+      {
+        class Lexer;
+      }
+    }
+  }
+}
+
+%lex-param { lesfl::frontend::priv::Driver &driver }
+%lex-param { lesfl::frontend::priv::Lexer &lexer }
+
+%parse-param { lesfl::frontend::priv::Driver &driver }
+%parse-param { lesfl::frontend::priv::Lexer &lexer }
+
+%code
+{
+  using namespace lesfl;
+  using namespace lesfl::frontend;
+  using namespace lesfl::frontend::priv;  
+
+#define yyparse         lesfl_frontend_priv_parse
+
+  static int yylex(BisonParser::semantic_type *value, BisonParser::location_type *loc, Driver &driver, Lexer &lexer);
+
+  static Position loc_to_pos(const BisonParser::location_type &loc, Driver &driver);
+
+  static void set_state_for_name_fields(Lexer &lexer);
+
+  static bool string_to_builtin_fun(const std::string &str, BuiltinFunction &builtin_fun);
+
+  static std::tuple<std::string, std::list<std::unique_ptr<Argument>> *, Position> *make_ident_and_args(const std::string &ident, std::list<std::unique_ptr<Argument>> *args, const Position &pos);
+  
+  static Expression *make_if(Expression *expr1, Expression *expr2, Expression *expr3, const Position &pos);
+
+  static Expression *make_unary_op_expr(const std::string &ident, Expression *expr, const Position &pos);
+
+  static Expression *make_binary_op_expr(Expression *expr1, const std::string &ident, Expression *expr2, const Position & pos, const Position &ident_pos);
+
+  static Pattern *make_binary_op_pattern(Pattern *pattern1, const std::string &ident, Pattern *pattern2, const Position &pos);
+  
+  static Value *make_binary_op_value(Value *value1, const std::string &ident, Value *value2, const Position &pos);
+
+  static FunctionConstructor *make_binary_op_fun_constr(const std::list<std::unique_ptr<Annotation>> *annotations, TypeExpression *type1, const std::string &ident, TypeExpression *type2, const Position &pos);
+
+  template<typename _T>
+  static inline std::list<std::unique_ptr<_T>> *make_unique_ptr_list();
+
+  template<typename _T>
+  static inline std::list<std::unique_ptr<_T>> *make_unique_ptr_list(_T *x);
+
+  template<typename _T>
+  static inline std::list<std::unique_ptr<_T>> *make_unique_ptr_list(_T *x1, _T *x2);
+
+  template<typename _T>
+  static inline void add_unique_ptr_list_elem(std::list<std::unique_ptr<_T>> *xs, _T *x);
+
+  template<typename _T>
+  static inline std::list<std::shared_ptr<_T>> *make_shared_ptr_list();
+
+  template<typename _T>
+  static inline std::list<std::shared_ptr<_T>> *make_shared_ptr_list(_T *x);
+  
+  template<typename _T>
+  static inline void add_shared_ptr_list_elem(std::list<std::shared_ptr<_T>> *xs, _T *x);
+}
+
+%locations
+
+%union {
+  char c;
+  std::int64_t i;
+  double f;
+  std::string *string;
+  BuiltinFunction builtin_fun;
+  AccessModifier access_modifier;
+  FunctionModifier fun_modifier;
+  Identifier *ident;
+  Definition *def;
+  Argument *arg;
+  Annotation *annotation;
+  Expression *expr;
+  ExpressionNamedFieldPair *expr_named_field_pair;
+  Binding *bind;
+  TupleBindingVariable *tuple_bind_var;
+  Case *caze;
+  Pattern *pattern;
+  PatternNamedFieldPair *pattern_named_field_pair;
+  LiteralValue *literal_value;
+  NonUniqueLiteralValue *non_unique_literal_value;
+  SimpleLiteralValue *simple_literal_value;
+  Value *value;
+  ValueNamedFieldPair *value_named_field_pair;
+  Datatype *datatype;
+  Constructor *constr;
+  FunctionConstructor *fun_constr;
+  TypeArgument *type_arg;
+  TypeParameter *type_param;
+  TypeNamedFieldPair *type_named_field_pair;
+  TypeExpression *type_expr;
+  std::pair<AccessModifier, FunctionModifier> *modifiers;
+  std::tuple<std::string, std::list<std::unique_ptr<Argument>> *, Position> *ident_and_args;
+  std::list<std::unique_ptr<Definition>> *defs;
+  std::list<std::unique_ptr<Argument>> *args;
+  std::list<std::unique_ptr<Annotation>> *annotations;
+  std::list<std::unique_ptr<Expression>> *exprs;
+  std::list<std::unique_ptr<ExpressionNamedFieldPair>> *expr_named_field_pairs;
+  std::list<std::unique_ptr<Binding>> *binds;
+  std::list<std::unique_ptr<TupleBindingVariable>> *tuple_bind_vars;
+  std::list<std::unique_ptr<Case>> *cases;
+  std::list<std::unique_ptr<Pattern>> *patterns;
+  std::list<std::unique_ptr<PatternNamedFieldPair>> *pattern_named_field_pairs;
+  std::list<std::unique_ptr<Value>> *values;
+  std::list<std::unique_ptr<ValueNamedFieldPair>> *value_named_field_pairs;
+  std::list<std::shared_ptr<Constructor>> *constrs;
+  std::list<std::shared_ptr<FunctionConstructor>> *fun_constrs;
+  std::list<std::unique_ptr<TypeArgument>> *type_args;
+  std::list<std::unique_ptr<TypeParameter>> *type_params;
+  std::list<std::unique_ptr<TypeNamedFieldPair>> *type_named_field_pairs;
+  std::list<std::unique_ptr<TypeExpression>> *type_exprs;
+}
+
+%token                  END              0
+%token <c>              CHAR
+%token <i>              INT8
+%token <i>              INT16
+%token <i>              INT32
+%token <i>              INT64
+%token <f>              FLOAT
+%token <f>              DOUBLE
+%token <string>         STRING
+%token <string>         CONSTR_IDENT
+%token <string>         VAR_IDENT
+%token                  EXEQ            "!="
+%token                  AMPAMP          "&&"
+%token                  RARROW          "->"
+%token                  CLNCLN          "::"
+%token                  LTLT            "<<"
+%token                  LARROW          "<-"
+%token                  LTEQ            "<="
+%token                  EQEQ            "=="
+%token                  GTEQ            ">="
+%token                  GTGT            ">>"
+%token                  GTGTGT          ">>>"
+%token                  BARBAR          "||"
+%token                  DATATYPE        "datatype"
+%token                  ELSE            "else"
+%token                  EXTERN          "extern"
+%token                  IF              "if"
+%token                  IMPORT          "import"
+%token                  IN              "in"
+%token                  INSTANCE        "instance"
+%token                  LET             "let"
+%token                  MATCH           "match"
+%token                  MODULE          "module"
+%token                  NATIVE          "native"
+%token                  PRIMITIVE       "primitive"
+%token                  PRIVATE         "private"
+%token                  TEMPLATE        "template"
+%token                  THROW           "throw"
+%token                  TYPE            "type"
+%token                  UNIQUE          "unique"
+
+%destructor { if($$ != nullptr) delete $$; } <string>
+%destructor { if($$ != nullptr) delete $$; } <ident>
+%destructor { if($$ != nullptr) delete $$; } <modifiers>
+%destructor { if($$ != nullptr) delete $$; } <ident_and_args>
+%destructor { if($$ != nullptr) delete $$; } <def>
+%destructor { if($$ != nullptr) delete $$; } <arg>
+%destructor { if($$ != nullptr) delete $$; } <annotation>
+%destructor { if($$ != nullptr) delete $$; } <expr>
+%destructor { if($$ != nullptr) delete $$; } <expr_named_field_pair>
+%destructor { if($$ != nullptr) delete $$; } <bind>
+%destructor { if($$ != nullptr) delete $$; } <tuple_bind_var>
+%destructor { if($$ != nullptr) delete $$; } <caze>
+%destructor { if($$ != nullptr) delete $$; } <pattern>
+%destructor { if($$ != nullptr) delete $$; } <pattern_named_field_pair>
+%destructor { if($$ != nullptr) delete $$; } <literal_value>
+%destructor { if($$ != nullptr) delete $$; } <non_unique_literal_value>
+%destructor { if($$ != nullptr) delete $$; } <simple_literal_value>
+%destructor { if($$ != nullptr) delete $$; } <value>
+%destructor { if($$ != nullptr) delete $$; } <value_named_field_pair>
+%destructor { if($$ != nullptr) delete $$; } <constr>
+%destructor { if($$ != nullptr) delete $$; } <fun_constr>
+%destructor { if($$ != nullptr) delete $$; } <type_arg>
+%destructor { if($$ != nullptr) delete $$; } <type_param>
+%destructor { if($$ != nullptr) delete $$; } <type_named_field_pair>
+%destructor { if($$ != nullptr) delete $$; } <type_expr>
+%destructor { if($$ != nullptr) delete $$; } <args>
+%destructor { if($$ != nullptr) delete $$; } <annotations>
+%destructor { if($$ != nullptr) delete $$; } <exprs>
+%destructor { if($$ != nullptr) delete $$; } <expr_named_field_pairs>
+%destructor { if($$ != nullptr) delete $$; } <binds>
+%destructor { if($$ != nullptr) delete $$; } <tuple_bind_vars>
+%destructor { if($$ != nullptr) delete $$; } <cases>
+%destructor { if($$ != nullptr) delete $$; } <patterns>
+%destructor { if($$ != nullptr) delete $$; } <pattern_named_field_pairs>
+%destructor { if($$ != nullptr) delete $$; } <values>
+%destructor { if($$ != nullptr) delete $$; } <value_named_field_pairs>
+%destructor { if($$ != nullptr) delete $$; } <constrs>
+%destructor { if($$ != nullptr) delete $$; } <fun_constrs>
+%destructor { if($$ != nullptr) delete $$; } <type_args>
+%destructor { if($$ != nullptr) delete $$; } <type_params>
+%destructor { if($$ != nullptr) delete $$; } <type_exprs>
+
+%type <builtin_fun>     builtin_fun
+%type <modifiers>       modifiers
+%type <access_modifier> access_modifier
+%type <fun_modifier>    fun_modifier
+%type <ident>           qident
+%type <ident>           rel_qident
+%type <ident>           abs_qident
+%type <ident>           constr_qident
+%type <ident>           module_qident
+%type <string>          ident
+%type <string>          bin_op
+%type <string>          bin_op1
+%type <string>          bin_op2
+%type <string>          bin_op3
+%type <string>          bin_op4
+%type <string>          bin_op5
+%type <string>          bin_op6
+%type <string>          bin_op7
+%type <string>          bin_op8
+%type <string>          bin_op9
+%type <string>          unary_op
+%type <string>          constr_bin_op
+%type <defs>            one_or_more_defs
+%type <def>             def
+%type <ident_and_args>  ident_and_args
+%type <ident_and_args>  ident_and_typed_args
+%type <type_params>     template
+%type <args>            args
+%type <arg>             arg
+%type <args>            one_or_more_args
+%type <args>            typed_args
+%type <args>            one_or_more_typed_args
+%type <arg>             typed_arg
+%type <arg>             op_arg
+%type <arg>             op_typed_arg
+%type <annotations>     annotations
+%type <annotations>     one_or_more_annotations
+%type <annotation>      annotation
+%type <expr>            expr
+%type <expr>            expr2
+%type <expr>            expr3
+%type <expr>            expr4
+%type <expr>            expr5
+%type <expr>            expr6
+%type <expr>            expr7
+%type <expr>            expr8
+%type <expr>            expr9
+%type <expr>            expr10
+%type <expr>            expr11
+%type <expr>            expr12
+%type <expr>            expr13
+%type <expr>            expr14
+%type <expr>            expr15
+%type <ident>           constr_qident_and_lbrace
+%type <exprs>           exprs
+%type <exprs>           one_or_more_exprs
+%type <exprs>           tuple_exprs
+%type <exprs>           two_or_more_exprs
+%type <expr_named_field_pairs> one_or_more_expr_named_field_pairs
+%type <expr_named_field_pair> expr_named_field_pair
+%type <binds>           one_or_more_binds
+%type <bind>            bind
+%type <tuple_bind_vars> opt_tuple_bind_vars
+%type <tuple_bind_var>  opt_tuple_bind_var
+%type <cases>           one_or_more_cases
+%type <caze>            caze
+%type <pattern>         pattern
+%type <pattern>         pattern2
+%type <pattern>         pattern3
+%type <patterns>        patterns
+%type <patterns>        one_or_more_patterns
+%type <patterns>        tuple_patterns
+%type <patterns>        two_or_more_patterns
+%type <pattern_named_field_pairs> one_or_more_pattern_named_field_pairs
+%type <pattern_named_field_pair> pattern_named_field_pair
+%type <non_unique_literal_value> literal
+%type <literal_value>   unique_literal
+%type <simple_literal_value> simple_literal
+%type <simple_literal_value> neg_simple_literal
+%type <value>           value
+%type <value>           value2
+%type <value>           value3
+%type <values>          values
+%type <values>          one_or_more_values
+%type <values>          tuple_values
+%type <values>          two_or_more_values
+%type <value_named_field_pairs> one_or_more_value_named_field_pairs
+%type <value_named_field_pair> value_named_field_pair
+%type <constrs>         constrs
+%type <constrs>         one_or_more_constrs
+%type <constr>          constr
+%type <fun_constrs>     fun_constrs
+%type <fun_constrs>     one_or_more_fun_constrs
+%type <fun_constr>      fun_constr
+%type <string>          ident_and_lbrace
+%type <type_args>       one_or_more_type_args
+%type <type_arg>        type_arg
+%type <type_params>     type_params
+%type <type_params>     one_or_more_type_params
+%type <type_param>      type_param
+%type <type_named_field_pairs> one_or_more_type_named_field_pairs
+%type <type_named_field_pair> type_named_field_pair
+%type <type_expr>       type_expr
+%type <type_expr>       type_expr2
+%type <type_exprs>      type_exprs
+%type <type_exprs>      one_or_more_type_exprs
+%type <type_exprs>      tuple_type_exprs
+%type <type_exprs>      two_or_more_type_exprs
+%type <type_expr>       opt_typing
+%type <type_expr>       typing
+
+%glr-parser
+
+%%
+
+input:          onl                             { driver.add_defs(make_unique_ptr_list<Definition>()); }
+|               onl one_or_more_defs onl        { driver.add_defs($2); }
+;
+
+builtin_fun:    '#' ident                       {
+  BuiltinFunction builtin_fun;
+  if(string_to_builtin_fun(*$2, builtin_fun)) {
+    yyparser.error(@2, "incorrect built-in function");
+    delete $2;
+    YYERROR;
+  } else {
+    $$ = builtin_fun;
+    delete $2;
+  }
+}
+;
+
+modifiers:      access_modifier fun_modifier    {
+  $$ = new std::pair<AccessModifier, FunctionModifier>($1, $2);
+}
+|               fun_modifier access_modifier    {
+  $$ = new std::pair<AccessModifier, FunctionModifier>($2, $1);
+}
+;
+
+access_modifier: /* empty */                    { $$ = AccessModifier::NONE; }
+|               "private"                       { $$ = AccessModifier::PRIVATE; }
+;
+
+fun_modifier:   /* empty */                     { $$ = FunctionModifier::NONE; }
+|               "primitive"                     { $$ = FunctionModifier::PRIMITIVE; }
+;
+
+qident:         abs_qident
+|               rel_qident
+;
+
+abs_qident:     abs_qident '.' ident            { $1->idents().push_back(*$3); $$ = $1; delete $3; }
+|               '.' ident                       { $$ = new AbsoluteIdentifier(*$2); delete $2; }
+;
+
+rel_qident:     rel_qident '.' ident            { $1->idents().push_back(*$3); $$ = $1; delete $3; }
+|               ident                           { $$ = new RelativeIdentifier(*$1); delete $1; }
+;
+
+constr_qident:  qident '.' CONSTR_IDENT         { $1->idents().push_back(*$3); $$ = $1; delete $3; }
+|               CONSTR_IDENT                    { $$ = new RelativeIdentifier(*$1); delete $1; }
+|               '.' CONSTR_IDENT                { $$ = new RelativeIdentifier(*$2); delete $2; }
+;
+
+module_qident:  qident
+|               '.'                             { $$ = new AbsoluteIdentifier(); }
+;
+
+ident:          CONSTR_IDENT
+|               VAR_IDENT
+;
+
+bin_op:         bin_op1
+|               bin_op2
+|               bin_op3
+|               bin_op4
+|               bin_op5
+|               bin_op6
+|               bin_op7
+|               bin_op8
+|               bin_op9
+;
+
+bin_op1:        "&&"                            { $$ = new std::string("&&"); }
+|               "||"                            { $$ = new std::string("||"); }
+;
+
+bin_op2:        "=="                            { $$ = new std::string("=="); }
+|               "!="                            { $$ = new std::string("!="); }
+|               '<'                             { $$ = new std::string("<"); }
+|               ">="                            { $$ = new std::string(">="); }
+|               '>'                             { $$ = new std::string(">"); }
+|               "<="                            { $$ = new std::string("<="); }
+;
+
+bin_op3:        '|'                             { $$ = new std::string("|"); }
+;
+
+bin_op4:        '^'                             { $$ = new std::string("^"); }
+;
+
+bin_op5:        '&'                             { $$ = new std::string("&"); }
+;
+
+bin_op6:        "<<"                            { $$ = new std::string("<<"); }
+|               ">>"                            { $$ = new std::string(">>"); }
+|               ">>>"                           { $$ = new std::string(">>>"); }
+;
+
+bin_op7:        "::"                            { $$ = new std::string("::"); }
+;
+
+bin_op8:        '+'                             { $$ = new std::string("+"); }
+|               '-'                             { $$ = new std::string("-"); }
+;
+
+bin_op9:        '*'                             { $$ = new std::string("*"); }
+|               '/'                             { $$ = new std::string("-"); }
+;
+
+unary_op:       '-'                             { $$ = new std::string("unary_-"); }
+|               '~'                             { $$ = new std::string("unary_~"); }
+|               '!'                             { $$ = new std::string("unary_!"); }
+;
+
+constr_bin_op:  "::"                            { $$ = new std::string("::"); }
+;
+
+one_or_more_defs: one_or_more_defs semi def     { add_unique_ptr_list_elem($1, $3); $$ = $1; }
+|               def                             { $$ = make_unique_ptr_list($1); }
+;
+
+def:            "import" qident {
+  $$ = new Import($2, P(@2));
+}
+|               "module" module_qident '{' onl one_or_more_defs onl '}' {
+  $$ = new ModuleDefinition($2, $5, P(@2));
+}
+|               access_modifier ident opt_typing '=' value {
+  $$ = new VariableDefinition($1, *$2, new UserDefinedVariable($3, $5), P(@2));
+  delete $2;
+}
+|               access_modifier "extern" ident opt_typing '=' ident {
+  $$ = new VariableDefinition($1, *$3, new ExternalVariable($4, *$6), P(@3));
+  delete $3; delete $6;
+}
+|               access_modifier ident opt_typing '=' qident {
+  $$ = new VariableDefinition($1, *$2, new AliasVariable($3, $5), P(@2));
+  delete $2;
+}
+|               template access_modifier ident opt_typing '=' value {
+  $$ = new VariableDefinition($2, *$3, new UserDefinedVariable($1, $4, $6), P(@3));
+  delete $3;
+}
+|               template access_modifier ident typing {
+  $$ = new VariableDefinition($2, *$3, new UserDefinedVariable($1, $4), P(@3));
+  delete $3;
+}
+|               template access_modifier ident opt_typing '=' qident {
+  $$ = new VariableDefinition($2, *$3, new AliasVariable($1, $4, $6), P(@3));
+  delete $3;
+}
+|               "instance" ident opt_typing '=' value {
+  $$ = new VariableInstanceDefinition(*$2, new VariableInstance(new UserDefinedVariable($3, $5)), P(@2));
+  delete $2;
+}
+|               "instance" "extern" ident typing '=' ident {
+  $$ = new VariableInstanceDefinition(*$3, new VariableInstance(new ExternalVariable($4, *$6)), P(@3));
+  delete $3; delete $6;
+}
+|               "template" "instance" ident opt_typing '=' value {
+  $$ = new VariableInstanceDefinition(*$3, new VariableInstance(new UserDefinedVariable(make_unique_ptr_list<TypeParameter>(), $4, $6)), P(@3));
+  delete $3;
+}
+|               annotations modifiers ident_and_args opt_typing '=' expr {
+  $$ = new FunctionDefinition($2->first, std::get<0>(*$3), new UserDefinedFunction($1, $2->second, std::get<1>(*$3), $4, $6), std::get<2>(*$3));
+  delete $2;
+  delete $3;
+}
+|               modifiers "extern" ident_and_typed_args typing '=' ident {
+  $$ = new FunctionDefinition($1->first, std::get<0>(*$3), new ExternalFunction($1->second, std::get<1>(*$3), $4, *$6), std::get<2>(*$3));
+  delete $1;
+  delete $3;
+  delete $6;
+}
+|               annotations modifiers "native" ident_and_typed_args typing '=' ident {
+  $$ = new FunctionDefinition($2->first, std::get<0>(*$4), new NativeFunction($1, $2->second, std::get<1>(*$4), $5, *$7), std::get<2>(*$4));
+  delete $2;
+  delete $4;
+  delete $7;
+}
+|               template annotations modifiers ident_and_args opt_typing '=' expr {
+  $$ = new FunctionDefinition($3->first, std::get<0>(*$4), new UserDefinedFunction($1, $2, $3->second, std::get<1>(*$4), $5, $7), std::get<2>(*$4));
+  delete $3;
+  delete $4;
+}
+|               template modifiers ident_and_typed_args typing {
+  $$ = new FunctionDefinition($2->first, std::get<0>(*$3), new UserDefinedFunction($1, $2->second, std::get<1>(*$3), $4), std::get<2>(*$3));
+  delete $2;
+  delete $3;
+}
+|               "instance" annotations fun_modifier ident_and_args opt_typing '=' expr {
+  $$ = new FunctionInstanceDefinition(std::get<0>(*$4), new FunctionInstance(new UserDefinedFunction($2, $3, std::get<1>(*$4), $5, $7)), std::get<2>(*$4));
+  delete $4;
+}
+|               "instance" fun_modifier "extern" ident_and_typed_args typing '=' ident {
+  $$ = new FunctionInstanceDefinition(std::get<0>(*$4),  new FunctionInstance(new ExternalFunction($2, std::get<1>(*$4), $5, *$7)), std::get<2>(*$4));
+  delete $4;
+  delete $7;
+}
+|               "instance" annotations fun_modifier "native" ident_and_typed_args typing '=' ident {
+  $$ = new FunctionInstanceDefinition(std::get<0>(*$5), new FunctionInstance(new NativeFunction($2, $3, std::get<1>(*$5), $6, *$8)), std::get<2>(*$5));
+  delete $5;
+  delete $8;
+}
+|               "template" "instance" annotations fun_modifier ident_and_args opt_typing '=' expr {
+  $$ = new FunctionInstanceDefinition(std::get<0>(*$5),  new FunctionInstance(new UserDefinedFunction($3, $4, std::get<1>(*$5), $6, $8)), std::get<2>(*$5));
+  delete $5;
+}
+|               access_modifier "type" ident '=' type_expr {
+  $$ = new TypeVariableDefinition($1, *$3, new TypeSynonymVariable($5), P(@3));
+  delete $3;
+}
+|               access_modifier "datatype" ident '=' constrs {
+  $$ = new TypeVariableDefinition($1, *$3, new DatatypeVariable(new NonUniqueDatatype($5)), P(@3));
+  delete $3;
+}
+|               access_modifier "unique" "datatype" ident '=' fun_constrs {
+  $$ = new TypeVariableDefinition($1, *$4, new DatatypeVariable(new UniqueDatatype($6)), P(@4));
+  delete $4;
+}
+|               access_modifier "datatype" ident {
+  $$ = new TypeVariableDefinition($1, *$3, new DatatypeVariable(new NonUniqueDatatype(new std::list<std::shared_ptr<Constructor>>())), P(@3));
+  delete $3;
+}
+|               access_modifier "unique" "datatype" ident {
+  $$ = new TypeVariableDefinition($1, *$4, new DatatypeVariable(new UniqueDatatype(new std::list<std::shared_ptr<FunctionConstructor>>())), P(@4));
+  delete $4;
+}
+|               template access_modifier "type" ident '(' one_or_more_type_args ')' '=' type_expr {
+  $$ = new TypeFunctionDefinition($2, *$4, new TypeSynonymFunction($1, $6, $9), P(@4));
+  delete $4;
+}
+|               template access_modifier "type" ident '(' one_or_more_type_args ')' {
+  $$ = new TypeFunctionDefinition($2, *$4, new TypeSynonymFunction($1, $6), P(@4));
+  delete $4;
+}
+|               template access_modifier "datatype" ident '(' one_or_more_type_args ')' '=' constrs {
+  $$ = new TypeFunctionDefinition($2, *$4, new DatatypeFunction($1, $6, new NonUniqueDatatype($9)), P(@4));
+  delete $4;
+}
+|               template access_modifier "unique" "datatype" ident '(' one_or_more_type_args ')' '=' fun_constrs {
+  $$ = new TypeFunctionDefinition($2, *$5, new DatatypeFunction($1, $7, new UniqueDatatype($10)), P(@5));
+  delete $5;
+}
+|               template access_modifier "datatype" ident '(' one_or_more_type_args ')' {
+  $$ = new TypeFunctionDefinition($2, *$4, new DatatypeFunction($1, $6, new NonUniqueDatatype(new std::list<std::shared_ptr<Constructor>>())), P(@4));
+  delete $4;
+}
+|               template access_modifier "unique" "datatype" ident '(' one_or_more_type_args ')' {
+  $$ = new TypeFunctionDefinition($2, *$5, new DatatypeFunction($1, $7, new UniqueDatatype(new std::list<std::shared_ptr<FunctionConstructor>>())), P(@5));
+  delete $5;
+}
+|               "instance" "type" ident '(' one_or_more_type_exprs ')' '=' type_expr {
+  $$ = new TypeFunctionInstanceDefinition(*$3, new TypeSynonymFunctionInstance(false, $5, $8), P(@4));
+  delete $3;
+}
+|               "instance" "datatype" ident '(' one_or_more_type_exprs ')' '=' constrs {
+  $$ = new TypeFunctionInstanceDefinition(*$3, new DatatypeFunctionInstance(false, $5, new NonUniqueDatatype($8)), P(@3));
+  delete $3;
+}
+|               "instance" "unique" "datatype" ident '(' one_or_more_type_exprs ')' '=' fun_constrs {
+  $$ = new TypeFunctionInstanceDefinition(*$4, new DatatypeFunctionInstance(false, $6, new UniqueDatatype($9)), P(@4));
+  delete $4;
+}
+|               "instance" "datatype" ident '(' one_or_more_type_exprs ')' {
+  $$ = new TypeFunctionInstanceDefinition(*$3, new DatatypeFunctionInstance(false, $5, new NonUniqueDatatype(new std::list<std::shared_ptr<Constructor>>())), P(@3));
+  delete $3;
+}
+|               "instance" "unique" "datatype" ident '(' one_or_more_type_exprs ')' {
+  $$ = new TypeFunctionInstanceDefinition(*$4, new DatatypeFunctionInstance(false, $6, new UniqueDatatype(new std::list<std::shared_ptr<FunctionConstructor>>())), P(@4));
+  delete $4;
+}
+|               "template" "instance" "type" ident '(' one_or_more_type_exprs ')' '=' type_expr {
+  $$ = new TypeFunctionInstanceDefinition(*$4, new TypeSynonymFunctionInstance(true, $6, $9), P(@4));
+  delete $4;
+}
+|               "template" "instance" "datatype" ident '(' one_or_more_type_exprs ')' '=' constrs {
+  $$ = new TypeFunctionInstanceDefinition(*$4, new DatatypeFunctionInstance(true, $6, new NonUniqueDatatype($9)), P(@4));
+  delete $4;
+}
+|               "template" "instance" "unique" "datatype" ident '(' one_or_more_type_exprs ')' '=' fun_constrs {
+  $$ = new TypeFunctionInstanceDefinition(*$5, new DatatypeFunctionInstance(true, $7, new UniqueDatatype($10)), P(@5));
+  delete $5;
+}
+|               "template" "instance" "datatype" ident '(' one_or_more_type_exprs ')' {
+  $$ = new TypeFunctionInstanceDefinition(*$4, new DatatypeFunctionInstance(true, $6, new NonUniqueDatatype(new std::list<std::shared_ptr<Constructor>>())), P(@4));
+  delete $4;
+}
+|               "template" "instance" "unique" "datatype" ident '(' one_or_more_type_exprs ')' {
+  $$ = new TypeFunctionInstanceDefinition(*$5, new DatatypeFunctionInstance(true, $7, new UniqueDatatype(new std::list<std::shared_ptr<FunctionConstructor>>())), P(@5));
+  delete $5;
+}
+;
+
+ident_and_args: ident '(' args ')'              { $$ = make_ident_and_args(*$1, $3, P(@1)); delete $1; }
+|               op_arg bin_op op_arg            { $$ = make_ident_and_args(*$2, make_unique_ptr_list($1, $3), P(@2)); delete $2; }
+|               unary_op op_arg                 { $$ = make_ident_and_args(*$1, make_unique_ptr_list($2), P(@1)); delete $1; }
+;
+
+ident_and_typed_args:
+                ident '(' typed_args ')'        { $$ = make_ident_and_args(*$1, $3, P(@1)); delete $1; }
+|               op_typed_arg bin_op op_typed_arg { $$ = make_ident_and_args(*$2, make_unique_ptr_list($1, $3), P(@2)); delete $2; }
+|               unary_op op_typed_arg           { $$ = make_ident_and_args(*$1, make_unique_ptr_list($2), P(@1)); delete $1; }
+;
+
+template:       "template"                      { $$ = make_unique_ptr_list<TypeParameter>(); }
+|               "template" '(' type_params ')'  { $$ = $3; }
+;
+
+args:           /* empty */                     { $$ = make_unique_ptr_list<Argument>(); }
+|               one_or_more_args
+;
+
+one_or_more_args: one_or_more_args ',' arg      { add_unique_ptr_list_elem($1, $3); $$ = $1; }
+|               arg                             { $$ = make_unique_ptr_list($1); }
+;
+
+arg:            typed_arg
+|               ident                           { $$ = new Argument(*$1, P(@1)); delete $1; }
+;
+
+typed_args:     /* empty */                     { $$ = make_unique_ptr_list<Argument>(); }
+|               one_or_more_typed_args
+;
+
+one_or_more_typed_args:
+                one_or_more_typed_args ',' typed_arg { add_unique_ptr_list_elem($1, $3); $$ = $1; }
+|               typed_arg                       { $$ = make_unique_ptr_list($1); }
+;
+
+typed_arg:      ident ':' type_expr             { $$ = new Argument(*$1, $3, P(@1)); delete $1; }
+;
+
+op_arg:         ident                           { $$ = new Argument(*$1, P(@1)); delete $1; }
+|               op_typed_arg
+;
+
+op_typed_arg:   '(' ident ':' type_expr ')'     { $$ = new Argument(*$2, $4, P(@2)); delete $2; }
+;
+
+annotations:    /* empty */                     { $$ = make_unique_ptr_list<Annotation>(); }
+|               one_or_more_annotations
+;
+
+one_or_more_annotations:
+                one_or_more_annotations ',' annotation { add_unique_ptr_list_elem($1, $3); $$ = $1; }
+|               annotation                      { $$ = make_unique_ptr_list($1); }
+;
+
+annotation:     '@' ident                       { $$ = new Annotation(*$2, P(@2)); delete $2; }
+;
+
+expr:           "if" '(' expr ')' expr "else" expr { $$ = make_if($3, $5, $7, P(@1)); } 
+|               "let" one_or_more_binds "in" expr { $$ = new Let($2, $4, P(@1)); }
+|               expr2 "match" '{' one_or_more_cases '}' { $$ = new Match($1, $4, P(@1)); }
+|               "throw" expr2                   { $$ = new Throw($2, P(@1)); }
+|               expr2
+;
+
+expr2:          expr3 ':' type_expr             { $$ = new TypedExpression($1, $3, P(@1)); }
+|               expr3
+;
+
+expr3:          expr3 bin_op1 expr4             { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
+|               expr4
+;
+
+expr4:          expr4 bin_op2 expr5             { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
+|               expr5
+;
+
+expr5:          expr5 bin_op3 expr6             { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
+|               expr6
+;
+
+expr6:          expr6 bin_op4 expr7             { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
+|               expr7
+;
+
+expr7:          expr7 bin_op5 expr8             { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
+|               expr8
+;
+
+expr8:          expr8 bin_op6 expr9             { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
+|               expr9
+;
+
+expr9:          expr10 bin_op7 expr9            { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
+|               expr10
+;
+
+expr10:         expr10 bin_op8 expr11           { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
+|               expr11
+;
+
+expr11:         expr11 bin_op9 expr12           { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
+|               expr12
+;
+
+expr12:         unary_op expr12                 { $$ = make_unary_op_expr(*$1, $2, P(@1)); delete $1; }
+|               expr13
+;
+
+expr13:         expr13 '.' INT64                { $$ = new Field($1, $3, P(@1)); }
+|               expr13 "unique" '.' INT64       { $$ = new UniqueField($1, $4, P(@1)); }
+|               expr13 "unique" '.' INT64 "<-" expr14 { $$ = new SetUniqueField($1, $4, $6, P(@1)); }
+|               expr13 '.' ident %dprec 1       { $$ = new NamedField($1, *$3, P(@1)); delete $3; }
+|               expr13 "unique" '.' ident       { $$ = new UniqueNamedField($1, *$4, P(@1)); delete $4; }
+|               expr13 "unique" '.' ident "<-" expr14 { $$ = new SetUniqueNamedField($1, *$4, $6, P(@1)); delete $4; }
+|               expr14 %dprec 2
+;
+
+expr14:         expr14 fun_modifier '(' exprs ')' { $$ = new NonUniqueApplication($1, $2, $4, P(@1)); }
+|               expr14 "unique" '(' exprs ')'   { $$ = new UniqueApplication($1, $4, P(@1)); }
+|               builtin_fun '(' exprs ')'       { $$ = new BuiltinApplication($1, $3, P(@1)); }
+|               expr15
+;
+
+expr15:         literal                         { $$ = new Literal($1, P(@1)); }
+|               unique_literal                  { $$ = new Literal($1, P(@1)); }
+|               qident                          { $$ = new VariableExpression($1, P(@1)); }
+|               '[' exprs ']'                   { $$ = new List($2, P(@1)); }
+|               '#' '[' exprs ']'               { $$ = new NonUniqueArray($3, P(@1)); }
+|               "unique" '#' '[' exprs ']'      { $$ = new UniqueArray($4, P(@1)); }
+|               '(' tuple_exprs ')'             { $$ = new NonUniqueTuple($2, P(@1)); }
+|               "unique" '(' tuple_exprs ')'    { $$ = new UniqueTuple($3, P(@1)); }
+|               constr_qident_and_lbrace one_or_more_expr_named_field_pairs '}' {
+  $$ = new NamedFieldConstructorApplication($1, $2, P(@1));
+}
+|               '(' expr ')'                    { $$ = $2; }
+;
+
+constr_qident_and_lbrace: constr_qident '{'     {
+  set_state_for_name_fields(lexer);
+  $$ = $1;
+}
+;
+
+exprs:          /* empty */                     { $$ = make_unique_ptr_list<Expression>(); }
+|               one_or_more_exprs
+;
+
+one_or_more_exprs: exprs ',' expr               { add_unique_ptr_list_elem($1, $3); $$ = $1; }
+|               expr                            { $$ = make_unique_ptr_list($1); }
+;
+
+tuple_exprs:    /* empty */                     { $$ = make_unique_ptr_list<Expression>(); }
+|               two_or_more_exprs
+;
+
+two_or_more_exprs: two_or_more_exprs ',' expr   { add_unique_ptr_list_elem($1, $3); $$ = $1; }
+|               expr ',' expr                   { $$ = make_unique_ptr_list($1, $3); }
+;
+
+one_or_more_expr_named_field_pairs:
+                one_or_more_expr_named_field_pairs ',' expr_named_field_pair {
+  add_unique_ptr_list_elem($1, $3);
+  $$ = $1;
+}
+|               expr_named_field_pair           { $$ = make_unique_ptr_list($1); }
+;
+
+expr_named_field_pair:
+                ident '=' expr                  { $$ = new ExpressionNamedFieldPair(*$1, $3, P(@1)); delete $1; }
+;
+
+one_or_more_binds:
+                one_or_more_binds semi bind     { add_unique_ptr_list_elem($1, $3); $$ = $1; } 
+|               bind                            { $$ = make_unique_ptr_list($1); }
+;
+
+bind:           ident '=' expr                  { $$ = new VariableBinding(*$1, $3, P(@1)); delete $1; }
+|               '(' opt_tuple_bind_vars ')' '=' expr { $$ = new TupleBinding($2, $5); }
+;
+
+opt_tuple_bind_vars:                                    
+                opt_tuple_bind_vars ',' opt_tuple_bind_var { add_unique_ptr_list_elem($1, $3); $$ = $1; }
+|               opt_tuple_bind_var              { $$ = make_unique_ptr_list($1); }
+;
+
+opt_tuple_bind_var:
+                ident                           { $$ = new TupleBindingVariable(*$1, P(@1)); delete $1; }
+|               '_'                             { $$ = nullptr; }
+;
+
+one_or_more_cases: one_or_more_cases semi caze  { add_unique_ptr_list_elem($1, $3); $$ = $1; }
+|               caze                            { $$ = make_unique_ptr_list($1); }
+;
+
+caze:           pattern "->" expr               { $$ = new Case($1, $3); }
+;
+
+pattern:        pattern ':' type_expr           { $$ = new TypedPattern($1, $3, P(@1)); }
+|               pattern2
+;
+
+pattern2:       pattern3 constr_bin_op pattern2 { $$ = make_binary_op_pattern($1, *$2, $3, P(@1)); delete $2; }
+|               pattern3
+;
+
+pattern3:       constr_qident                   { $$ = new VariableConstructorPattern($1, P(@1)); }
+|               constr_qident '(' patterns ')'  { $$ = new UnnamedFieldConstructorPattern($1, $3, P(@1)); }
+|               constr_qident_and_lbrace one_or_more_pattern_named_field_pairs '}' {
+  $$ = new NamedFieldConstructorPattern($1, $2, P(@1));
+}
+|               '[' patterns ']'                { $$ = new ListPattern($2, P(@1)); }
+|               '#' '[' patterns ']'            { $$ = new NonUniqueArrayPattern($3, P(@1)); }
+|               "unique" '#' '[' patterns ']'   { $$ = new UniqueArrayPattern($4, P(@1)); }
+|               '(' tuple_patterns ')'          { $$ = new NonUniqueTuplePattern($2, P(@1)); }
+|               "unique" '(' tuple_patterns ')' { $$ = new NonUniqueTuplePattern($3, P(@1)); }
+|               simple_literal                  { $$ = new LiteralPattern($1, P(@1)); }
+|               neg_simple_literal              { $$ = new LiteralPattern($1, P(@1)); }
+|               VAR_IDENT %dprec 1              { $$ = new VariablePattern(*$1, P(@1)); delete $1; }
+|               VAR_IDENT '@' pattern3 %dprec 2 { $$ = new AsPattern(*$1, $3, P(@1)); delete $1; }
+|               '_'                             { $$ = new WildcardPattern(P(@1)); }
+|               '(' pattern ')'                 { $$ = $2; }
+;
+
+patterns:       /* empty */                     { $$ = make_unique_ptr_list<Pattern>(); }
+|               one_or_more_patterns
+;
+
+one_or_more_patterns:
+                one_or_more_patterns ',' pattern { add_unique_ptr_list_elem($1, $3); $$ = $1; }
+|               pattern                         { $$ = make_unique_ptr_list($1); }
+;
+
+tuple_patterns: /* empty */                     { $$ = make_unique_ptr_list<Pattern>(); }
+|               two_or_more_patterns
+;
+
+two_or_more_patterns:
+                two_or_more_patterns ',' pattern { add_unique_ptr_list_elem($1, $3); $$ = $1; }
+|               pattern ',' pattern             { $$ = make_unique_ptr_list($1, $3); }
+;
+
+one_or_more_pattern_named_field_pairs:
+                one_or_more_pattern_named_field_pairs ',' pattern_named_field_pair {
+  add_unique_ptr_list_elem($1, $3);
+  $$ = $1;
+}
+|               pattern_named_field_pair        { $$ = make_unique_ptr_list($1); }
+;
+
+pattern_named_field_pair:
+                ident '=' pattern               { $$ = new PatternNamedFieldPair(*$1, $3, P(@1)); delete $1; }
+;
+
+literal:        simple_literal                  { $$ = $1; }
+|               fun_modifier '\\' '(' args ')' opt_typing "->" expr {
+  $$ = new NonUniqueLambdaValue($1, $4, $6, $8);
+}
+;
+
+simple_literal: CHAR                            { $$ = new CharValue($1); }
+|               INT8                            { $$ = new IntValue(IntType::INT8, $1); }
+|               INT16                           { $$ = new IntValue(IntType::INT16, $1); }
+|               INT32                           { $$ = new IntValue(IntType::INT32, $1); }
+|               INT64                           { $$ = new IntValue(IntType::INT64, $1); }
+|               FLOAT                           { $$ = new FloatValue(FloatType::SINGLE, $1); }
+|               DOUBLE                          { $$ = new FloatValue(FloatType::DOUBLE, $1); }
+|               STRING                          { $$ = new StringValue(*$1); delete $1; }
+;
+
+neg_simple_literal: '-' INT8                    { $$ = new IntValue(IntType::INT8, -$2); }
+|               '-' INT16                       { $$ = new IntValue(IntType::INT16, -$2); }
+|               '-' INT32                       { $$ = new IntValue(IntType::INT32, -$2); }
+|               '-' INT64                       { $$ = new IntValue(IntType::INT64, -$2); }
+|               '-' FLOAT                       { $$ = new FloatValue(FloatType::SINGLE, -$2); }
+|               '-' DOUBLE                      { $$ = new FloatValue(FloatType::DOUBLE, -$2); }
+;
+
+unique_literal: "unique" '\\' '(' args ')' opt_typing "->" expr {
+  $$ = new UniqueLambdaValue($4, $6, $8);
+}
+;
+
+value:          value ':' type_expr             { $$ = new TypedValue($1, $3, P(@1)); }
+|               value2
+;
+
+value2:         value3 constr_bin_op value2     { $$ = make_binary_op_value($1, *$2, $3, P(@1)); delete $2; }
+|               value3
+;
+
+value3:         literal                         { $$ = new VariableLiteralValue($1, P(@1)); }
+|               neg_simple_literal              { $$ = new VariableLiteralValue($1, P(@1)); }
+|               '[' values ']'                  { $$ = new ListValue($2, P(@1)); }
+|               '#' '[' values ']'              { $$ = new ArrayValue($3, P(@1)); }
+|               '(' tuple_values ')'            { $$ = new TupleValue($2, P(@1)); }
+|               constr_qident                   { $$ = new VariableConstructorValue($1, P(@1)); }
+|               constr_qident '(' values ')'    { $$ = new UnnamedFieldConstructorValue($1, $3, P(@1)); }
+|               constr_qident_and_lbrace one_or_more_value_named_field_pairs '}' {
+  $$ = new NamedFieldConstructorValue($1, $2, P(@1));
+}
+|               '(' value ')'                   { $$ = $2; }
+;
+
+values:         /* empty */                     { $$ = make_unique_ptr_list<Value>(); }
+|               one_or_more_values
+;
+
+one_or_more_values:
+                one_or_more_values ',' value    { add_unique_ptr_list_elem($1, $3); $$ = $1; }
+|               value                           { $$ = make_unique_ptr_list($1); }
+;
+
+tuple_values:   /* empty */                     { $$ = make_unique_ptr_list<Value>(); }
+|               two_or_more_values
+;
+
+two_or_more_values:
+                two_or_more_values ',' value    { add_unique_ptr_list_elem($1, $3); $$ = $1; }
+|               value ',' value                 { $$ = make_unique_ptr_list($1, $3); }
+;
+
+one_or_more_value_named_field_pairs:
+                one_or_more_value_named_field_pairs ',' value_named_field_pair {
+  add_unique_ptr_list_elem($1, $3);
+  $$ = $1;
+}
+|               value_named_field_pair          { $$ = make_unique_ptr_list($1); }
+;
+
+value_named_field_pair: ident '=' value         { $$ = new ValueNamedFieldPair(*$1, $3, P(@1)); delete $1; }
+;
+
+constrs:        /* empty */                     { $$ = make_shared_ptr_list<Constructor>(); }
+|               one_or_more_constrs
+;
+
+one_or_more_constrs:
+                one_or_more_constrs onl '|' constr { add_shared_ptr_list_elem($1, $4); $$ = $1; }
+|               constr                          { $$ = make_shared_ptr_list($1); }
+;
+
+constr:         ident                           { $$ = new VariableConstructor(*$1, P(@1)); delete $1; }
+|               fun_constr                      { $$ = $1; }
+;
+
+fun_constrs:    /* empty */                     { $$ = make_shared_ptr_list<FunctionConstructor>(); }
+|               one_or_more_fun_constrs
+;
+
+one_or_more_fun_constrs:
+                one_or_more_fun_constrs onl '|' fun_constr { add_shared_ptr_list_elem($1, $4); $$ = $1; }
+|               fun_constr                      { $$ = make_shared_ptr_list($1); }
+;
+
+fun_constr:     annotations ident '(' type_exprs ')' { $$ = new UnnamedFieldConstructor($1, *$2, $4, P(@2)); delete $2; }
+|               annotations ident_and_lbrace one_or_more_type_named_field_pairs '}' {
+  $$ = new NamedFieldConstructor($1, *$2, $3, P(@2));
+  delete $2;
+}
+|               annotations type_expr2 constr_bin_op type_expr2 {
+  $$ = make_binary_op_fun_constr($1, $2, *$3, $4, P(@3));
+  delete $3;
+}
+;
+
+ident_and_lbrace: ident '{'                     {
+  set_state_for_name_fields(lexer);
+  $$ = $1;
+}
+;
+
+one_or_more_type_args:
+                one_or_more_type_args ',' type_arg { add_unique_ptr_list_elem($1, $3); $$ = $1; }
+|               type_arg                        { $$ = make_unique_ptr_list($1); }
+;
+
+type_arg:       ident                           { $$ = new TypeArgument(*$1, P(@1)); delete $1; }
+;
+
+type_params:    /* empty */                     { $$ = make_unique_ptr_list<TypeParameter>(); }
+|               one_or_more_type_params
+;
+
+one_or_more_type_params: one_or_more_type_params ',' type_param { add_unique_ptr_list_elem($1, $3); $$ = $1; }
+|               type_param                      { $$ = make_unique_ptr_list($1); }
+;
+
+type_param:     ident                           { $$ = new TypeParameter(*$1, P(@1)); delete $1; }
+;
+
+type_expr:      '(' type_exprs ')' fun_modifier "->" type_expr {
+  $$ = new NonUniqueFunctionType($2, $4, $6, P(@1));
+}
+|               '(' type_exprs ')' "unique" "->" type_expr {
+  $$ = new UniqueFunctionType($2, $6, P(@1));
+}
+|               type_expr2
+;
+
+type_expr2:     constr_qident                   { $$ = new TypeVariableExpression($1, P(@1)); }
+|               VAR_IDENT                       { $$ = new TypeParameterExpression(*$1, P(@1)); delete $1; }
+|               '(' tuple_type_exprs ')'        { $$ = new NonUniqueTupleType($2, P(@1)); }
+|               "unique" '(' tuple_type_exprs ')' { $$ = new UniqueTupleType($3, P(@1)); }
+|               constr_qident '(' one_or_more_type_exprs ')' { $$ = new TypeApplication($1, $3, P(@1)); }
+;
+
+type_exprs:     /* empty */                     { $$ = make_unique_ptr_list<TypeExpression>(); }
+|               one_or_more_type_exprs
+;
+
+one_or_more_type_exprs:
+                type_exprs ',' type_expr        { add_unique_ptr_list_elem($1, $3); $$ = $1; }
+|               type_expr                       { $$ = make_unique_ptr_list($1); }
+;
+
+tuple_type_exprs:
+                /* empty */                     { $$ = make_unique_ptr_list<TypeExpression>(); }
+|               two_or_more_type_exprs
+;
+
+two_or_more_type_exprs:
+                type_exprs ',' type_expr        { add_unique_ptr_list_elem($1, $3); $$ = $1; }
+|               type_expr ',' type_expr         { $$ = make_unique_ptr_list($1, $3); }
+;
+
+one_or_more_type_named_field_pairs:
+                one_or_more_type_named_field_pairs ',' type_named_field_pair {
+  add_unique_ptr_list_elem($1, $3);
+  $$ = $1;
+}
+|               type_named_field_pair           { $$ = make_unique_ptr_list($1); }
+;
+
+type_named_field_pair:
+                ident ':' type_expr             { $$ = new TypeNamedFieldPair(*$1, $3, P(@1)); delete $1; }
+;
+
+opt_typing:     /* empty */                     { $$ = nullptr; }
+|               type_expr
+;
+
+typing:         ':' type_expr                   { $$ = $2; }
+;
+
+semi:           ';' onl
+|               '\n'
+;
+
+onl:            /* empty */
+|               '\n'
+;
+
+%%
+
+#include "frontend/lexer.hpp"
+
+namespace lesfl
+{
+  namespace frontend
+  {
+    namespace priv
+    {
+      void BisonParser::error(const location_type &loc, const std::string &msg)
+      { driver.add_error(Error(loc_to_pos(loc, driver), msg)); }
+    }
+  }
+}
+
+static int yylex(BisonParser::semantic_type *value, BisonParser::location_type *loc, Driver &driver, Lexer &lexer)
+{ return lexer.lex(value, loc); }
+
+static Position loc_to_pos(const BisonParser::location_type &loc, Driver &driver)
+{ return Position(driver.source(), loc.begin.line, loc.begin.column); }
+
+static void set_state_for_name_fields(Lexer &lexer)
+{ lexer.set_state_for_name_fields(); }
+
+
+static bool string_to_builtin_fun(const std::string &str, BuiltinFunction &builtin_fun)
+{
+  static std::unordered_map<std::string, BuiltinFunction> builtin_funs {
+    { "ceq",    BuiltinFunction::CEQ },
+    { "cne",    BuiltinFunction::CNE },
+    { "clt",    BuiltinFunction::CLT },
+    { "cge",    BuiltinFunction::CGE },
+    { "cgt",    BuiltinFunction::CGT },
+    { "cle",    BuiltinFunction::CLE },
+    { "ineg",   BuiltinFunction::INEG },
+    { "iadd",   BuiltinFunction::IADD },
+    { "isub",   BuiltinFunction::ISUB },
+    { "imul",   BuiltinFunction::IMUL },
+    { "idiv",   BuiltinFunction::IDIV },
+    { "imod",   BuiltinFunction::IMOD },
+    { "inot",   BuiltinFunction::INOT },
+    { "iand",   BuiltinFunction::IAND },
+    { "ior",    BuiltinFunction::IOR },
+    { "ixor",   BuiltinFunction::IXOR },
+    { "ishl",   BuiltinFunction::ISHL },
+    { "ishr",   BuiltinFunction::ISHR },
+    { "ishru",  BuiltinFunction::ISHRU },
+    { "ieq",    BuiltinFunction::IEQ },
+    { "ine",    BuiltinFunction::INE },
+    { "ilt",    BuiltinFunction::ILT },
+    { "ige",    BuiltinFunction::IGE },
+    { "igt",    BuiltinFunction::IGT },
+    { "ile",    BuiltinFunction::ILE },
+    { "fneg",   BuiltinFunction::FNEG },
+    { "fadd",   BuiltinFunction::FADD },
+    { "fsub",   BuiltinFunction::FSUB },
+    { "fmul",   BuiltinFunction::FMUL },
+    { "fdiv",   BuiltinFunction::FDIV },
+    { "feq",    BuiltinFunction::FEQ },
+    { "fne",    BuiltinFunction::FNE },
+    { "flt",    BuiltinFunction::FLT },
+    { "fge",    BuiltinFunction::FGE },
+    { "fgt",    BuiltinFunction::FGT },
+    { "fle",    BuiltinFunction::FLE },
+    { "fpow",   BuiltinFunction::FPOW },
+    { "fsqrt",  BuiltinFunction::FSQRT },
+    { "fexp",   BuiltinFunction::FEXP },
+    { "flog",   BuiltinFunction::FLOG },
+    { "fcos",   BuiltinFunction::FCOS },
+    { "fsin",   BuiltinFunction::FSIN },
+    { "ftan",   BuiltinFunction::FTAN },
+    { "facos",  BuiltinFunction::FACOS },
+    { "fasin",  BuiltinFunction::FASIN },
+    { "fatan",  BuiltinFunction::FATAN },
+    { "fceil",  BuiltinFunction::FCEIL },
+    { "ffloor", BuiltinFunction::FFLOOR },
+    { "fround", BuiltinFunction::FROUND },
+    { "ftrunc", BuiltinFunction::FTRUNC },
+    { "anth",   BuiltinFunction::ANTH },
+    { "alen",   BuiltinFunction::ALEN },
+    { "acat",   BuiltinFunction::ACAT },
+    { "uanth",  BuiltinFunction::UANTH },
+    { "uasnth", BuiltinFunction::UASNTH },
+    { "ualen",  BuiltinFunction::UALEN },
+    { "ctoi",   BuiltinFunction::CTOI },
+    { "itoc",   BuiltinFunction::ITOC },
+    { "itof",   BuiltinFunction::ITOF },
+    { "ftoi",   BuiltinFunction::FTOI },
+    { "try",    BuiltinFunction::TRY },
+    { "i8toi",  BuiltinFunction::I8TOI },
+    { "i16toi", BuiltinFunction::I16TOI },
+    { "i32toi", BuiltinFunction::I32TOI },
+    { "itoi8",  BuiltinFunction::ITOI8 },
+    { "itoi16", BuiltinFunction::ITOI16 },
+    { "itoi32", BuiltinFunction::ITOI32 },
+    { "sftof",  BuiltinFunction::SFTOF },
+    { "ftosf",  BuiltinFunction::FTOSF }
+  };
+  auto iter = builtin_funs.find(str);
+  if(iter == builtin_funs.end()) return false;
+  builtin_fun = iter->second;
+  return true;
+}
+
+static std::tuple<std::string, std::list<std::unique_ptr<Argument>> *, Position> *make_ident_and_args(const std::string &ident, std::list<std::unique_ptr<Argument>> *args, const Position &pos)
+{ return new std::tuple<std::string, std::list<std::unique_ptr<Argument>> *, Position>(ident, args, pos); }
+ 
+static Expression *make_if(Expression *expr1, Expression *expr2, Expression *expr3, const Position &pos)
+{
+  std::list<std::unique_ptr<Case>> *cases = new std::list<std::unique_ptr<Case>>();
+  cases->push_back(std::unique_ptr<Case>(new Case(new VariableConstructorPattern(new AbsoluteIdentifier(std::list<std::string> { "stdlib", "predef", "True" }), pos), expr2)));
+  cases->push_back(std::unique_ptr<Case>(new Case(new VariableConstructorPattern(new AbsoluteIdentifier(std::list<std::string> { "stdlib", "predef", "False" }), pos), expr2)));
+  return new Match(expr1, cases, pos);
+}
+
+static Expression *make_unary_op_expr(const std::string &ident, Expression *expr, const Position &pos)
+{
+  std::list<std::unique_ptr<Expression>> *args = new std::list<std::unique_ptr<Expression>>();
+  args->push_back(std::unique_ptr<Expression>(expr));
+  return new NonUniqueApplication(new VariableExpression(new RelativeIdentifier(ident), pos), FunctionModifier::NONE, args, pos);
+}
+
+static Expression *make_binary_op_expr(Expression *expr1, const std::string &ident, Expression *expr2, const Position &pos, const Position &ident_pos)
+{
+  std::list<std::unique_ptr<Expression>> *args = new std::list<std::unique_ptr<Expression>>();
+  args->push_back(std::unique_ptr<Expression>(expr1));
+  args->push_back(std::unique_ptr<Expression>(expr2));
+  return new NonUniqueApplication(new VariableExpression(new RelativeIdentifier(ident), ident_pos), FunctionModifier::NONE, args, pos);
+}
+
+static Pattern *make_binary_op_pattern(Pattern *pattern1, const std::string &ident, Pattern *pattern2, const Position &pos)
+{
+  std::list<std::unique_ptr<Pattern>> *field_patterns = new std::list<std::unique_ptr<Pattern>>();
+  field_patterns->push_back(std::unique_ptr<Pattern>(pattern1));
+  field_patterns->push_back(std::unique_ptr<Pattern>(pattern2));
+  return new UnnamedFieldConstructorPattern(new RelativeIdentifier(ident), field_patterns, pos);
+}
+ 
+static Value *make_binary_op_value(Value *value1, const std::string &ident, Value *value2, const Position &pos)
+{
+  std::list<std::unique_ptr<Value>> *field_values = new std::list<std::unique_ptr<Value>>();
+  field_values->push_back(std::unique_ptr<Value>(value1));
+  field_values->push_back(std::unique_ptr<Value>(value2));
+  return new UnnamedFieldConstructorValue(new RelativeIdentifier(ident), field_values, pos);
+}
+
+static FunctionConstructor *make_binary_op_fun_constr(const std::list<std::unique_ptr<Annotation>> *annotations, TypeExpression *type1, const std::string &ident, TypeExpression *type2, const Position &pos)
+{
+  std::list<std::unique_ptr<TypeExpression>> *field_types = new std::list<std::unique_ptr<TypeExpression>>();
+  field_types->push_back(std::unique_ptr<TypeExpression>(type1));
+  field_types->push_back(std::unique_ptr<TypeExpression>(type2));
+  return new UnnamedFieldConstructor(annotations, ident, field_types, pos);
+}
+
+template<typename _T>
+static inline std::list<std::unique_ptr<_T>> *make_unique_ptr_list()
+{ return new std::list<std::unique_ptr<_T>>(); }
+
+template<typename _T>
+static inline std::list<std::unique_ptr<_T>> *make_unique_ptr_list(_T *x)
+{
+  std::list<std::unique_ptr<_T>> *xs = new std::list<std::unique_ptr<_T>>();
+  xs->push_back(std::unique_ptr<_T>(x));
+  return xs;
+}
+
+template<typename _T>
+static inline std::list<std::unique_ptr<_T>> *make_unique_ptr_list(_T *x1, _T *x2)
+{ 
+  std::list<std::unique_ptr<_T>> *xs = new std::list<std::unique_ptr<_T>>();
+  xs->push_back(std::unique_ptr<_T>(x1));
+  xs->push_back(std::unique_ptr<_T>(x2));
+  return xs;
+}
+
+template<typename _T>
+static inline void add_unique_ptr_list_elem(std::list<std::unique_ptr<_T>> *xs, _T *x)
+{ xs->push_back(std::unique_ptr<_T>(x)); }
+
+template<typename _T>
+static inline std::list<std::shared_ptr<_T>> *make_shared_ptr_list()
+{ return new std::list<std::shared_ptr<_T>>(); }
+
+template<typename _T>
+static inline std::list<std::shared_ptr<_T>> *make_shared_ptr_list(_T *x)
+{
+  std::list<std::shared_ptr<_T>> *xs = new std::list<std::shared_ptr<_T>>();
+  xs->push_back(std::shared_ptr<_T>(x));
+  return xs;
+}
+
+template<typename _T>
+static inline void add_shared_ptr_list_elem(std::list<std::shared_ptr<_T>> *xs, _T *x)
+{ xs->push_back(std::shared_ptr<_T>(x)); }

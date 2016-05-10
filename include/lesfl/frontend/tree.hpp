@@ -35,6 +35,7 @@ namespace lesfl
     class Pattern;
     class PatternNamedFieldPair;
     class LiteralValue;
+    class SimpleLiteralValue;
     class Value;
     class ValueNamedFieldPair;
     class TypeVariable;
@@ -93,6 +94,8 @@ namespace lesfl
     protected:
       std::list<std::string> _M_idents;
 
+      Identifier() {}
+
       Identifier(const char *ident) : _M_idents(std::list<std::string> { ident }) {}
 
       Identifier(const std::string &ident) : _M_idents(std::list<std::string> { ident }) {}
@@ -109,6 +112,8 @@ namespace lesfl
     class AbsoluteIdentifier : public Identifier
     {
     public:
+      AbsoluteIdentifier() {}
+
       AbsoluteIdentifier(const char *ident) : Identifier(ident) {}
 
       AbsoluteIdentifier(const std::string &ident) : Identifier(ident) {}
@@ -121,6 +126,8 @@ namespace lesfl
     class RelativeIdentifier : public Identifier
     {
     public:
+      RelativeIdentifier() {}
+
       RelativeIdentifier(const char *ident) : Identifier(ident) {}
 
       RelativeIdentifier(const std::string &ident) : Identifier(ident) {}
@@ -141,8 +148,8 @@ namespace lesfl
       const std::list<std::unique_ptr<const std::list<std::unique_ptr<Definition>>>> &defs() const
       { return _M_defs; }
 
-      void add_defs(const std::list<std::unique_ptr<Definition>> *def)
-      { _M_defs.push_back(std::unique_ptr<const std::list<std::unique_ptr<Definition>>>(def)); }
+      void add_defs(const std::list<std::unique_ptr<Definition>> *defs)
+      { _M_defs.push_back(std::unique_ptr<const std::list<std::unique_ptr<Definition>>>(defs)); }
     };
 
     class Definition : public Positional
@@ -203,8 +210,8 @@ namespace lesfl
       std::string _M_ident;
       std::shared_ptr<VariableInstance> _M_var_inst;
     public:
-      VariableInstanceDefinition(const std::string &ident, VariableInstance *fun_inst, const Position &pos) :
-        Definition(pos), _M_ident(ident), _M_var_inst(fun_inst) {}
+      VariableInstanceDefinition(const std::string &ident, VariableInstance *var_inst, const Position &pos) :
+        Definition(pos), _M_ident(ident), _M_var_inst(var_inst) {}
 
       ~VariableInstanceDefinition();
 
@@ -368,10 +375,11 @@ namespace lesfl
     {
       std::unique_ptr<Identifier> _M_ident;
     public:
-      AliasVariable(Identifier *ident) : _M_ident(ident) {}
+      AliasVariable(TypeExpression *type_expr, Identifier *ident) :
+        DefinableVariable(type_expr), _M_ident(ident) {}
 
-      AliasVariable(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, Identifier *ident) :
-        DefinableVariable(inst_type_params), _M_ident(ident) {}
+      AliasVariable(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, TypeExpression *type_expr, Identifier *ident) :
+        DefinableVariable(inst_type_params, type_expr), _M_ident(ident) {}
 
       ~AliasVariable();
 
@@ -505,7 +513,7 @@ namespace lesfl
       const std::string &external_fun_ident() const { return _M_external_fun_ident; }
     };
 
-    class NativeFunction : DefinableFunction
+    class NativeFunction : public DefinableFunction
     {
       std::string _M_native_fun_ident;
     public:
@@ -1100,13 +1108,13 @@ namespace lesfl
 
     class LiteralPattern : public Pattern
     {
-      std::unique_ptr<LiteralValue> _M_value;
+      std::unique_ptr<SimpleLiteralValue> _M_value;
     public:
-      LiteralPattern(LiteralValue *value, const Position &pos) : Pattern(pos), _M_value(value) {}
+      LiteralPattern(SimpleLiteralValue *value, const Position &pos) : Pattern(pos), _M_value(value) {}
 
       ~LiteralPattern();
 
-      LiteralValue *value() const { return _M_value.get(); }
+      SimpleLiteralValue *value() const { return _M_value.get(); }
     };
     
     class VariablePattern : public Pattern
@@ -1189,8 +1197,16 @@ namespace lesfl
     public:
       ~NonUniqueLiteralValue();
     };
+
+    class SimpleLiteralValue : public NonUniqueLiteralValue
+    {
+    protected:
+      SimpleLiteralValue() {}
+    public:
+      ~SimpleLiteralValue();
+    };
     
-    class CharValue : public NonUniqueLiteralValue
+    class CharValue : public SimpleLiteralValue
     {
       char _M_c;
     public:
@@ -1201,7 +1217,7 @@ namespace lesfl
       char c() const { return _M_c; }
     };
 
-    class IntValue : public NonUniqueLiteralValue
+    class IntValue : public SimpleLiteralValue
     {
       IntType _M_int_type;
       std::int64_t _M_i;
@@ -1215,7 +1231,7 @@ namespace lesfl
       std::int64_t i() const { return _M_i; }
     };
 
-    class FloatValue : public NonUniqueLiteralValue
+    class FloatValue : public SimpleLiteralValue
     {
       FloatType _M_float_type;
       double _M_f;
@@ -1229,7 +1245,7 @@ namespace lesfl
       double f() const { return _M_f; }
     };
 
-    class StringValue : public LiteralValue
+    class StringValue : public SimpleLiteralValue
     {
       std::string _M_string;
     public:

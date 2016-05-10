@@ -540,6 +540,12 @@ namespace lesfl
     NonUniqueLiteralValue::~NonUniqueLiteralValue() {}
 
     //
+    // A SimpleLiteralValue class.
+    //
+
+    SimpleLiteralValue::~SimpleLiteralValue() {}
+
+    //
     // A CharValue class.
     //
 
