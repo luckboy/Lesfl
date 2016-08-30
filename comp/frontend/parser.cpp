@@ -20,14 +20,13 @@ namespace lesfl
   {
     Parser::~Parser() {}
 
-    Tree *Parser::parse(const vector<Source> &sources, list<Error> &errors)
+    bool Parser::parse(const vector<Source> &sources, Tree &tree, list<Error> &errors)
     {
-      unique_ptr<Tree> tree(new Tree());
       bool is_success = true;
       for(auto &source : sources) {
         SourceStream ss = source.open();
         if(ss.istream().good()) {
-          Driver driver(source, *tree, errors);
+          Driver driver(source, tree, errors);
           Lexer lexer(&(ss.istream()));
           BisonParser parser(driver, lexer);
           is_success &= (parser.parse() == 0);
@@ -36,7 +35,7 @@ namespace lesfl
           is_success = false;
         }
       }
-      return is_success ? tree.release() : nullptr;
+      return is_success;
     }
   }
 }

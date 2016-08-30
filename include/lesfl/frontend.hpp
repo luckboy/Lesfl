@@ -22,10 +22,10 @@ namespace lesfl
 
       virtual ~Parser();
 
-      Tree *parse(const std::vector<Source> &sources, std::list<Error> &errors);
+      bool parse(const std::vector<Source> &sources, Tree &tree, std::list<Error> &errors);
 
-      Tree *parse(const Source &source, std::list<Error> &errors)
-      { return parse(std::vector<Source> { source }, errors); }
+      bool parse(const Source &source, Tree &tree, std::list<Error> &errors)
+      { return parse(std::vector<Source> { source }, tree, errors); }
     };
   }
 }
