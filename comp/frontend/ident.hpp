@@ -5,38 +5,19 @@
  *   License v3 or later. See the LICENSE file and the GPL file for         *
  *   the full licensing terms.                                              *
  ****************************************************************************/
-#ifndef _LESFL_FRONTEND_HPP
-#define _LESFL_FRONTEND_HPP
+#ifndef _FRONTEND_IDENT_HPP
+#define _FRONTEND_IDENT_HPP
 
-#include <lesfl/frontend/tree.hpp>
-#include <lesfl/comp.hpp>
+#include <string>
 
 namespace lesfl
 {
   namespace frontend
   {
-    class Parser
+    namespace priv
     {
-    public:
-      Parser() {}
-
-      virtual ~Parser();
-
-      bool parse(const std::vector<Source> &sources, Tree &tree, std::list<Error> &errors);
-
-      bool parse(const Source &source, Tree &tree, std::list<Error> &errors)
-      { return parse(std::vector<Source> { source }, tree, errors); }
-    };
-
-    class Resolver
-    {
-    public:
-      Resolver() {}
-
-      virtual ~Resolver();
-
-      bool resolve(Tree &tree, std::list<Error> &errors);
-    };
+      std::string ident_to_string(const std::string &ident);
+    }
   }
 }
 

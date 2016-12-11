@@ -6,6 +6,9 @@
  *   the full licensing terms.                                              *
  ****************************************************************************/
 #include <lesfl/frontend/tree.hpp>
+#include "frontend/ident.hpp"
+
+using namespace std;
 
 namespace lesfl
 {
@@ -18,29 +21,56 @@ namespace lesfl
     Positional::~Positional() {}
 
     //
-    // An Identifier class.
+    // An Accessible class.
     //
 
-    Identifier::~Identifier() {}
+    Accessible::~Accessible() {}
 
     //
-    // An AbsoluteIdentifier class.
+    // An Identifiable class.
     //
 
-    AbsoluteIdentifier::~AbsoluteIdentifier() {}
+    Identifiable::~Identifiable() {}
+    
+    string Identifiable::to_ident_string() const
+    { return priv::ident_to_string(_M_ident); }
 
     //
-    // A RelativeIdentifier class.
+    // An IdentifiableAndIndexable class.
     //
 
-    RelativeIdentifier::~RelativeIdentifier() {}
+    IdentifiableAndIndexable::~IdentifiableAndIndexable() {}
+
+    //
+    // An Instance class.
+    //
+    
+    Instance::~Instance() {}
+
+    //
+    // A VariableInfo class.
+    //
+
+    VariableInfo::~VariableInfo() {}
+
+    //
+    // A TypeVariableInfo class.
+    //
+
+    TypeVariableInfo::~TypeVariableInfo() {}
+
+    //
+    // A TypeFunctionInfo class.
+    //
+
+    TypeFunctionInfo::~TypeFunctionInfo() {}
 
     //
     // A Tree class.
     //
 
     Tree::~Tree() {}
-    
+
     //
     // A Definition class.
     //
@@ -202,6 +232,9 @@ namespace lesfl
     //
 
     Annotation::~Annotation() {}
+
+    string Annotation::to_string() const
+    { return "@" + priv::ident_to_string(_M_ident); }
 
     //
     // An Expression class.
@@ -767,11 +800,15 @@ namespace lesfl
 
     UnnamedFieldConstructor::~UnnamedFieldConstructor() {}
 
+    std::size_t UnnamedFieldConstructor::field_count() { return _M_field_types->size(); }
+    
     //
     // A NamedFieldConstructor class.
     //
 
     NamedFieldConstructor::~NamedFieldConstructor() {}
+
+    std::size_t NamedFieldConstructor::field_count() { return _M_field_types->size(); }
 
     //
     // A TypeArgument class.

@@ -10,8 +10,9 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <memory>
+#include <utility>
 #include <lesfl/frontend/builtin.hpp>
+#include <lesfl/frontend/ident.hpp>
 #include <lesfl/comp.hpp>
 
 namespace lesfl
@@ -76,7 +77,7 @@ namespace lesfl
       NONE,
       PRIMITIVE
     };
-    
+
     class Positional
     {
     protected:
@@ -89,59 +90,125 @@ namespace lesfl
       const Position &pos() const { return _M_pos; }      
     };
 
-    class Identifier
+    class Accessible
     {
     protected:
-      std::list<std::string> _M_idents;
+      AccessModifier _M_access_modifier;
 
-      Identifier() {}
-
-      Identifier(const char *ident) : _M_idents(std::list<std::string> { ident }) {}
-
-      Identifier(const std::string &ident) : _M_idents(std::list<std::string> { ident }) {}
-
-      Identifier(const std::list<std::string> &idents) : _M_idents(idents) {}
+      Accessible(AccessModifier access_modifier) : _M_access_modifier(access_modifier) {}
     public:
-      virtual ~Identifier();
-
-      const std::list<std::string> &idents() const { return _M_idents; }
-
-      std::list<std::string> &idents() { return _M_idents; }
+      virtual ~Accessible();
+      
+      AccessModifier access_modifier() const { return _M_access_modifier; }
     };
 
-    class AbsoluteIdentifier : public Identifier
+    class Identifiable
     {
+    protected:
+      std::string _M_ident;
+
+      Identifiable() {}
+
+      Identifiable(const char *ident) : _M_ident(ident) {}
+
+      Identifiable(const std::string &ident) : _M_ident(ident) {}
     public:
-      AbsoluteIdentifier() {}
+      virtual ~Identifiable();
 
-      AbsoluteIdentifier(const char *ident) : Identifier(ident) {}
+      const std::string &ident() const { return _M_ident; }
 
-      AbsoluteIdentifier(const std::string &ident) : Identifier(ident) {}
-
-      AbsoluteIdentifier(const std::list<std::string> &idents) : Identifier(idents) {}
-
-      ~AbsoluteIdentifier();
+      std::string to_ident_string() const;
     };
 
-    class RelativeIdentifier : public Identifier
+    class IdentifiableAndIndexable : public Identifiable, public Indexable
     {
+    protected:
+      IdentifiableAndIndexable(const char *ident) : Identifiable(ident) {}
+
+      IdentifiableAndIndexable(const std::string &ident) : Identifiable(ident) {}
     public:
-      RelativeIdentifier() {}
+      ~IdentifiableAndIndexable();
+    };
 
-      RelativeIdentifier(const char *ident) : Identifier(ident) {}
+    class Instance
+    {
+    protected:
+      Instance() {}
+    public:
+      virtual ~Instance();
+    };
 
-      RelativeIdentifier(const std::string &ident) : Identifier(ident) {}
+    class VariableInfo : public Accessible
+    {
+      std::shared_ptr<Variable> _M_var;
+      std::shared_ptr<std::list<std::shared_ptr<Instance>>> _M_insts;
+      const std::string *_M_datatype_ident;
+    public:
+      VariableInfo(AccessModifier access_modifier, const std::shared_ptr<Variable> &var, const std::string *datatype_ident = nullptr) :
+        Accessible(access_modifier), _M_var(var), _M_insts(std::shared_ptr<std::list<std::shared_ptr<Instance>>>(new std::list<std::shared_ptr<Instance>>())), _M_datatype_ident(datatype_ident) {}
 
-      RelativeIdentifier(const std::list<std::string> &idents) : Identifier(idents) {}
+      ~VariableInfo();
 
-      ~RelativeIdentifier();
+      const std::shared_ptr<Variable> &var() const { return _M_var; }
+
+      const std::shared_ptr<std::list<std::shared_ptr<Instance>>> &insts() const { return _M_insts; }
+
+      void add_inst(const std::shared_ptr<Instance> &inst)
+      { _M_insts->push_back(inst); }
+
+      bool must_update_access_modifier() const { return _M_datatype_ident != nullptr; }
+
+      const std::string *datatype_ident() const { return _M_datatype_ident; }
+
+      void update_access_modifier(AccessModifier access_modifier)
+      {
+        _M_access_modifier = access_modifier;
+        _M_datatype_ident = nullptr;
+      }
+    };
+
+    class TypeVariableInfo : public Accessible
+    {
+      std::shared_ptr<TypeVariable> _M_var;
+    public:
+      TypeVariableInfo(AccessModifier access_modifier, const std::shared_ptr<TypeVariable> &var) :
+        Accessible(access_modifier), _M_var(var) {}
+
+      ~TypeVariableInfo();
+
+      const std::shared_ptr<TypeVariable> &var() const { return _M_var; }
+    };
+
+    class TypeFunctionInfo : public Accessible
+    {
+      std::shared_ptr<TypeFunction> _M_fun;
+      std::shared_ptr<std::list<std::shared_ptr<TypeFunctionInstance>>> _M_insts;
+    public:
+      TypeFunctionInfo(AccessModifier access_modifier, const std::shared_ptr<TypeFunction> &fun) :
+        Accessible(access_modifier), _M_fun(fun), _M_insts(std::shared_ptr<std::list<std::shared_ptr<TypeFunctionInstance>>>(new std::list<std::shared_ptr<TypeFunctionInstance>>())) {}
+
+      virtual ~TypeFunctionInfo();
+
+      const std::shared_ptr<TypeFunction> &fun() const { return _M_fun; }
+
+      const std::shared_ptr<std::list<std::shared_ptr<TypeFunctionInstance>>> &fun_insts() const { return _M_insts; }
+      
+      void add_inst(const std::shared_ptr<TypeFunctionInstance> &inst)
+      { _M_insts->push_back(inst); }
     };
 
     class Tree
     {
       std::list<std::unique_ptr<const std::list<std::unique_ptr<Definition>>>> _M_defs;
+      std::shared_ptr<AbsoluteIdentifierTable> _M_ident_table;
+      std::unordered_set<KeyIdentifier> _M_module_key_idents;
+      std::unordered_map<KeyIdentifier, VariableInfo> _M_var_infos;
+      std::unordered_map<KeyIdentifier, TypeVariableInfo> _M_type_var_infos;
+      std::unordered_map<KeyIdentifier, TypeFunctionInfo> _M_type_fun_infos;
     public:
-      Tree() {}
+      Tree() : _M_ident_table(std::shared_ptr<AbsoluteIdentifierTable>(new AbsoluteIdentifierTable())) {}
+
+      Tree(const std::shared_ptr<AbsoluteIdentifierTable> &ident_table) : _M_ident_table(ident_table) {}
 
       virtual ~Tree();
 
@@ -150,6 +217,120 @@ namespace lesfl
 
       void add_defs(const std::list<std::unique_ptr<Definition>> *defs)
       { _M_defs.push_back(std::unique_ptr<const std::list<std::unique_ptr<Definition>>>(defs)); }
+
+      const std::shared_ptr<AbsoluteIdentifierTable> &ident_table() const
+      { return _M_ident_table; }
+
+      const std::unordered_set<KeyIdentifier> &module_key_idents() const
+      { return _M_module_key_idents; }
+
+      bool has_module_key_ident(KeyIdentifier key_ident) const
+      { return _M_module_key_idents.find(key_ident) == _M_module_key_idents.end(); }
+
+      bool has_module_key_ident(const Identifier &ident) const
+      { return has_module_key_ident(ident.key_ident()); }
+
+      bool add_module(KeyIdentifier key_ident)
+      { return _M_module_key_idents.insert(key_ident).second; }
+
+      const std::unordered_map<KeyIdentifier, VariableInfo> &var_infos() const
+      { return _M_var_infos; }
+
+      const VariableInfo *var_info(KeyIdentifier key_ident) const
+      {
+        auto iter = _M_var_infos.find(key_ident);
+        return iter != _M_var_infos.end() ? &(iter->second) : nullptr;
+      }
+
+      const VariableInfo *var_info(const Identifier &ident) const
+      { return var_info(ident.key_ident()); }
+
+      VariableInfo *var_info(KeyIdentifier key_ident)
+      {
+        auto iter = _M_var_infos.find(key_ident);
+        return iter != _M_var_infos.end() ? &(iter->second) : nullptr;
+      }
+
+      VariableInfo *var_info(const Identifier &ident)
+      { return var_info(ident.key_ident()); }
+
+      std::shared_ptr<Variable> var(KeyIdentifier key_ident) const
+      {
+        const VariableInfo *info = var_info(key_ident);
+        return info != nullptr ? info->var() : std::shared_ptr<Variable>();
+      }
+
+      std::shared_ptr<Variable> var(const Identifier &ident) const
+      { return var(ident.key_ident()); }
+
+      bool add_var(KeyIdentifier key_ident, AccessModifier access_modifier, const std::shared_ptr<Variable> &var, const std:: string *datatype_ident = nullptr)
+      { return _M_var_infos.insert(std::make_pair(key_ident, VariableInfo(access_modifier, var, datatype_ident))).second; }
+
+      const std::unordered_map<KeyIdentifier, TypeVariableInfo> &type_var_infos() const
+      { return _M_type_var_infos; }
+
+      const TypeVariableInfo *type_var_info(KeyIdentifier key_ident) const
+      {
+        auto iter = _M_type_var_infos.find(key_ident);
+        return iter != _M_type_var_infos.end() ? &(iter->second) : nullptr;
+      }
+
+      const TypeVariableInfo *type_var_info(const Identifier &ident) const
+      { return type_var_info(ident.key_ident()); }
+
+      TypeVariableInfo *type_var_info(KeyIdentifier key_ident)
+      {
+        auto iter = _M_type_var_infos.find(key_ident);
+        return iter != _M_type_var_infos.end() ? &(iter->second) : nullptr;
+      }
+
+      TypeVariableInfo *type_var_info(const Identifier &ident)
+      { return type_var_info(ident.key_ident()); }
+
+      std::shared_ptr<TypeVariable> type_var(KeyIdentifier key_ident) const
+      {
+        const TypeVariableInfo *info = type_var_info(key_ident);
+        return info != nullptr ? info->var() : std::shared_ptr<TypeVariable>();
+      }
+
+      std::shared_ptr<TypeVariable> type_var(const Identifier &ident) const
+      { return type_var(ident.key_ident()); }
+
+      bool add_type_var(KeyIdentifier key_ident, AccessModifier access_modifier, const std::shared_ptr<TypeVariable> &var)
+      { return _M_type_var_infos.insert(std::make_pair(key_ident, TypeVariableInfo(access_modifier, var))).second; }
+
+      const std::unordered_map<KeyIdentifier, TypeFunctionInfo> &type_fun_infos() const
+      { return _M_type_fun_infos; }
+
+      const TypeFunctionInfo *type_fun_info(KeyIdentifier key_ident) const
+      {
+        auto iter = _M_type_fun_infos.find(key_ident);
+        return iter != _M_type_fun_infos.end() ? &(iter->second) : nullptr;
+      }
+
+      const TypeFunctionInfo *type_fun_info(const Identifier &ident) const
+      { return type_fun_info(ident.key_ident()); }
+
+      TypeFunctionInfo *type_fun_info(KeyIdentifier key_ident)
+      {
+        auto iter = _M_type_fun_infos.find(key_ident);
+        return iter != _M_type_fun_infos.end() ? &(iter->second) : nullptr;
+      }
+
+      TypeFunctionInfo *type_fun_info(const Identifier &ident)
+      { return type_fun_info(ident.key_ident()); }
+
+      std::shared_ptr<TypeFunction> type_fun(KeyIdentifier key_ident) const
+      {
+        const TypeFunctionInfo *info = type_fun_info(key_ident);
+        return info != nullptr ? info->fun() : std::shared_ptr<TypeFunction>();
+      }
+
+      std::shared_ptr<TypeFunction> type_fun(const Identifier &ident) const
+      { return type_fun(ident.key_ident()); }
+
+      bool add_type_fun(KeyIdentifier key_ident, AccessModifier access_modifier, const std::shared_ptr<TypeFunction> &fun, bool must_update_access_modifier = true)
+      { return _M_type_fun_infos.insert(std::make_pair(key_ident, TypeFunctionInfo(access_modifier, fun))).second; }
     };
 
     class Definition : public Positional
@@ -159,7 +340,7 @@ namespace lesfl
     public:
       ~Definition();
     };
-    
+
     class Import : public Definition
     {
       std::unique_ptr<Identifier> _M_module_ident;
@@ -187,22 +368,19 @@ namespace lesfl
       const std::list<std::unique_ptr<Definition>> &defs() const { return *_M_defs; }
     };
 
-    class VariableDefinition : public Definition
+    class VariableDefinition : public Definition, public Accessible
     {
-      AccessModifier _M_access_modifier;
       std::string _M_ident;
-      std::shared_ptr<DefinableVariable> _M_fun;
+      std::shared_ptr<DefinableVariable> _M_var;
     public:
       VariableDefinition(AccessModifier access_modifier, const std::string &ident, DefinableVariable *var, const Position &pos) :
-        Definition(pos), _M_access_modifier(access_modifier), _M_ident(ident), _M_fun(var) {}
+        Definition(pos), Accessible(access_modifier), _M_ident(ident), _M_var(var) {}
 
       ~VariableDefinition();
 
-      AccessModifier access_modifier() const { return _M_access_modifier; }
-
       const std::string &ident() const { return _M_ident; }
 
-      const std::shared_ptr<DefinableVariable> &var() const { return _M_fun; }
+      const std::shared_ptr<DefinableVariable> &var() const { return _M_var; }
     };
 
     class VariableInstanceDefinition : public Definition
@@ -220,18 +398,15 @@ namespace lesfl
       const std::shared_ptr<VariableInstance> &var_inst() const { return _M_var_inst; }
     };
 
-    class FunctionDefinition : public Definition
+    class FunctionDefinition : public Definition, public Accessible
     {
-      AccessModifier _M_access_modifier;
       std::string _M_ident;
       std::shared_ptr<DefinableFunction> _M_fun;
     public:
       FunctionDefinition(AccessModifier access_modifier, const std::string &ident, DefinableFunction *fun, const Position &pos) :
-        Definition(pos), _M_access_modifier(access_modifier), _M_ident(ident), _M_fun(fun) {}
+        Definition(pos), Accessible(access_modifier), _M_ident(ident), _M_fun(fun) {}
 
       ~FunctionDefinition();
-
-      AccessModifier access_modifier() const { return _M_access_modifier; }
 
       const std::string &ident() const { return _M_ident; }
 
@@ -250,39 +425,33 @@ namespace lesfl
 
       const std::string &ident() const { return _M_ident; }
 
-      const std::shared_ptr<FunctionInstance> &var_inst() const { return _M_fun_inst; }
+      const std::shared_ptr<FunctionInstance> &fun_inst() const { return _M_fun_inst; }
     };
 
-    class TypeVariableDefinition : public Definition
+    class TypeVariableDefinition : public Definition, public Accessible
     {
-      AccessModifier _M_access_modifier;
       std::string _M_ident;
       std::shared_ptr<DefinableTypeVariable> _M_var;
     public:
       TypeVariableDefinition(AccessModifier access_modifier, const std::string &ident, DefinableTypeVariable *var, const Position &pos) :
-        Definition(pos), _M_access_modifier(), _M_ident(ident), _M_var(var) {}
+        Definition(pos), Accessible(access_modifier), _M_ident(ident), _M_var(var) {}
 
       ~TypeVariableDefinition();
-
-      AccessModifier access_modifier() const { return _M_access_modifier; }
 
       const std::string &ident() const { return _M_ident; }
 
       const std::shared_ptr<DefinableTypeVariable> &var() const { return _M_var; }
     };
 
-    class TypeFunctionDefinition : public Definition
+    class TypeFunctionDefinition : public Definition, public Accessible
     {
-      AccessModifier _M_access_modifier;
       std::string _M_ident;
       std::shared_ptr<DefinableTypeFunction> _M_fun;
     public:
       TypeFunctionDefinition(AccessModifier access_modifier, const std::string &ident, DefinableTypeFunction *fun, const Position &pos) :
-        Definition(pos), _M_access_modifier(), _M_ident(ident), _M_fun(fun) {}
+        Definition(pos), Accessible(access_modifier), _M_ident(ident), _M_fun(fun) {}
 
       ~TypeFunctionDefinition();
-
-      AccessModifier access_modifier() const { return _M_access_modifier; }
 
       const std::string &ident() const { return _M_ident; }
 
@@ -307,9 +476,16 @@ namespace lesfl
     class Variable
     {
     protected:
-      Variable() {}
+      AccessModifier _M_access_modifier;
+
+      Variable() : _M_access_modifier(AccessModifier::NONE) {}
     public:
       virtual ~Variable();
+
+      AccessModifier access_modifier() const { return _M_access_modifier; }
+
+      void set_access_modifier(AccessModifier access_modifier)
+      { _M_access_modifier = access_modifier; }
     };
 
     class DefinableVariable : public Variable
@@ -332,10 +508,12 @@ namespace lesfl
       ~DefinableVariable();
 
       bool is_template() const { return _M_inst_type_params.get() != nullptr; }
-      
+
+      const std::list<std::unique_ptr<TypeParameter>> &inst_type_params() const { return *_M_inst_type_params; }
+
       TypeExpression *type_expr() const { return _M_type_expr.get(); }
     };    
-    
+
     class UserDefinedVariable : public DefinableVariable
     {
       std::unique_ptr<Value> _M_value;
@@ -416,13 +594,13 @@ namespace lesfl
       ~LibraryVariable();
     };
 
-    class VariableInstance
+    class VariableInstance : public Instance
     {
       std::shared_ptr<DefinableVariable> _M_var;
     public:
       VariableInstance(DefinableVariable *var) : _M_var(var) {}
 
-      virtual ~VariableInstance();
+      ~VariableInstance();
 
       const std::shared_ptr<DefinableVariable> &var() const { return _M_var; }
     };
@@ -525,36 +703,33 @@ namespace lesfl
       const std::string &native_fun_ident() const { return _M_native_fun_ident; }
     };
 
-    class FunctionInstance
+    class FunctionInstance : public Instance
     {
       std::shared_ptr<DefinableFunction> _M_fun;
     public:
       FunctionInstance(DefinableFunction *fun) : _M_fun(fun) {}
 
-      virtual ~FunctionInstance();
+      ~FunctionInstance();
 
       const std::shared_ptr<DefinableFunction> &fun() const { return _M_fun; }
     };
 
-    class Argument : public Positional
+    class Argument : public Positional, public IdentifiableAndIndexable
     {
-      std::string _M_ident;
       std::unique_ptr<TypeExpression> _M_type_expr;
     public:
       Argument(const std::string &ident, const Position &pos) :
-        Positional(pos), _M_ident(ident), _M_type_expr(nullptr) {}
+        Positional(pos), IdentifiableAndIndexable(ident), _M_type_expr(nullptr) {}
 
       Argument(const std::string &ident, TypeExpression *type_expr, const Position &pos) :
-        Positional(pos), _M_ident(ident), _M_type_expr(type_expr) {}
+        Positional(pos), IdentifiableAndIndexable(ident), _M_type_expr(type_expr) {}
 
       ~Argument();
-
-      const std::string &ident() const { return _M_ident; }
 
       TypeExpression *type_expr() const { return _M_type_expr.get(); }
     };
 
-    class Annotation : public Positional
+    class Annotation : public Positional, public Stringable
     {
       std::string _M_ident;
     public:
@@ -564,6 +739,8 @@ namespace lesfl
       ~Annotation();
 
       const std::string &ident() const { return _M_ident; }
+
+      std::string to_string() const;
     };
 
     class Expression : public Positional
@@ -576,13 +753,13 @@ namespace lesfl
 
     class Literal : public Expression
     {
-      std::unique_ptr<LiteralValue> _M_value;
+      std::unique_ptr<LiteralValue> _M_literal_value;
     public:
-      Literal(LiteralValue *value, const Position &pos) : Expression(pos), _M_value(value) {}
+      Literal(LiteralValue *value, const Position &pos) : Expression(pos), _M_literal_value(value) {}
 
       ~Literal();
 
-      LiteralValue *value() const { return _M_value.get(); }
+      LiteralValue *literal_value() const { return _M_literal_value.get(); }
     };
 
     class Collection : public Expression
@@ -597,7 +774,7 @@ namespace lesfl
 
       const std::list<std::unique_ptr<Expression>> &elems() const { return *_M_elems; } 
     };
-    
+
     class List : public Collection
     {
     public:
@@ -782,20 +959,17 @@ namespace lesfl
       Expression *value_expr() const { return _M_value_expr.get(); }
     };
 
-    class NamedFieldOperator : public Expression
+    class NamedFieldOperator : public Expression, public Identifiable
     {
     protected:
       std::unique_ptr<Expression> _M_expr;
-      std::string _M_ident;
 
       NamedFieldOperator(Expression *expr, const std::string &ident, const Position &pos) :
-        Expression(pos), _M_expr(expr), _M_ident(ident) {}
+        Expression(pos), Identifiable(ident), _M_expr(expr) {}
     public:
       ~NamedFieldOperator();
 
       Expression *expr() const { return _M_expr.get(); }
-
-      const std::string &ident() const { return _M_ident; }
     };
 
     class NamedField : public NamedFieldOperator
@@ -857,7 +1031,7 @@ namespace lesfl
 
       Expression *expr() const { return _M_expr.get(); }
     };
-    
+
     class Match : public Expression
     {
       std::unique_ptr<Expression> _M_expr;
@@ -884,17 +1058,14 @@ namespace lesfl
       Expression *expr() const { return _M_expr.get(); }
     };
 
-    class ExpressionNamedFieldPair : public Positional
+    class ExpressionNamedFieldPair : public Positional, public IdentifiableAndIndexable
     {
-      std::string _M_ident;
       std::unique_ptr<Expression> _M_expr;
     public:
       ExpressionNamedFieldPair(const std::string &ident, Expression *expr, const Position &pos) :
-        Positional(pos), _M_ident(ident), _M_expr(expr) {}
+        Positional(pos), IdentifiableAndIndexable(ident), _M_expr(expr) {}
 
       ~ExpressionNamedFieldPair();
-
-      const std::string &ident() const { return _M_ident; }
 
       Expression *expr() const { return _M_expr.get(); }
     };
@@ -907,21 +1078,18 @@ namespace lesfl
       virtual ~Binding();
     };
 
-    class VariableBinding : public Binding, public Positional
+    class VariableBinding : public Binding, public Positional, public IdentifiableAndIndexable
     {
-      std::string _M_ident;
       Expression *_M_expr;
     public:
       VariableBinding(const std::string &ident, Expression *expr, const Position &pos) :
-        Positional(pos), _M_ident(ident), _M_expr(expr) {}
+        Positional(pos), IdentifiableAndIndexable(ident), _M_expr(expr) {}
 
       ~VariableBinding();
 
-      const std::string &ident() const { return _M_ident; }
-
       Expression *expr() const { return _M_expr; }
     };
-    
+
     class TupleBinding : public Binding
     {
       std::unique_ptr<const std::list<std::unique_ptr<TupleBindingVariable>>> _M_vars;
@@ -937,16 +1105,13 @@ namespace lesfl
       Expression *expr() const { return _M_expr; }
     };
 
-    class TupleBindingVariable : public Positional
+    class TupleBindingVariable : public Positional, public IdentifiableAndIndexable
     {
-      const std::string _M_ident;
     public:
       TupleBindingVariable(const std::string &ident, const Position &pos) :
-        Positional(pos), _M_ident(ident) {}
+        Positional(pos), IdentifiableAndIndexable(ident) {}
 
       ~TupleBindingVariable();
-
-      const std::string &ident() const { return _M_ident; }
     };
 
     class Case
@@ -1116,34 +1281,28 @@ namespace lesfl
 
       SimpleLiteralValue *value() const { return _M_value.get(); }
     };
-    
-    class VariablePattern : public Pattern
+
+    class VariablePattern : public Pattern, public IdentifiableAndIndexable
     {
-      std::string _M_ident;
     public:
       VariablePattern(const std::string &ident, const Position &pos) :
-        Pattern(pos), _M_ident(ident) {}
+        Pattern(pos), IdentifiableAndIndexable(ident) {}
 
       ~VariablePattern();
-
-      const std::string &ident() const { return _M_ident; }
     };
 
-    class AsPattern : public Pattern
+    class AsPattern : public Pattern, public IdentifiableAndIndexable
     {
-      std::string _M_ident;
       std::unique_ptr<Pattern> _M_pattern;
     public:
       AsPattern(const std::string &ident, Pattern *pattern, const Position &pos) :
-        Pattern(pos), _M_ident(ident), _M_pattern(pattern) {}
+        Pattern(pos), IdentifiableAndIndexable(ident), _M_pattern(pattern) {}
 
       ~AsPattern();
 
-      const std::string &ident() const { return _M_ident; }
-
       Pattern *pattern() const { return _M_pattern.get(); }
     };
-    
+
     class WildcardPattern : public Pattern
     {
     public:
@@ -1167,17 +1326,14 @@ namespace lesfl
       TypeExpression *type_expr() const { return _M_type_expr.get(); }
     };
 
-    class PatternNamedFieldPair : public Positional
+    class PatternNamedFieldPair : public Positional, public IdentifiableAndIndexable
     {
-      std::string _M_ident;
       std::unique_ptr<Pattern> _M_pattern;
     public:
       PatternNamedFieldPair(const std::string &ident, Pattern *pattern, const Position &pos) :
-        Positional(pos), _M_ident(ident), _M_pattern(pattern) {}
+        Positional(pos), IdentifiableAndIndexable(ident), _M_pattern(pattern) {}
 
       ~PatternNamedFieldPair();
-
-      const std::string &ident() const { return _M_ident; }
 
       Pattern *pattern() const { return _M_pattern.get(); }
     };
@@ -1187,7 +1343,7 @@ namespace lesfl
     protected:
       LiteralValue() {}
     public:
-      ~LiteralValue();
+      virtual ~LiteralValue();
     };
 
     class NonUniqueLiteralValue : public LiteralValue
@@ -1205,7 +1361,7 @@ namespace lesfl
     public:
       ~SimpleLiteralValue();
     };
-    
+
     class CharValue : public SimpleLiteralValue
     {
       char _M_c;
@@ -1272,6 +1428,8 @@ namespace lesfl
       ~LambdaValue();
 
       const std::list<std::unique_ptr<Argument>> &args() const { return *_M_args; }
+
+      TypeExpression *result_type_expr() const { return _M_result_type_expr.get(); }
 
       Expression *body() const { return _M_body.get(); }
     };
@@ -1362,6 +1520,8 @@ namespace lesfl
         Value(pos), _M_fields(fields) {}
 
       ~TupleValue();
+
+      const std::list<std::unique_ptr<Value>> &fields() const { return *_M_fields; }
     };
 
     class ConstructorValue : public Value
@@ -1433,18 +1593,15 @@ namespace lesfl
 
       TypeExpression *type_expr() const { return _M_type_expr.get(); }
     };
-    
-    class ValueNamedFieldPair : public Positional
+
+    class ValueNamedFieldPair : public Positional, public IdentifiableAndIndexable
     {
-      std::string _M_ident;
       std::unique_ptr<Value> _M_value;
     public:
       ValueNamedFieldPair(const std::string &ident, Value *value, const Position &pos) :
-        Positional(pos), _M_ident(ident), _M_value(value) {}
+        Positional(pos), IdentifiableAndIndexable(ident), _M_value(value) {}
 
       ~ValueNamedFieldPair();
-
-      const std::string &ident() const { return _M_ident; }
 
       Value *value() const { return _M_value.get(); }
     };
@@ -1457,14 +1614,14 @@ namespace lesfl
       virtual ~TypeVariable();
     };
 
-    class DefinableTypeVariable : TypeVariable
+    class DefinableTypeVariable : public TypeVariable
     {
     protected:
       DefinableTypeVariable() {}
     public:
       ~DefinableTypeVariable();
     };
-    
+
     class TypeSynonymVariable : public DefinableTypeVariable
     {
       std::unique_ptr<TypeExpression> _M_expr;
@@ -1661,14 +1818,17 @@ namespace lesfl
 
     class FunctionConstructor : public Constructor
     {
+    protected:
       std::unique_ptr<const std::list<std::unique_ptr<Annotation>>> _M_annotations;
-    public:
+
       FunctionConstructor(const std::list<std::unique_ptr<Annotation>> *annotations, const std::string &ident, const Position &pos) :
         Constructor(ident, pos), _M_annotations(annotations) {}
-
+    public:
       ~FunctionConstructor();
 
       const std::list<std::unique_ptr<Annotation>> &annotations() const { return *_M_annotations; }
+
+      virtual std::size_t field_count() = 0;
     };
 
     class UnnamedFieldConstructor : public FunctionConstructor
@@ -1680,58 +1840,60 @@ namespace lesfl
 
       ~UnnamedFieldConstructor();
 
+      std::size_t field_count();
+
       const std::list<std::unique_ptr<TypeExpression>> &field_types() const { return *_M_field_types; }
     };
 
     class NamedFieldConstructor : public FunctionConstructor
     {
       std::unique_ptr<const std::list<std::unique_ptr<TypeNamedFieldPair>>> _M_field_types;
+      std::unordered_map<std::string, std::size_t> _M_field_indices;
     public:
       NamedFieldConstructor(const std::list<std::unique_ptr<Annotation>> *annotations, const std::string &ident, const std::list<std::unique_ptr<TypeNamedFieldPair>> *field_types, const Position &pos) :
         FunctionConstructor(annotations, ident, pos), _M_field_types(field_types) {}
 
       ~NamedFieldConstructor();
 
+      std::size_t field_count();
+
       const std::list<std::unique_ptr<TypeNamedFieldPair>> &field_types() const { return *_M_field_types; }
+
+      const std::unordered_map<std::string, std::size_t> &field_indices() const { return _M_field_indices; }
+
+      void set_field_indices(const std::unordered_map<std::string, std::size_t> &field_indices) { _M_field_indices = field_indices; }
     };
 
-    class TypeArgument : public Positional
+    class TypeArgument : public Positional, public IdentifiableAndIndexable
     {
-      std::string _M_ident;
     public:
-      TypeArgument(const std::string &ident, const Position &pos) : Positional(pos), _M_ident(ident) {}
+      TypeArgument(const std::string &ident, const Position &pos) :
+        Positional(pos), IdentifiableAndIndexable(ident) {}
 
       ~TypeArgument();
-
-      const std::string &ident() const { return _M_ident; }
     };
 
-    class TypeParameter : public Positional
+    class TypeParameter : public Positional, public IdentifiableAndIndexable
     {
-      std::string _M_ident;
     public:
-      TypeParameter(const std::string &ident, const Position &pos) : Positional(pos), _M_ident(ident) {}
+      TypeParameter(const std::string &ident, const Position &pos) :
+        Positional(pos), IdentifiableAndIndexable(ident) {}
 
       ~TypeParameter();
-
-      const std::string &ident() const { return _M_ident; }
     };
 
-    class TypeNamedFieldPair : public Positional
+    class TypeNamedFieldPair : public Positional, public Identifiable
     {
-      std::string _M_ident;
       std::unique_ptr<TypeExpression> _M_type_expr;
     public:
       TypeNamedFieldPair(const std::string &ident, TypeExpression *type_expr, const Position &pos) :
-        Positional(pos), _M_ident(ident), _M_type_expr(type_expr) {}
+        Positional(pos), Identifiable(ident), _M_type_expr(type_expr) {}
 
       ~TypeNamedFieldPair();
 
-      const std::string &ident() const { return _M_ident; }
-
       TypeExpression *type_expr() const { return _M_type_expr.get(); }
     };
-    
+
     class TypeExpression : public Positional
     {
     protected:
@@ -1752,16 +1914,13 @@ namespace lesfl
       Identifier *ident() const { return _M_ident.get(); }
     };
 
-    class TypeParameterExpression : public TypeExpression
+    class TypeParameterExpression : public TypeExpression, public IdentifiableAndIndexable
     {
-      std::string  _M_ident;
     public:
       TypeParameterExpression(const std::string &ident, const Position &pos) :
-        TypeExpression(pos), _M_ident(ident) {}
+        TypeExpression(pos), IdentifiableAndIndexable(ident) {}
 
       ~TypeParameterExpression();
-
-      const std::string ident() const { return _M_ident; }
     };
 
     class TupleType : public TypeExpression
