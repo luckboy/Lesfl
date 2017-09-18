@@ -1,5 +1,5 @@
 /****************************************************************************
- *   Copyright (C) 2016 Łukasz Szpakowski.                                  *
+ *   Copyright (C) 2016-2017 Łukasz Szpakowski.                             *
  *                                                                          *
  *   This software is licensed under the GNU Lesser General Public          *
  *   License v3 or later. See the LICENSE file and the GPL file for         *
@@ -461,11 +461,6 @@ namespace lesfl
           }
         }
         bool is_private;
-        if(set_key_ident(context, *ident, context.predef_module_ident, get_access_modifier_fun, &is_private, &add_private_error_fun)) {
-          return true;
-        } else {
-          if(is_private) return false;
-        }
         if(set_key_ident(context, *ident, context.predef_module_ident, get_access_modifier_fun, &is_private, &add_private_error_fun)) {
           return true;
         } else {
