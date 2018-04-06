@@ -1,5 +1,5 @@
 /****************************************************************************
- *   Copyright (C) 2016-2017 Łukasz Szpakowski.                             *
+ *   Copyright (C) 2016-2018 Łukasz Szpakowski.                             *
  *                                                                          *
  *   This software is licensed under the GNU Lesser General Public          *
  *   License v3 or later. See the LICENSE file and the GPL file for         *
@@ -109,8 +109,8 @@ namespace lesfl
     static bool check_and_clear_local_var_pair_iter_stack(ResolverContext &context, const Position &pos, list<Error> &errors)
     {
       bool is_success = true;
-      if(context.local_var_pair_iter_stack.empty()) {
-        errors.push_back(Error(pos, "internal error: local_var_pair_iter_stack is empty"));
+      if(!context.local_var_pair_iter_stack.empty()) {
+        errors.push_back(Error(pos, "internal error: local_var_pair_iter_stack isn't empty"));
         is_success = false;
       }
       context.local_var_pair_iter_stack.clear();
@@ -139,8 +139,8 @@ namespace lesfl
     static bool check_and_clear_type_param_indices(ResolverContext &context, const Position &pos, list<Error> &errors)
     {
       bool is_success = true;
-      if(context.type_param_indices.empty()) {
-        errors.push_back(Error(pos, "internal error: type_param_indices is empty"));
+      if(!context.type_param_indices.empty()) {
+        errors.push_back(Error(pos, "internal error: type_param_indices isn't empty"));
         is_success = false;
       }
       context.type_param_indices.clear();
