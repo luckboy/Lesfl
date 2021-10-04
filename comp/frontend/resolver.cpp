@@ -1,5 +1,5 @@
 /****************************************************************************
- *   Copyright (C) 2016-2018 Łukasz Szpakowski.                             *
+ *   Copyright (C) 2016-2018, 2021 Łukasz Szpakowski.                       *
  *                                                                          *
  *   This software is licensed under the GNU Lesser General Public          *
  *   License v3 or later. See the LICENSE file and the GPL file for         *
@@ -955,7 +955,6 @@ namespace lesfl
           errors.push_back(Error(pattern->pos(), "variable " + pattern->to_ident_string() + " is already defined"));
           is_success = false;
         }
-        return is_success;
         is_success &= resolve_idents_from_pattern(context, pattern->pattern(), errors);
         return is_success;
       },
