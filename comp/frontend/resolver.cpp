@@ -1351,7 +1351,7 @@ namespace lesfl
       [&](UserDefinedVariable *var) -> bool {
         bool is_success = check_and_clear_type_param_indices(context, pos, errors);
         if(var->is_template())
-          is_success &= resolve_idents_from_type_params(context, var->inst_type_params(), errors);
+          is_success &= resolve_idents_from_type_params(context, var->inst_type_params(), errors, true);
         context.template_flag = var->is_template();
         if(var->type_expr() != nullptr)
           is_success &= resolve_idents_from_type_expr(context, var->type_expr(), errors, true);
@@ -1392,7 +1392,7 @@ namespace lesfl
       [&](UserDefinedFunction *fun) -> bool {
         bool is_success = check_and_clear_type_param_indices(context, pos, errors);
         if(fun->is_template())
-          is_success &= resolve_idents_from_type_params(context, *(fun->inst_type_params()), errors);
+          is_success &= resolve_idents_from_type_params(context, *(fun->inst_type_params()), errors, true);
         is_success &= check_annotations(fun->annotations(), errors);
         context.template_flag = fun->is_template();
         is_success &= check_and_clear_local_var_pair_iter_stack(context, pos, errors);
@@ -1468,7 +1468,7 @@ namespace lesfl
       [&](TypeSynonymFunction *fun) -> bool {
         bool is_success = check_and_clear_type_param_indices(context, pos, errors);
         is_success &= resolve_idents_from_type_args(context, fun->args(), errors);
-        is_success &= resolve_idents_from_type_params(context, fun->inst_type_params(), errors, true);
+        is_success &= resolve_idents_from_type_params(context, fun->inst_type_params(), errors);
         context.template_flag = true;
         is_success &= resolve_idents_from_type_expr(context, fun->body(), errors);
         context.template_flag = false;
@@ -1478,7 +1478,7 @@ namespace lesfl
       [&](DatatypeFunction *fun) -> bool {
         bool is_success = check_and_clear_type_param_indices(context, pos, errors);
         is_success &= resolve_idents_from_type_args(context, fun->args(), errors);
-        is_success &= resolve_idents_from_type_params(context, fun->inst_type_params(), errors, true);
+        is_success &= resolve_idents_from_type_params(context, fun->inst_type_params(), errors);
         context.template_flag = true;
         is_success &= resolve_idents_from_datatype(context, fun->datatype(), pos, errors);
         context.template_flag = false;
