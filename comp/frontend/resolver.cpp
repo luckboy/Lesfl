@@ -496,7 +496,7 @@ namespace lesfl
           AbsoluteIdentifier datatype_abs_ident;
           abs_ident.get_module_ident(datatype_abs_ident);
           datatype_abs_ident.idents().push_back(*(info->datatype_ident()));
-          if(datatype_abs_ident.set_key_ident(*(context.tree.ident_table()))) {
+          if(!datatype_abs_ident.set_key_ident(*(context.tree.ident_table()))) {
             is_added_var = false;
             return false;
           }
