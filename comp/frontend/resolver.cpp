@@ -77,7 +77,7 @@ namespace lesfl
 
     static bool push_local_var(ResolverContext &context, IdentifiableAndIndexable &identifiable)
     {
-      if(context.top_local_var_idents.insert(identifiable.ident()).second) return false;
+      if(!context.top_local_var_idents.insert(identifiable.ident()).second) return false;
       auto pair = context.local_var_pairs.insert(make_pair(identifiable.ident(), LocalVariablePair()));
       pair.first->second.ref_count++;
       pair.first->second.indices.push_back(context.local_var_count);
