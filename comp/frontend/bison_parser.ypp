@@ -1078,11 +1078,15 @@ typing:         ':' type_expr                   { $$ = $2; }
 ;
 
 semi:           ';' onl
-|               '\n'
+|               nl
 ;
 
 onl:            /* empty */
-|               '\n'
+|               nl
+;
+
+nl:               nl '\n'
+|                 '\n'
 ;
 
 %%
