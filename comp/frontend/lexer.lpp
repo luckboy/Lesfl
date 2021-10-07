@@ -222,6 +222,8 @@ ESCAPE          "\\"([abtnvfr\"\'\\]|([0-3]?[0-7]{1,2})|("x"[0-9A-Fa-f]{1,2}))
   "type"                        { BEGIN(AFTER_KEYWORD); return token::TYPE; }
 
   "unique"                      { BEGIN(AFTER_KEYWORD); return token::UNIQUE; }
+  
+  "with"                        { BEGIN(AFTER_KEYWORD); return token::WITH; }
 
   {CONSTR_IDENT}                {
     BEGIN(tmp_state);

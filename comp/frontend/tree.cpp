@@ -841,6 +841,12 @@ namespace lesfl
     TypeExpression::~TypeExpression() {}
 
     //
+    // A TypeExpression class.
+    //
+
+    With::~With() {}
+
+    //
     // A TypeVariableExpression class.
     //
 

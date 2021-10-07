@@ -1919,6 +1919,21 @@ namespace lesfl
     public:
       ~TypeExpression();
     };
+    
+    class With : public TypeExpression
+    {
+      std::unique_ptr<TypeExpression> _M_type1;
+      std::unique_ptr<TypeExpression> _M_type2;
+    public:
+      With(TypeExpression *type1, TypeExpression *type2, const Position &pos) :
+        TypeExpression(pos), _M_type1(type1), _M_type2(type2) {}
+        
+      ~With();
+        
+      TypeExpression *type1() const { return _M_type1.get(); }
+
+      TypeExpression *type2() const { return _M_type2.get(); }
+    };
 
     class TypeVariableExpression : public TypeExpression
     {
@@ -1940,7 +1955,7 @@ namespace lesfl
 
       ~TypeParameterExpression();
     };
-
+    
     class TupleType : public TypeExpression
     {
     protected:

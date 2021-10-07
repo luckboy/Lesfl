@@ -1137,6 +1137,12 @@ namespace lesfl
         errors.push_back(Error(expr->pos(), "internal error: unknown type expression class"));
         return false;
       },
+      [&](With *with) -> bool {
+        bool is_success = true;
+        is_success &= resolve_idents_from_type_expr(context, with->type1(), errors, can_add_type_params);
+        is_success &= resolve_idents_from_type_expr(context, with->type2(), errors, can_add_type_params);
+        return is_success;
+      },
       [&](TypeVariableExpression *type_var_expr) -> bool {
         return resolve_type_var_ident(context, type_var_expr->ident(), type_var_expr->pos(), errors);
       },

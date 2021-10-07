@@ -187,6 +187,7 @@
 %token                  THROW           "throw"
 %token                  TYPE            "type"
 %token                  UNIQUE          "unique"
+%token                  WITH            "with"
 
 %destructor { if($$ != nullptr) delete $$; } <string>
 %destructor { if($$ != nullptr) delete $$; } <ident>
@@ -339,6 +340,7 @@
 %type <type_named_field_pair> type_named_field_pair
 %type <type_expr>       type_expr
 %type <type_expr>       type_expr2
+%type <type_expr>       type_expr3
 %type <type_exprs>      type_exprs
 %type <type_exprs>      one_or_more_type_exprs
 %type <type_exprs>      tuple_type_exprs
@@ -1040,7 +1042,7 @@ fun_constr:     annotations inline_modifier ident '(' type_exprs ')' {
   $$ = new NamedFieldConstructor($1, $2, *$3, $4, P(@2));
   delete $3;
 }
-|               annotations inline_modifier type_expr2 constr_bin_op type_expr2 {
+|               annotations inline_modifier type_expr3 constr_bin_op type_expr3 {
   $$ = make_binary_op_fun_constr($1, $2, $3, *$4, $5, P(@4));
   delete $4;
 }
@@ -1071,16 +1073,20 @@ one_or_more_type_params: one_or_more_type_params ',' type_param { add_unique_ptr
 type_param:     ident                           { $$ = new TypeParameter(*$1, P(@1)); delete $1; }
 ;
 
-type_expr:      '(' type_exprs ')' fun_modifier "->" type_expr {
-  $$ = new NonUniqueFunctionType($2, $4, $6, P(@1));
-}
-|               '(' type_exprs ')' "unique" "->" type_expr {
-  $$ = new UniqueFunctionType($2, $6, P(@1));
-}
+type_expr:      type_expr "with" type_expr2     { $$ = new With($1, $3, P(@1)); }
 |               type_expr2
 ;
 
-type_expr2:     constr_qident                   { $$ = new TypeVariableExpression($1, P(@1)); }
+type_expr2:      '(' type_exprs ')' fun_modifier "->" type_expr2 {
+  $$ = new NonUniqueFunctionType($2, $4, $6, P(@1));
+}
+|               '(' type_exprs ')' "unique" "->" type_expr2 {
+  $$ = new UniqueFunctionType($2, $6, P(@1));
+}
+|               type_expr3
+;
+
+type_expr3:     constr_qident                   { $$ = new TypeVariableExpression($1, P(@1)); }
 |               VAR_IDENT                       { $$ = new TypeParameterExpression(*$1, P(@1)); delete $1; }
 |               '(' tuple_type_exprs ')'        { $$ = new NonUniqueTupleType($2, P(@1)); }
 |               "unique" '(' tuple_type_exprs ')' { $$ = new UniqueTupleType($3, P(@1)); }
