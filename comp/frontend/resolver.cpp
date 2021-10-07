@@ -42,6 +42,7 @@ namespace lesfl
         size_t local_var_count;
         unordered_map<string, LocalVariablePair> local_var_pairs;
         unordered_set<string> top_local_var_idents;
+        list<size_t> closure_limit_stack;
         unordered_map<string, size_t> type_param_indices;
         size_t type_param_count;
         bool template_flag;
@@ -68,8 +69,14 @@ namespace lesfl
     {
       auto iter = context.local_var_pairs.find(ident.idents().back());
       if(iter == context.local_var_pairs.end()) return false;
-      ident.set_index(iter->second.indices.back());
-      return true;
+      size_t closure_limit = 0;
+      if(!context.closure_limit_stack.empty()) closure_limit = context.closure_limit_stack.back();
+      size_t i = iter->second.indices.back();
+      if(i >= closure_limit) {
+        ident.set_index(i);
+        return true;
+      } else
+        return false;
     }
 
     static inline void push_local_var_list(ResolverContext &context)
@@ -117,6 +124,29 @@ namespace lesfl
       return is_success;
     }
 
+    static void push_closure_limit(ResolverContext &context, size_t local_var_count)
+    { context.closure_limit_stack.push_back(local_var_count); }
+    
+    static bool pop_closure_limit(ResolverContext &context)
+    {
+      if(!context.closure_limit_stack.empty()) {
+        context.closure_limit_stack.pop_back();
+        return true;
+      } else
+        return false;
+    }
+    
+    static bool check_and_clear_closure_limit_stack(ResolverContext &context, const Position &pos, list<Error> &errors)
+    {
+      bool is_success = true;
+      if(!context.closure_limit_stack.empty()) {
+        errors.push_back(Error(pos, "internal error: closure_limit_stack isn't empty"));
+        is_success = false;
+      }
+      context.closure_limit_stack.clear();
+      return is_success;
+    }
+    
     static bool set_type_param_index(ResolverContext &context, IdentifiableAndIndexable &identifiable)
     {
       auto iter = context.type_param_indices.find(identifiable.ident());
@@ -573,9 +603,14 @@ namespace lesfl
         return true;
       },
       [&](LambdaValue *value) -> bool {
+        NonUniqueLambdaValue *non_unique_value = dynamic_cast<NonUniqueLambdaValue *>(value);
+        if(non_unique_value != nullptr && non_unique_value->fun_modifier() == FunctionModifier::PRIMITIVE)
+          push_closure_limit(context, context.local_var_count);
         bool is_success = resolve_idents_from_args(context, value->args(), errors);
         is_success &= resolve_idents_from_type_expr(context, value->result_type_expr(), errors);
         is_success &= resolve_idents_from_expr(context, value->body(), errors);
+        if(non_unique_value != nullptr && non_unique_value->fun_modifier() == FunctionModifier::PRIMITIVE)
+          pop_closure_limit(context);
         pop_local_vars(context);
         return is_success;
       });
@@ -1001,7 +1036,10 @@ namespace lesfl
         return false;
       },
       [&](VariableLiteralValue *value) -> bool {
-        return resolve_idents_from_literal_value(context, value->literal_value(), value->pos(), errors);
+        bool is_success = check_and_clear_local_var_pair_iter_stack(context, value->pos(), errors);
+        is_success &= check_and_clear_closure_limit_stack(context, value->pos(), errors);
+        is_success &= resolve_idents_from_literal_value(context, value->literal_value(), value->pos(), errors);
+        return is_success;
       },
       [&](CollectionValue *value) -> bool {
         bool is_success = true;
@@ -1402,6 +1440,7 @@ namespace lesfl
         is_success &= check_annotations(fun->annotations(), errors);
         context.template_flag = fun->is_template();
         is_success &= check_and_clear_local_var_pair_iter_stack(context, pos, errors);
+        is_success &= check_and_clear_closure_limit_stack(context, pos, errors);
         is_success &= resolve_idents_from_args(context, fun->args(), errors, true);
         if(fun->result_type_expr() != nullptr)
           is_success &= resolve_idents_from_type_expr(context, fun->result_type_expr(), errors, true);
