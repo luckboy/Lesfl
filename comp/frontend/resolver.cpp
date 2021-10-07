@@ -1237,6 +1237,7 @@ namespace lesfl
           is_success &= resolve_idents_from_type_expr(context, arg->type_expr(), errors, can_add_type_params);
         }
       }
+      clear_top_local_var_idents(context);
       return is_success;
     }
 
