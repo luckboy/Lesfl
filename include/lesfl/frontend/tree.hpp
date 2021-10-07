@@ -1,5 +1,5 @@
 /****************************************************************************
- *   Copyright (C) 2016 Łukasz Szpakowski.                                  *
+ *   Copyright (C) 2016, 2021 Łukasz Szpakowski.                            *
  *                                                                          *
  *   This software is licensed under the GNU Lesser General Public          *
  *   License v3 or later. See the LICENSE file and the GPL file for         *
@@ -72,6 +72,12 @@ namespace lesfl
       PRIVATE
     };
 
+    enum class InlineModifier
+    {
+      NONE,
+      INLINE
+    };
+    
     enum class FunctionModifier
     {
       NONE,
@@ -100,6 +106,18 @@ namespace lesfl
       virtual ~Accessible();
       
       AccessModifier access_modifier() const { return _M_access_modifier; }
+    };
+    
+    class Inlinable
+    {
+    protected:
+      InlineModifier _M_inline_modifier;
+      
+      Inlinable(InlineModifier inline_modifier) : _M_inline_modifier(inline_modifier) {}
+    public:
+      virtual ~Inlinable();
+      
+      InlineModifier inline_modifier() const { return _M_inline_modifier; }
     };
 
     class Identifiable
@@ -655,24 +673,24 @@ namespace lesfl
       TypeExpression *result_type_expr() const { return _M_result_type_expr.get(); }
     };
 
-    class UserDefinedFunction : public DefinableFunction
+    class UserDefinedFunction : public DefinableFunction, public Inlinable
     {
       std::unique_ptr<Expression> _M_body;
     public:
-      UserDefinedFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
-        DefinableFunction(annotations, fun_modifier, args), _M_body(body) {}
+      UserDefinedFunction(const std::list<std::unique_ptr<Annotation>> *annotations, InlineModifier inline_modifier, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
+        DefinableFunction(annotations, fun_modifier, args), Inlinable(inline_modifier), _M_body(body) {}
 
-      UserDefinedFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
-        DefinableFunction(annotations, fun_modifier, args, result_type_expr), _M_body(body) {}
+      UserDefinedFunction(const std::list<std::unique_ptr<Annotation>> *annotations, InlineModifier inline_modifier, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
+        DefinableFunction(annotations, fun_modifier, args, result_type_expr), Inlinable(inline_modifier), _M_body(body) {}
 
-      UserDefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
-        DefinableFunction(inst_type_params, annotations, fun_modifier, args), _M_body(body) {}
+      UserDefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, InlineModifier inline_modifier, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
+        DefinableFunction(inst_type_params, annotations, fun_modifier, args), Inlinable(inline_modifier), _M_body(body) {}
 
-      UserDefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
-        DefinableFunction(inst_type_params, annotations, fun_modifier, args, result_type_expr), _M_body(body) {}
+      UserDefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, InlineModifier inline_modifier, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
+        DefinableFunction(inst_type_params, annotations, fun_modifier, args, result_type_expr), Inlinable(inline_modifier), _M_body(body) {}
 
       UserDefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr) :
-        DefinableFunction(inst_type_params, new std::list<std::unique_ptr<Annotation>>(), fun_modifier, args, result_type_expr), _M_body(nullptr) {}
+        DefinableFunction(inst_type_params, new std::list<std::unique_ptr<Annotation>>(), fun_modifier, args, result_type_expr), Inlinable(InlineModifier::NONE), _M_body(nullptr) {}
 
       ~UserDefinedFunction();
 
@@ -691,12 +709,12 @@ namespace lesfl
       const std::string &external_fun_ident() const { return _M_external_fun_ident; }
     };
 
-    class NativeFunction : public DefinableFunction
+    class NativeFunction : public DefinableFunction, public Inlinable
     {
       std::string _M_native_fun_ident;
     public:
-      NativeFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, const std::string &native_fun_ident) :
-        DefinableFunction(annotations, fun_modifier, args, result_type_expr), _M_native_fun_ident(native_fun_ident) {}
+      NativeFunction(const std::list<std::unique_ptr<Annotation>> *annotations, InlineModifier inline_modifier, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, const std::string &native_fun_ident) :
+        DefinableFunction(annotations, fun_modifier, args, result_type_expr), Inlinable(inline_modifier), _M_native_fun_ident(native_fun_ident) {}
 
       ~NativeFunction();
 
@@ -1412,18 +1430,18 @@ namespace lesfl
       const std::string &string() const { return _M_string; }
     };
 
-    class LambdaValue : public LiteralValue
+    class LambdaValue : public LiteralValue, public Inlinable
     {
     protected:
       std::unique_ptr<const std::list<std::unique_ptr<Argument>>> _M_args;
       std::unique_ptr<TypeExpression> _M_result_type_expr;
       std::unique_ptr<Expression> _M_body;
 
-      LambdaValue(const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
-        _M_args(args), _M_result_type_expr(nullptr), _M_body(body) {}
+      LambdaValue(InlineModifier inline_modifier, const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
+        Inlinable(inline_modifier), _M_args(args), _M_result_type_expr(nullptr), _M_body(body) {}
 
-      LambdaValue(const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
-        _M_args(args), _M_result_type_expr(result_type_expr), _M_body(body) {}
+      LambdaValue(InlineModifier inline_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
+        Inlinable(inline_modifier), _M_args(args), _M_result_type_expr(result_type_expr), _M_body(body) {}
     public:
       ~LambdaValue();
 
@@ -1438,11 +1456,11 @@ namespace lesfl
     {
       FunctionModifier _M_fun_modifier;
     public:
-      NonUniqueLambdaValue(FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
-        LambdaValue(args, body), _M_fun_modifier(fun_modifier) {}
+      NonUniqueLambdaValue(InlineModifier inline_modifier, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
+        LambdaValue(inline_modifier, args, body), _M_fun_modifier(fun_modifier) {}
 
-      NonUniqueLambdaValue(FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
-        LambdaValue(args, result_type_expr, body), _M_fun_modifier(fun_modifier) {}
+      NonUniqueLambdaValue(InlineModifier inline_modifier, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
+        LambdaValue(inline_modifier, args, result_type_expr, body), _M_fun_modifier(fun_modifier) {}
 
       ~NonUniqueLambdaValue();
 
@@ -1452,11 +1470,11 @@ namespace lesfl
     class UniqueLambdaValue : public LambdaValue
     {
     public:
-      UniqueLambdaValue(const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
-        LambdaValue(args, body) {}
+      UniqueLambdaValue(InlineModifier inline_modifier, const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
+        LambdaValue(inline_modifier, args, body) {}
 
-      UniqueLambdaValue(const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
-        LambdaValue(args, result_type_expr, body) {}
+      UniqueLambdaValue(InlineModifier inline_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
+        LambdaValue(inline_modifier, args, result_type_expr, body) {}
 
       ~UniqueLambdaValue();
     };
@@ -1816,13 +1834,13 @@ namespace lesfl
       ~VariableConstructor();
     };
 
-    class FunctionConstructor : public Constructor
+    class FunctionConstructor : public Constructor, public Inlinable
     {
     protected:
       std::unique_ptr<const std::list<std::unique_ptr<Annotation>>> _M_annotations;
 
-      FunctionConstructor(const std::list<std::unique_ptr<Annotation>> *annotations, const std::string &ident, const Position &pos) :
-        Constructor(ident, pos), _M_annotations(annotations) {}
+      FunctionConstructor(const std::list<std::unique_ptr<Annotation>> *annotations, InlineModifier inline_modifier, const std::string &ident, const Position &pos) :
+        Constructor(ident, pos), Inlinable(inline_modifier), _M_annotations(annotations) {}
     public:
       ~FunctionConstructor();
 
@@ -1835,8 +1853,8 @@ namespace lesfl
     {
       std::unique_ptr<const std::list<std::unique_ptr<TypeExpression>>> _M_field_types;
     public:
-      UnnamedFieldConstructor(const std::list<std::unique_ptr<Annotation>> *annotations, const std::string &ident, const std::list<std::unique_ptr<TypeExpression>> *field_types, const Position &pos) :
-        FunctionConstructor(annotations, ident, pos), _M_field_types(field_types) {}
+      UnnamedFieldConstructor(const std::list<std::unique_ptr<Annotation>> *annotations, InlineModifier inline_modifier, const std::string &ident, const std::list<std::unique_ptr<TypeExpression>> *field_types, const Position &pos) :
+        FunctionConstructor(annotations, inline_modifier, ident, pos), _M_field_types(field_types) {}
 
       ~UnnamedFieldConstructor();
 
@@ -1850,8 +1868,8 @@ namespace lesfl
       std::unique_ptr<const std::list<std::unique_ptr<TypeNamedFieldPair>>> _M_field_types;
       std::unordered_map<std::string, std::size_t> _M_field_indices;
     public:
-      NamedFieldConstructor(const std::list<std::unique_ptr<Annotation>> *annotations, const std::string &ident, const std::list<std::unique_ptr<TypeNamedFieldPair>> *field_types, const Position &pos) :
-        FunctionConstructor(annotations, ident, pos), _M_field_types(field_types) {}
+      NamedFieldConstructor(const std::list<std::unique_ptr<Annotation>> *annotations, InlineModifier inline_modifier, const std::string &ident, const std::list<std::unique_ptr<TypeNamedFieldPair>> *field_types, const Position &pos) :
+        FunctionConstructor(annotations, inline_modifier, ident, pos), _M_field_types(field_types) {}
 
       ~NamedFieldConstructor();
 

@@ -64,7 +64,7 @@
   
   static Value *make_binary_op_value(Value *value1, const std::string &ident, Value *value2, const Position &pos);
 
-  static FunctionConstructor *make_binary_op_fun_constr(const std::list<std::unique_ptr<Annotation>> *annotations, TypeExpression *type1, const std::string &ident, TypeExpression *type2, const Position &pos);
+  static FunctionConstructor *make_binary_op_fun_constr(const std::list<std::unique_ptr<Annotation>> *annotations, InlineModifier inline_modifier, TypeExpression *type1, const std::string &ident, TypeExpression *type2, const Position &pos);
 
   template<typename _T>
   static inline std::list<std::unique_ptr<_T>> *make_unique_ptr_list();
@@ -97,6 +97,7 @@
   std::string *string;
   BuiltinFunction builtin_fun;
   AccessModifier access_modifier;
+  InlineModifier inline_modifier;
   FunctionModifier fun_modifier;
   Identifier *ident;
   Definition *def;
@@ -122,6 +123,8 @@
   TypeNamedFieldPair *type_named_field_pair;
   TypeExpression *type_expr;
   std::pair<AccessModifier, FunctionModifier> *modifiers;
+  std::tuple<AccessModifier, InlineModifier, FunctionModifier> *modifiers2;
+  std::pair<InlineModifier, FunctionModifier> *modifiers3;
   std::tuple<std::string, std::list<std::unique_ptr<Argument>> *, Position> *ident_and_args;
   std::list<std::unique_ptr<Definition>> *defs;
   std::list<std::unique_ptr<Argument>> *args;
@@ -172,6 +175,7 @@
 %token                  IF              "if"
 %token                  IMPORT          "import"
 %token                  IN              "in"
+%token                  INLINE          "inline"
 %token                  INSTANCE        "instance"
 %token                  LET             "let"
 %token                  MATCH           "match"
@@ -187,6 +191,8 @@
 %destructor { if($$ != nullptr) delete $$; } <string>
 %destructor { if($$ != nullptr) delete $$; } <ident>
 %destructor { if($$ != nullptr) delete $$; } <modifiers>
+%destructor { if($$ != nullptr) delete $$; } <modifiers2>
+%destructor { if($$ != nullptr) delete $$; } <modifiers3>
 %destructor { if($$ != nullptr) delete $$; } <ident_and_args>
 %destructor { if($$ != nullptr) delete $$; } <def>
 %destructor { if($$ != nullptr) delete $$; } <arg>
@@ -228,7 +234,10 @@
 
 %type <builtin_fun>     builtin_fun
 %type <modifiers>       modifiers
+%type <modifiers2>      modifiers2
+%type <modifiers3>      modifiers3
 %type <access_modifier> access_modifier
+%type <inline_modifier> inline_modifier
 %type <fun_modifier>    fun_modifier
 %type <ident>           qident
 %type <ident>           rel_qident
@@ -366,8 +375,40 @@ modifiers:      access_modifier fun_modifier    {
 }
 ;
 
+modifiers2:      access_modifier inline_modifier fun_modifier {
+  $$ = new std::tuple<AccessModifier, InlineModifier, FunctionModifier>($1, $2, $3);
+}
+|               access_modifier fun_modifier inline_modifier {
+  $$ = new std::tuple<AccessModifier, InlineModifier, FunctionModifier>($1, $3, $2);
+}
+|               inline_modifier access_modifier fun_modifier {
+  $$ = new std::tuple<AccessModifier, InlineModifier, FunctionModifier>($2, $1, $3);
+}
+|               fun_modifier access_modifier inline_modifier {
+  $$ = new std::tuple<AccessModifier, InlineModifier, FunctionModifier>($2, $3, $1);
+}
+|               inline_modifier fun_modifier access_modifier {
+  $$ = new std::tuple<AccessModifier, InlineModifier, FunctionModifier>($3, $1, $2);
+}
+|               fun_modifier inline_modifier access_modifier {
+  $$ = new std::tuple<AccessModifier, InlineModifier, FunctionModifier>($3, $2, $1);
+}
+;
+
+modifiers3:     inline_modifier fun_modifier    {
+  $$ = new std::pair<InlineModifier, FunctionModifier>($1, $2);
+}
+|               fun_modifier inline_modifier    {
+  $$ = new std::pair<InlineModifier, FunctionModifier>($2, $1);
+}
+;
+
 access_modifier: /* empty */                    { $$ = AccessModifier::NONE; }
 |               "private"                       { $$ = AccessModifier::PRIVATE; }
+;
+
+inline_modifier: /* empty */                    { $$ = InlineModifier::NONE; }
+|               "inline"                        { $$ = InlineModifier::INLINE; }
 ;
 
 fun_modifier:   /* empty */                     { $$ = FunctionModifier::NONE; }
@@ -501,8 +542,8 @@ def:            "import" qident {
   $$ = new VariableInstanceDefinition(*$3, new VariableInstance(new UserDefinedVariable(make_unique_ptr_list<TypeParameter>(), $4, $6)), P(@3));
   delete $3;
 }
-|               annotations modifiers ident_and_args opt_typing '=' expr {
-  $$ = new FunctionDefinition($2->first, std::get<0>(*$3), new UserDefinedFunction($1, $2->second, std::get<1>(*$3), $4, $6), std::get<2>(*$3));
+|               annotations modifiers2 ident_and_args opt_typing '=' expr {
+  $$ = new FunctionDefinition(std::get<0>(*$2), std::get<0>(*$3), new UserDefinedFunction($1, std::get<1>(*$2), std::get<2>(*$2), std::get<1>(*$3), $4, $6), std::get<2>(*$3));
   delete $2;
   delete $3;
 }
@@ -512,14 +553,14 @@ def:            "import" qident {
   delete $3;
   delete $6;
 }
-|               annotations modifiers "native" ident_and_typed_args typing '=' ident {
-  $$ = new FunctionDefinition($2->first, std::get<0>(*$4), new NativeFunction($1, $2->second, std::get<1>(*$4), $5, *$7), std::get<2>(*$4));
+|               annotations modifiers2 "native" ident_and_typed_args typing '=' ident {
+  $$ = new FunctionDefinition(std::get<0>(*$2), std::get<0>(*$4), new NativeFunction($1, std::get<1>(*$2), std::get<2>(*$2), std::get<1>(*$4), $5, *$7), std::get<2>(*$4));
   delete $2;
   delete $4;
   delete $7;
 }
-|               template annotations modifiers ident_and_args opt_typing '=' expr {
-  $$ = new FunctionDefinition($3->first, std::get<0>(*$4), new UserDefinedFunction($1, $2, $3->second, std::get<1>(*$4), $5, $7), std::get<2>(*$4));
+|               template annotations modifiers2 ident_and_args opt_typing '=' expr {
+  $$ = new FunctionDefinition(std::get<0>(*$3), std::get<0>(*$4), new UserDefinedFunction($1, $2, std::get<1>(*$3), std::get<2>(*$3), std::get<1>(*$4), $5, $7), std::get<2>(*$4));
   delete $3;
   delete $4;
 }
@@ -528,8 +569,9 @@ def:            "import" qident {
   delete $2;
   delete $3;
 }
-|               "instance" annotations fun_modifier ident_and_args opt_typing '=' expr {
-  $$ = new FunctionInstanceDefinition(std::get<0>(*$4), new FunctionInstance(new UserDefinedFunction($2, $3, std::get<1>(*$4), $5, $7)), std::get<2>(*$4));
+|               "instance" annotations modifiers3 ident_and_args opt_typing '=' expr {
+  $$ = new FunctionInstanceDefinition(std::get<0>(*$4), new FunctionInstance(new UserDefinedFunction($2, $3->first, $3->second, std::get<1>(*$4), $5, $7)), std::get<2>(*$4));
+  delete $3;
   delete $4;
 }
 |               "instance" fun_modifier "extern" ident_and_typed_args typing '=' ident {
@@ -537,13 +579,15 @@ def:            "import" qident {
   delete $4;
   delete $7;
 }
-|               "instance" annotations fun_modifier "native" ident_and_typed_args typing '=' ident {
-  $$ = new FunctionInstanceDefinition(std::get<0>(*$5), new FunctionInstance(new NativeFunction($2, $3, std::get<1>(*$5), $6, *$8)), std::get<2>(*$5));
+|               "instance" annotations modifiers3 "native" ident_and_typed_args typing '=' ident {
+  $$ = new FunctionInstanceDefinition(std::get<0>(*$5), new FunctionInstance(new NativeFunction($2, $3->first, $3->second, std::get<1>(*$5), $6, *$8)), std::get<2>(*$5));
+  delete $3;
   delete $5;
   delete $8;
 }
-|               "template" "instance" annotations fun_modifier ident_and_args opt_typing '=' expr {
-  $$ = new FunctionInstanceDefinition(std::get<0>(*$5),  new FunctionInstance(new UserDefinedFunction($3, $4, std::get<1>(*$5), $6, $8)), std::get<2>(*$5));
+|               "template" "instance" annotations modifiers3 ident_and_args opt_typing '=' expr {
+  $$ = new FunctionInstanceDefinition(std::get<0>(*$5),  new FunctionInstance(new UserDefinedFunction($3, $4->first, $4->second, std::get<1>(*$5), $6, $8)), std::get<2>(*$5));
+  delete $4;
   delete $5;
 }
 |               access_modifier "type" ident '=' type_expr {
@@ -887,8 +931,9 @@ pattern_named_field_pair:
 ;
 
 literal:        simple_literal                  { $$ = $1; }
-|               fun_modifier '\\' '(' args ')' opt_typing "->" expr {
-  $$ = new NonUniqueLambdaValue($1, $4, $6, $8);
+|               modifiers3 '\\' '(' args ')' opt_typing "->" expr {
+  $$ = new NonUniqueLambdaValue($1->first, $1->second, $4, $6, $8);
+  delete $1;
 }
 ;
 
@@ -910,8 +955,8 @@ neg_simple_literal: '-' INT8                    { $$ = new IntValue(IntType::INT
 |               '-' DOUBLE                      { $$ = new FloatValue(FloatType::DOUBLE, -$2); }
 ;
 
-unique_literal: "unique" '\\' '(' args ')' opt_typing "->" expr {
-  $$ = new UniqueLambdaValue($4, $6, $8);
+unique_literal: inline_modifier "unique" '\\' '(' args ')' opt_typing "->" expr {
+  $$ = new UniqueLambdaValue($1, $5, $7, $9);
 }
 ;
 
@@ -987,14 +1032,17 @@ one_or_more_fun_constrs:
 |               fun_constr                      { $$ = make_shared_ptr_list($1); }
 ;
 
-fun_constr:     annotations ident '(' type_exprs ')' { $$ = new UnnamedFieldConstructor($1, *$2, $4, P(@2)); delete $2; }
-|               annotations ident_and_lbrace one_or_more_type_named_field_pairs '}' {
-  $$ = new NamedFieldConstructor($1, *$2, $3, P(@2));
-  delete $2;
-}
-|               annotations type_expr2 constr_bin_op type_expr2 {
-  $$ = make_binary_op_fun_constr($1, $2, *$3, $4, P(@3));
+fun_constr:     annotations inline_modifier ident '(' type_exprs ')' {
+  $$ = new UnnamedFieldConstructor($1, $2, *$3, $5, P(@3));
   delete $3;
+}
+|               annotations inline_modifier ident_and_lbrace one_or_more_type_named_field_pairs '}' {
+  $$ = new NamedFieldConstructor($1, $2, *$3, $4, P(@2));
+  delete $3;
+}
+|               annotations inline_modifier type_expr2 constr_bin_op type_expr2 {
+  $$ = make_binary_op_fun_constr($1, $2, $3, *$4, $5, P(@4));
+  delete $4;
 }
 ;
 
@@ -1236,12 +1284,12 @@ static Value *make_binary_op_value(Value *value1, const std::string &ident, Valu
   return new UnnamedFieldConstructorValue(new RelativeIdentifier(ident), field_values, pos);
 }
 
-static FunctionConstructor *make_binary_op_fun_constr(const std::list<std::unique_ptr<Annotation>> *annotations, TypeExpression *type1, const std::string &ident, TypeExpression *type2, const Position &pos)
+static FunctionConstructor *make_binary_op_fun_constr(const std::list<std::unique_ptr<Annotation>> *annotations, InlineModifier inline_modifier, TypeExpression *type1, const std::string &ident, TypeExpression *type2, const Position &pos)
 {
   std::list<std::unique_ptr<TypeExpression>> *field_types = new std::list<std::unique_ptr<TypeExpression>>();
   field_types->push_back(std::unique_ptr<TypeExpression>(type1));
   field_types->push_back(std::unique_ptr<TypeExpression>(type2));
-  return new UnnamedFieldConstructor(annotations, ident, field_types, pos);
+  return new UnnamedFieldConstructor(annotations, inline_modifier, ident, field_types, pos);
 }
 
 template<typename _T>

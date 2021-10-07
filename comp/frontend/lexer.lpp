@@ -199,6 +199,8 @@ ESCAPE          "\\"([abtnvfr\"\'\\]|([0-3]?[0-7]{1,2})|("x"[0-9A-Fa-f]{1,2}))
 
   "in"                          { if(yy_start_stack_ptr > 0) yy_pop_state(); tmp_state = YY_START; BEGIN(AFTER_KEYWORD); return token::IN; }
 
+  "inline"                      { BEGIN(AFTER_KEYWORD); return token::INLINE; }
+
   "instance"                    { BEGIN(AFTER_KEYWORD); return token::INSTANCE; }
 
   "let"                         { BEGIN(tmp_state); yy_push_state(INITIAL); tmp_state = YY_START; return token::LET; }
