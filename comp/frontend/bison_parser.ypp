@@ -1248,8 +1248,8 @@ static std::tuple<std::string, std::list<std::unique_ptr<Argument>> *, Position>
 static Expression *make_if(Expression *expr1, Expression *expr2, Expression *expr3, const Position &pos)
 {
   std::list<std::unique_ptr<Case>> *cases = new std::list<std::unique_ptr<Case>>();
-  cases->push_back(std::unique_ptr<Case>(new Case(new VariableConstructorPattern(new AbsoluteIdentifier(std::list<std::string> { "stdlib", "predef", "True" }), pos), expr2)));
-  cases->push_back(std::unique_ptr<Case>(new Case(new VariableConstructorPattern(new AbsoluteIdentifier(std::list<std::string> { "stdlib", "predef", "False" }), pos), expr2)));
+  cases->push_back(std::unique_ptr<Case>(new Case(new VariableConstructorPattern(new AbsoluteIdentifier(std::list<std::string> { "stdlib", "True" }), pos), expr2)));
+  cases->push_back(std::unique_ptr<Case>(new Case(new VariableConstructorPattern(new AbsoluteIdentifier(std::list<std::string> { "stdlib", "False" }), pos), expr3)));
   return new Match(expr1, cases, pos);
 }
 
