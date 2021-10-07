@@ -1,5 +1,5 @@
 /****************************************************************************
- *   Copyright (C) 2016 Łukasz Szpakowski.                                  *
+ *   Copyright (C) 2016, 2021 Łukasz Szpakowski.                            *
  *                                                                          *
  *   This software is licensed under the GNU Lesser General Public          *
  *   License v3 or later. See the LICENSE file and the GPL file for         *
@@ -29,8 +29,9 @@ namespace lesfl
         BisonParser::semantic_type *value;
         BisonParser::location_type *loc;
         std::string buffer;
+        int tmp_state;
       public:
-        Lexer(std::istream *is) : LesflFrontendPrivFlexLexer(is) {}
+        Lexer(std::istream *is) : LesflFrontendPrivFlexLexer(is), tmp_state(0) {}
 
         virtual ~Lexer();
 

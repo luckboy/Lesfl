@@ -1,5 +1,5 @@
 /****************************************************************************
- *   Copyright (C) 2016 Łukasz Szpakowski.                                  *
+ *   Copyright (C) 2016, 2021 Łukasz Szpakowski.                            *
  *                                                                          *
  *   This software is licensed under the GNU Lesser General Public          *
  *   License v3 or later. See the LICENSE file and the GPL file for         *
@@ -36,7 +36,7 @@
 %option stack
 %option noyywrap
 
-INT	        ([1-9][0-9]+)|("0"[0-9]*)|("0"[Xx][0-9A-Fa-f]+)
+INT	            ([1-9][0-9]+)|("0"[0-9]*)|("0"[Xx][0-9A-Fa-f]+)
 FLOAT           ([0-9]+"."[0-9]*([Ee][+\-]?[0-9]+)?)|([0-9]+([Ee][+\-]?[0-9]+)?)
 CONSTR_IDENT    [A-Z][_A-Za-z0-9]*
 VAR_IDENT       [_a-z][_A-Za-z0-9]*
@@ -64,8 +64,10 @@ ESCAPE          "\\"([abtnvfr\"\'\\]|([0-3]?[0-7]{1,2})|("x"[0-9A-Fa-f]{1,2}))
 <IN_CHAR>{
   "\'"                          {
     yy_pop_state();
+    BEGIN(tmp_state);
     if(buffer.length() == 0) throw syntax_error(*loc, "empty character literal");
     value->c = buffer[0];
+    return token::CHAR;
   }
   [^\n\'\\]                     {
     if(buffer.length() > 1) throw syntax_error(*loc, "unclosed character literal");
@@ -82,7 +84,9 @@ ESCAPE          "\\"([abtnvfr\"\'\\]|([0-3]?[0-7]{1,2})|("x"[0-9A-Fa-f]{1,2}))
 <IN_STRING>{
   "\""                          {
     yy_pop_state();
+    BEGIN(tmp_state);
     value->string = new std::string(buffer);
+    return token::STRING;
   }
   [^\n\'\\]                     { buffer += yytext[0]; }
   "\\\n"
@@ -99,36 +103,42 @@ ESCAPE          "\\"([abtnvfr\"\'\\]|([0-3]?[0-7]{1,2})|("x"[0-9A-Fa-f]{1,2}))
 
   
   {INT}"i8"                     {
+    BEGIN(tmp_state);
     if(!string_to_int(yytext, value->i, INT8_MAX))
       throw syntax_error(*loc, "integer number is too large");
     return token::INT8;
   }
 
   {INT}"i16"                    {
+    BEGIN(tmp_state);
     if(!string_to_int(yytext, value->i, INT16_MAX))
       throw syntax_error(*loc, "integer number is too large");
     return token::INT16;
   }
 
   {INT}"i32"                    {
+    BEGIN(tmp_state);
     if(!string_to_int(yytext, value->i, INT32_MAX))
       throw syntax_error(*loc, "integer number is too large");
     return token::INT32;
   }
 
   {INT}"i64"?                   {
+    BEGIN(tmp_state);
     if(string_to_int(yytext, value->i, INT64_MAX))
       throw syntax_error(*loc, "integer number is too large");
     return token::INT64;
   }
 
   {FLOAT}"f"                    {
+    BEGIN(tmp_state);
     if(!string_to_float(yytext, value->f, FLT_MAX))
       throw syntax_error(*loc, "floating-point number is too large");
     return token::FLOAT;
   }
 
   {FLOAT}"d"?                   {
+    BEGIN(tmp_state);
     if(!string_to_float(yytext, value->f, DBL_MAX))
       throw syntax_error(*loc, "floating-point number is too large");
     return token::DOUBLE;
@@ -136,26 +146,17 @@ ESCAPE          "\\"([abtnvfr\"\'\\]|([0-3]?[0-7]{1,2})|("x"[0-9A-Fa-f]{1,2}))
 
   "\""                          { yy_push_state(IN_STRING); buffer = std::string(); }
 
-  "("                           { yy_push_state(IN_PAREN); return '('; }
+  "("                           { BEGIN(tmp_state); yy_push_state(IN_PAREN); tmp_state = YY_START; return '('; }
 
-  ")"                           {
-    int state = yy_top_state();
-    yy_pop_state();
-    if(state == AFTER_SYMBOL) BEGIN(INITIAL);
-    return ')';
-  }
+  ")"                           { if(yy_start_stack_ptr > 0) yy_pop_state(); tmp_state = YY_START; return ')'; }
 
-  "["                           { yy_push_state(IN_PAREN); return '['; }
+  "["                           { BEGIN(tmp_state); yy_push_state(IN_PAREN); tmp_state = YY_START; return '['; }
 
-  "]"                           {
-    yy_pop_state();
-    BEGIN(INITIAL);
-    return ']';
-  }
+  "]"                           { if(yy_start_stack_ptr > 0) yy_pop_state(); tmp_state = YY_START; return ']'; }
   
-  '\{'                         { yy_push_state(INITIAL); return '{'; }
+  '\{'                          { BEGIN(tmp_state); yy_push_state(INITIAL); tmp_state = YY_START; return '{'; }
 
-  '\}'                         { yy_pop_state(); return '}'; }
+  '\}'                          { if(yy_start_stack_ptr > 0) yy_pop_state(); tmp_state = YY_START; return '}'; }
 
   "!"|"#"|"%"|"&"|"*"|"+"|","|"-"|"."|"/"|":"|";"|"<"|"="|">"|"@"|"["|"\\"|"]"|"^"|"_"|"|"|"~" {
     BEGIN(AFTER_SYMBOL);
@@ -196,11 +197,11 @@ ESCAPE          "\\"([abtnvfr\"\'\\]|([0-3]?[0-7]{1,2})|("x"[0-9A-Fa-f]{1,2}))
 
   "import"                      { BEGIN(AFTER_KEYWORD); return token::IMPORT; }
 
-  "in"                          { BEGIN(AFTER_KEYWORD); return token::IN; }
+  "in"                          { if(yy_start_stack_ptr > 0) yy_pop_state(); tmp_state = YY_START; BEGIN(AFTER_KEYWORD); return token::IN; }
 
   "instance"                    { BEGIN(AFTER_KEYWORD); return token::INSTANCE; }
 
-  "let"                         { BEGIN(AFTER_KEYWORD); return token::LET; }
+  "let"                         { BEGIN(tmp_state); yy_push_state(INITIAL); tmp_state = YY_START; return token::LET; }
 
   "match"                       { BEGIN(AFTER_KEYWORD); return token::MATCH; }
 
@@ -221,23 +222,25 @@ ESCAPE          "\\"([abtnvfr\"\'\\]|([0-3]?[0-7]{1,2})|("x"[0-9A-Fa-f]{1,2}))
   "unique"                      { BEGIN(AFTER_KEYWORD); return token::UNIQUE; }
 
   {CONSTR_IDENT}                {
-    BEGIN(INITIAL);
+    BEGIN(tmp_state);
     value->string = new std::string(yytext);
     return token::CONSTR_IDENT;
   }
 
   {VAR_IDENT}                   {
-    BEGIN(INITIAL);
+    BEGIN(tmp_state);
     value->string = new std::string(yytext);
     return token::VAR_IDENT;
   }
   
   ``[^\n]+``                    {
+    BEGIN(tmp_state);
     value->string = new std::string(yytext + 2, yytext + std::strlen(yytext) - 4);
     return token::CONSTR_IDENT;
   }
 
   `[^\n]+`                      {
+    BEGIN(tmp_state);
     value->string = new std::string(yytext + 1, yytext + std::strlen(yytext) - 2);
     return token::VAR_IDENT;
   }
