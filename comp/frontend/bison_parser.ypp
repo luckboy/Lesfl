@@ -1155,7 +1155,7 @@ type_named_field_pair:
 ;
 
 opt_typing:     /* empty */                     { $$ = nullptr; }
-|               type_expr
+|               typing
 ;
 
 typing:         ':' type_expr                   { $$ = $2; }
