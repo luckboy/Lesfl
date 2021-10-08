@@ -83,20 +83,20 @@ UESCAPE         "\\"(("u"[0-9A-Fa-f]{4})|("U"[0-9A-Fa-f]{8}))
   }
   [^\n\'\\]                     {
     if(YY_START == IN_WCHAR) {
-      if(wbuffer.length() > 1) throw syntax_error(*loc, "unclosed wide character literal");
+      if(wbuffer.length() >= 1) throw syntax_error(*loc, "unclosed wide character literal");
       wbuffer += static_cast<wchar_t>(yytext[0]);
     } else {
-      if(buffer.length() > 1) throw syntax_error(*loc, "unclosed character literal");
+      if(buffer.length() >= 1) throw syntax_error(*loc, "unclosed character literal");
       buffer += yytext[0];
     }
   }
   "\\\n"
   {ESCAPE}                      {
     if(YY_START == IN_WCHAR) {
-      if(wbuffer.length() > 1) throw syntax_error(*loc, "unclosed wide character literal");
+      if(wbuffer.length() >= 1) throw syntax_error(*loc, "unclosed wide character literal");
       wbuffer += static_cast<wchar_t>(escape_to_char(yytext));
     } else {
-      if(buffer.length() > 1) throw syntax_error(*loc, "unclosed character literal");
+      if(buffer.length() >= 1) throw syntax_error(*loc, "unclosed character literal");
       buffer += escape_to_char(yytext);
     }
   }
@@ -111,7 +111,7 @@ UESCAPE         "\\"(("u"[0-9A-Fa-f]{4})|("U"[0-9A-Fa-f]{8}))
 
 <IN_WCHAR>{
   {UESCAPE}                     {
-    if(wbuffer.length() > 1) throw syntax_error(*loc, "unclosed wide character literal");
+    if(wbuffer.length() >= 1) throw syntax_error(*loc, "unclosed wide character literal");
     wbuffer += uescape_to_wchar(yytext);
   }
 }
