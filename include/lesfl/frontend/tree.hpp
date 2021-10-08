@@ -617,13 +617,13 @@ namespace lesfl
 
     class VariableInstance : public Instance
     {
-      std::shared_ptr<DefinableVariable> _M_var;
+      std::shared_ptr<Variable> _M_var;
     public:
-      VariableInstance(DefinableVariable *var) : _M_var(var) {}
+      VariableInstance(Variable *var) : _M_var(var) {}
 
       ~VariableInstance();
 
-      const std::shared_ptr<DefinableVariable> &var() const { return _M_var; }
+      const std::shared_ptr<Variable> &var() const { return _M_var; }
     };
 
     class Function
@@ -726,13 +726,13 @@ namespace lesfl
 
     class FunctionInstance : public Instance
     {
-      std::shared_ptr<DefinableFunction> _M_fun;
+      std::shared_ptr<Function> _M_fun;
     public:
-      FunctionInstance(DefinableFunction *fun) : _M_fun(fun) {}
+      FunctionInstance(Function *fun) : _M_fun(fun) {}
 
       ~FunctionInstance();
 
-      const std::shared_ptr<DefinableFunction> &fun() const { return _M_fun; }
+      const std::shared_ptr<Function> &fun() const { return _M_fun; }
     };
 
     class Argument : public Positional, public IdentifiableAndIndexable

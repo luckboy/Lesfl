@@ -1398,11 +1398,11 @@ namespace lesfl
       });
     }
     
-    static bool resolve_idents_from_var(ResolverContext &context, const shared_ptr<DefinableVariable> &var, const Position &pos, list<Error> &errors)
+    static bool resolve_idents_from_var(ResolverContext &context, const shared_ptr<Variable> &var, const Position &pos, list<Error> &errors)
     {
       return dynamic_match(var.get(),
-      [&pos, &errors](DefinableVariable *var) -> bool {
-        errors.push_back(Error(pos, "internal error: unknown definable variable class"));
+      [&pos, &errors](Variable *var) -> bool {
+        errors.push_back(Error(pos, "internal error: unknown variable class"));
         return false;
       },
       [&](UserDefinedVariable *var) -> bool {
@@ -1433,11 +1433,11 @@ namespace lesfl
     static bool resolve_idents_from_var_inst(ResolverContext &context, const shared_ptr<VariableInstance> &inst, const Position &pos, list<Error> &errors)
     { return resolve_idents_from_var(context, inst->var(), pos, errors); }
 
-    static bool resolve_idents_from_fun(ResolverContext &context, const shared_ptr<DefinableFunction> &fun, const Position &pos, list<Error> &errors)
+    static bool resolve_idents_from_fun(ResolverContext &context, const shared_ptr<Function> &fun, const Position &pos, list<Error> &errors)
     {
       return dynamic_match(fun.get(),
-      [&pos, &errors](DefinableFunction *fun) -> bool {
-        errors.push_back(Error(pos, "internal error: unknown definable function class"));
+      [&pos, &errors](Function *fun) -> bool {
+        errors.push_back(Error(pos, "internal error: unknown function class"));
         return false;
       },
       [&](UserDefinedFunction *fun) -> bool {
@@ -1486,11 +1486,11 @@ namespace lesfl
     static bool resolve_idents_from_fun_inst(ResolverContext &context, const shared_ptr<FunctionInstance> &inst, const Position &pos, list<Error> &errors)
     { return resolve_idents_from_fun(context, inst->fun(), pos, errors); }
 
-    static bool resolve_idents_from_type_var(ResolverContext &context, const shared_ptr<DefinableTypeVariable> &var, const Position &pos, list<Error> &errors)
+    static bool resolve_idents_from_type_var(ResolverContext &context, const shared_ptr<TypeVariable> &var, const Position &pos, list<Error> &errors)
     {
       return dynamic_match(var.get(),
-      [&pos, &errors](DefinableTypeVariable *var) -> bool {
-        errors.push_back(Error(pos, "internal error: unknown definable type variable class"));
+      [&pos, &errors](TypeVariable *var) -> bool {
+        errors.push_back(Error(pos, "internal error: unknown type variable class"));
         return false;
       },
       [&](TypeSynonymVariable *var) -> bool {
@@ -1510,11 +1510,11 @@ namespace lesfl
       });
     }
 
-    static bool resolve_idents_from_type_fun(ResolverContext &context, const shared_ptr<DefinableTypeFunction> &fun, const Position &pos, list<Error> &errors)
+    static bool resolve_idents_from_type_fun(ResolverContext &context, const shared_ptr<TypeFunction> &fun, const Position &pos, list<Error> &errors)
     {
       return dynamic_match(fun.get(),
-      [&pos, &errors](DefinableTypeFunction *fun) -> bool {
-        errors.push_back(Error(pos, "internal error: unknown definable type function class"));
+      [&pos, &errors](TypeFunction *fun) -> bool {
+        errors.push_back(Error(pos, "internal error: unknown type function class"));
         return false;
       },
       [&](TypeSynonymFunction *fun) -> bool {
