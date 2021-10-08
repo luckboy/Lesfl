@@ -409,6 +409,18 @@ namespace lesfl
       return is_success;
     }
 
+    static shared_ptr<Variable> non_alias_var(ResolverContext &context, const Identifier &ident)
+    {
+      shared_ptr<Variable> var = context.tree.var(ident);
+      while(var.get() != nullptr) {
+        AliasVariable *alias_var = dynamic_cast<AliasVariable *>(var.get());
+        if(alias_var == nullptr) break;
+        if(alias_var->is_template() && !alias_var->inst_type_params().empty()) break;
+        var = context.tree.var(*(alias_var->ident()));
+      }
+      return var;
+    }
+
     static bool set_key_ident(ResolverContext &context, AbsoluteIdentifier &ident, function<bool (const AbsoluteIdentifier &, AccessModifier &, bool &)> get_access_modifier_fun, function<void (const AbsoluteIdentifier &)> *add_private_error_fun = nullptr, function<void ()> *add_undefined_error_fun = nullptr)
     {
       if(ident.set_key_ident(*(context.tree.ident_table()))) {
@@ -719,7 +731,7 @@ namespace lesfl
       },
       [&](NamedFieldConstructorApplication *app) -> bool {
         bool is_success = resolve_var_ident(context, app->constr_ident(), app->pos(), errors);
-        shared_ptr<Variable> constr_var = context.tree.var(*(app->constr_ident()));
+        shared_ptr<Variable> constr_var = non_alias_var(context, *(app->constr_ident()));
         unordered_map<string, size_t> indices;
         function<string ()> constr_abs_ident_string_fun = [&context, app]() {
           return app->constr_ident()->to_abs_ident_string(*(context.tree.ident_table()));
@@ -855,7 +867,7 @@ namespace lesfl
       },
       [&](VariableConstructorPattern *pattern) -> bool {
         bool is_success = resolve_var_ident(context, pattern->constr_ident(), pattern->pos(), errors);
-        shared_ptr<Variable> constr_var = context.tree.var(*(pattern->constr_ident()));
+        shared_ptr<Variable> constr_var = non_alias_var(context, *(pattern->constr_ident()));
         unordered_set<KeyIdentifier> key_idents;
         function<string ()> constr_abs_ident_string_fun = [&context, pattern]() {
           return pattern->constr_ident()->to_abs_ident_string(*(context.tree.ident_table()));
@@ -882,7 +894,7 @@ namespace lesfl
       },
       [&](UnnamedFieldConstructorPattern *pattern) -> bool {
         bool is_success = resolve_var_ident(context, pattern->constr_ident(), pattern->pos(), errors);
-        shared_ptr<Variable> constr_var = context.tree.var(*(pattern->constr_ident()));
+        shared_ptr<Variable> constr_var = non_alias_var(context, *(pattern->constr_ident()));
         function<string ()> constr_abs_ident_string_fun = [&context, pattern]() {
           return pattern->constr_ident()->to_abs_ident_string(*(context.tree.ident_table()));
         };
@@ -919,7 +931,7 @@ namespace lesfl
       },
       [&](NamedFieldConstructorPattern *pattern) -> bool {
         bool is_success = resolve_var_ident(context, pattern->constr_ident(), pattern->pos(), errors);
-        shared_ptr<Variable> constr_var = context.tree.var(*(pattern->constr_ident()));
+        shared_ptr<Variable> constr_var = non_alias_var(context, *(pattern->constr_ident()));
         unordered_map<string, size_t> indices;
         function<string ()> constr_abs_ident_string_fun = [&context, pattern]() {
           return pattern->constr_ident()->to_abs_ident_string(*(context.tree.ident_table()));
@@ -1057,7 +1069,7 @@ namespace lesfl
       },
       [&](VariableConstructorValue *value) -> bool {
         bool is_success = resolve_var_ident(context, value->constr_ident(), value->pos(), errors);
-        shared_ptr<Variable> constr_var = context.tree.var(*(value->constr_ident()));
+        shared_ptr<Variable> constr_var = non_alias_var(context, *(value->constr_ident()));
         function<string ()> constr_abs_ident_string_fun = [&context, value]() {
           return value->constr_ident()->to_abs_ident_string(*(context.tree.ident_table()));
         };
@@ -1083,7 +1095,7 @@ namespace lesfl
       },
       [&](UnnamedFieldConstructorValue *value) -> bool {
         bool is_success = resolve_var_ident(context, value->constr_ident(), value->pos(), errors);
-        shared_ptr<Variable> constr_var = context.tree.var(*(value->constr_ident()));
+        shared_ptr<Variable> constr_var = non_alias_var(context, *(value->constr_ident()));
         function<string ()> constr_abs_ident_string_fun = [&context, value]() {
           return value->constr_ident()->to_abs_ident_string(*(context.tree.ident_table()));
         };
@@ -1120,7 +1132,7 @@ namespace lesfl
       },
       [&](NamedFieldConstructorValue *value) -> bool {
         bool is_success = resolve_var_ident(context, value->constr_ident(), value->pos(), errors);
-        shared_ptr<Variable> constr_var = context.tree.var(*(value->constr_ident()));
+        shared_ptr<Variable> constr_var = non_alias_var(context, *(value->constr_ident()));
         unordered_map<string, size_t> indices;
         function<string ()> constr_abs_ident_string_fun = [&context, value]() {
           return value->constr_ident()->to_abs_ident_string(*(context.tree.ident_table()));
@@ -1413,14 +1425,8 @@ namespace lesfl
         context.template_flag = false;
         return is_success;
       },
-      [&](AliasVariable *var) -> bool {
-        bool is_success = check_and_clear_type_param_indices(context, pos, errors);
-        context.template_flag = false;
-        if(var->type_expr() != nullptr)
-          is_success &= resolve_idents_from_type_expr(context, var->type_expr(), errors);
-        is_success &= resolve_var_ident(context, var->ident(), pos, errors);
-        context.template_flag = false;
-        return is_success;
+      [](AliasVariable *var) -> bool {
+        return true;
       });
     }
 
@@ -1566,6 +1572,59 @@ namespace lesfl
         return is_success;
       });
     }
+    
+    static bool resolve_idents_from_alias_var(ResolverContext &context, const shared_ptr<DefinableVariable> &var, const Position &pos, list<Error> &errors)
+    {
+      return dynamic_match(var.get(),
+      [&pos, &errors](DefinableVariable *var) -> bool {
+        errors.push_back(Error(pos, "internal error: unknown definable variable class"));
+        return false;
+      },
+      [](UserDefinedVariable *var) -> bool {
+        return true;
+      },
+      [](ExternalVariable *var) -> bool {
+        return true;
+      },
+      [&](AliasVariable *var) -> bool {
+        bool is_success = check_and_clear_type_param_indices(context, pos, errors);
+        context.template_flag = false;
+        if(var->type_expr() != nullptr)
+          is_success &= resolve_idents_from_type_expr(context, var->type_expr(), errors);
+        is_success &= resolve_var_ident(context, var->ident(), pos, errors);
+        context.template_flag = false;
+        return is_success;
+      });
+    }
+
+    static bool resolve_idents_from_alias_defs(ResolverContext &context, const list<unique_ptr<Definition>> &defs, list<Error> &errors)
+    {
+      bool is_success = true;
+      for(auto &def : defs) {
+        is_success &= dynamic_match(def.get(), 
+        [](const Definition *def) -> bool {
+          return true;
+        },
+        [&](Import *import) -> bool {
+          bool tmp_is_success = resolve_module_ident(context, import->module_ident(), import->pos(), errors);
+          push_imported_module(context, *(import->module_ident()->abs_ident(*(context.tree.ident_table()))));
+          return tmp_is_success;
+        },
+        [&](ModuleDefinition *module_def) -> bool {
+          AbsoluteIdentifier saved_current_module = context.current_module_ident;
+          context.current_module_ident = *(module_def->ident()->abs_ident(*(context.tree.ident_table())));
+          push_imported_module_list(context);
+          bool tmp_is_success = resolve_idents_from_alias_defs(context, module_def->defs(), errors);
+          pop_imported_modules(context);
+          context.current_module_ident = saved_current_module;
+          return tmp_is_success;
+        },
+        [&](VariableDefinition *var_def) -> bool {
+          return resolve_idents_from_alias_var(context, var_def->var(), var_def->pos(), errors);
+        });
+      }
+      return is_success;
+    }
 
     static bool resolve_idents_from_defs(ResolverContext &context, const list<unique_ptr<Definition>> &defs, list<Error> &errors)
     {
@@ -1645,6 +1704,9 @@ namespace lesfl
       is_success &= add_root_module(context, errors);
       for(auto &defs : tree.defs()) {
         is_success &= add_defs(context, *defs, errors);
+      }
+      for(auto &defs : tree.defs()) {
+        is_success &= resolve_idents_from_alias_defs(context, *defs, errors);
       }
       for(auto &defs : tree.defs()) {
         is_success &= resolve_idents_from_defs(context, *defs, errors);

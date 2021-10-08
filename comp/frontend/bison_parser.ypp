@@ -517,7 +517,7 @@ def:            "import" qident {
 |               "module" module_qident '{' onl one_or_more_defs onl '}' {
   $$ = new ModuleDefinition($2, $5, P(@2));
 }
-|               access_modifier ident opt_typing '=' value {
+|               access_modifier ident opt_typing '=' value %dprec 1 {
   $$ = new VariableDefinition($1, *$2, new UserDefinedVariable($3, $5), P(@2));
   delete $2;
 }
@@ -525,11 +525,11 @@ def:            "import" qident {
   $$ = new VariableDefinition($1, *$3, new ExternalVariable($4, *$6), P(@3));
   delete $3; delete $6;
 }
-|               access_modifier ident opt_typing '=' qident {
+|               access_modifier ident opt_typing '=' qident %dprec 2 {
   $$ = new VariableDefinition($1, *$2, new AliasVariable($3, $5), P(@2));
   delete $2;
 }
-|               template access_modifier ident opt_typing '=' value {
+|               template access_modifier ident opt_typing '=' value %dprec 1 {
   $$ = new VariableDefinition($2, *$3, new UserDefinedVariable($1, $4, $6), P(@3));
   delete $3;
 }
@@ -537,7 +537,7 @@ def:            "import" qident {
   $$ = new VariableDefinition($2, *$3, new UserDefinedVariable($1, $4), P(@3));
   delete $3;
 }
-|               template access_modifier ident opt_typing '=' qident {
+|               template access_modifier ident opt_typing '=' qident %dprec 2 {
   $$ = new VariableDefinition($2, *$3, new AliasVariable($1, $4, $6), P(@3));
   delete $3;
 }
