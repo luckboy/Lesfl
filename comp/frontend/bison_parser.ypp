@@ -92,9 +92,11 @@
 
 %union {
   char c;
+  wchar_t wc;
   std::int64_t i;
   double f;
   std::string *string;
+  std::wstring *wstring;
   BuiltinFunction builtin_fun;
   AccessModifier access_modifier;
   InlineModifier inline_modifier;
@@ -149,6 +151,7 @@
 
 %token                  END              0
 %token <c>              CHAR
+%token <wc>             WCHAR
 %token <i>              INT8
 %token <i>              INT16
 %token <i>              INT32
@@ -156,6 +159,7 @@
 %token <f>              FLOAT
 %token <f>              DOUBLE
 %token <string>         STRING
+%token <wstring>        WSTRING
 %token <string>         CONSTR_IDENT
 %token <string>         VAR_IDENT
 %token                  EXEQ            "!="
@@ -949,6 +953,7 @@ literal:        simple_literal                  { $$ = $1; }
 ;
 
 simple_literal: CHAR                            { $$ = new CharValue($1); }
+|               WCHAR                           { $$ = new WideCharValue($1); }
 |               INT8                            { $$ = new IntValue(IntType::INT8, $1); }
 |               INT16                           { $$ = new IntValue(IntType::INT16, $1); }
 |               INT32                           { $$ = new IntValue(IntType::INT32, $1); }
@@ -956,6 +961,7 @@ simple_literal: CHAR                            { $$ = new CharValue($1); }
 |               FLOAT                           { $$ = new FloatValue(FloatType::SINGLE, $1); }
 |               DOUBLE                          { $$ = new FloatValue(FloatType::DOUBLE, $1); }
 |               STRING                          { $$ = new StringValue(*$1); delete $1; }
+|               WSTRING                         { $$ = new WideStringValue(*$1); delete $1; }
 ;
 
 neg_simple_literal: '-' INT8                    { $$ = new IntValue(IntType::INT8, -$2); }
@@ -1182,6 +1188,12 @@ static bool string_to_builtin_fun(const std::string &str, BuiltinFunction &built
     { "cge",    BuiltinFunction::CGE },
     { "cgt",    BuiltinFunction::CGT },
     { "cle",    BuiltinFunction::CLE },
+    { "wceq",   BuiltinFunction::WCEQ },
+    { "wcne",   BuiltinFunction::WCNE },
+    { "wclt",   BuiltinFunction::WCLT },
+    { "wcge",   BuiltinFunction::WCGE },
+    { "wcgt",   BuiltinFunction::WCGT },
+    { "wcle",   BuiltinFunction::WCLE },
     { "ineg",   BuiltinFunction::INEG },
     { "iadd",   BuiltinFunction::IADD },
     { "isub",   BuiltinFunction::ISUB },
@@ -1234,6 +1246,8 @@ static bool string_to_builtin_fun(const std::string &str, BuiltinFunction &built
     { "ualen",  BuiltinFunction::UALEN },
     { "ctoi",   BuiltinFunction::CTOI },
     { "itoc",   BuiltinFunction::ITOC },
+    { "wctoi",  BuiltinFunction::WCTOI },
+    { "itowc",  BuiltinFunction::ITOWC },
     { "itof",   BuiltinFunction::ITOF },
     { "ftoi",   BuiltinFunction::FTOI },
     { "try",    BuiltinFunction::TRY },

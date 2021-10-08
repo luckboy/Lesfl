@@ -29,6 +29,7 @@ namespace lesfl
         BisonParser::semantic_type *value;
         BisonParser::location_type *loc;
         std::string buffer;
+        std::wstring wbuffer;
         int tmp_state;
       public:
         Lexer(std::istream *is) : LesflFrontendPrivFlexLexer(is), tmp_state(0) {}

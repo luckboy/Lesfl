@@ -591,6 +591,12 @@ namespace lesfl
     CharValue::~CharValue() {}
 
     //
+    // A WideCharValue class.
+    //
+
+    WideCharValue::~WideCharValue() {}
+
+    //
     // An IntValue class.
     //
 
@@ -607,6 +613,12 @@ namespace lesfl
     //
 
     StringValue::~StringValue() {}
+
+    //
+    // A WideStringValue class.
+    //
+
+    WideStringValue::~WideStringValue() {}
 
     //
     // A LambdaValue class.

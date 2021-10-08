@@ -1,5 +1,5 @@
 /****************************************************************************
- *   Copyright (C) 2016 Łukasz Szpakowski.                                  *
+ *   Copyright (C) 2016, 2021 Łukasz Szpakowski.                            *
  *                                                                          *
  *   This software is licensed under the GNU Lesser General Public          *
  *   License v3 or later. See the LICENSE file and the GPL file for         *
@@ -20,6 +20,12 @@ namespace lesfl
       CGE,
       CGT,
       CLE,
+      WCEQ,
+      WCNE,
+      WCLT,
+      WCGE,
+      WCGT,
+      WCLE,
       INEG,
       IADD,
       ISUB,
@@ -72,6 +78,8 @@ namespace lesfl
       UALEN,
       CTOI,
       ITOC,
+      WCTOI,
+      ITOWC,
       ITOF,
       FTOI,
       TRY,
@@ -88,6 +96,7 @@ namespace lesfl
     enum class BuiltinType
     {
       CHAR,
+      WCHAR,
       INT8,
       INT16,
       INT32,

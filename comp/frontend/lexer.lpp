@@ -23,6 +23,8 @@
 
   static char escape_to_char(const char *escape);
 
+  static wchar_t uescape_to_wchar(const char *uescape);
+
   static bool string_to_int(const char *str, std::int64_t &i, std::int64_t max);
 
   static bool string_to_float(const char *str, double &f, double max);
@@ -41,10 +43,13 @@ FLOAT           ([0-9]+"."[0-9]*([Ee][+\-]?[0-9]+)?)|([0-9]+([Ee][+\-]?[0-9]+)?)
 CONSTR_IDENT    [A-Z][_A-Za-z0-9]*
 VAR_IDENT       [_a-z][_A-Za-z0-9]*
 ESCAPE          "\\"([abtnvfr\"\'\\]|([0-3]?[0-7]{1,2})|("x"[0-9A-Fa-f]{1,2}))
+UESCAPE         "\\"(("u"[0-9A-Fa-f]{4})|("U"[0-9A-Fa-f]{8}))
 
 %x IN_COMMENT
 %x IN_CHAR
+%x IN_WCHAR
 %x IN_STRING
+%x IN_WSTRING
 %x AFTER_SYMBOL
 %x AFTER_KEYWORD
 %x IN_PAREN
@@ -61,37 +66,91 @@ ESCAPE          "\\"([abtnvfr\"\'\\]|([0-3]?[0-7]{1,2})|("x"[0-9A-Fa-f]{1,2}))
   .
 }
 
-<IN_CHAR>{
+<IN_CHAR,IN_WCHAR>{
   "\'"                          {
+    int old_state = YY_START;
     yy_pop_state();
     BEGIN(tmp_state);
-    if(buffer.length() == 0) throw syntax_error(*loc, "empty character literal");
-    value->c = buffer[0];
-    return token::CHAR;
+    if(old_state == IN_WCHAR) {
+      if(wbuffer.length() == 0) throw syntax_error(*loc, "empty wide character literal");
+      value->wc = wbuffer[0];
+      return token::WCHAR;
+    } else {
+      if(buffer.length() == 0) throw syntax_error(*loc, "empty character literal");
+      value->c = buffer[0];
+      return token::CHAR;
+    }
   }
   [^\n\'\\]                     {
-    if(buffer.length() > 1) throw syntax_error(*loc, "unclosed character literal");
-    buffer += yytext[0];
+    if(YY_START == IN_WCHAR) {
+      if(wbuffer.length() > 1) throw syntax_error(*loc, "unclosed wide character literal");
+      wbuffer += static_cast<wchar_t>(yytext[0]);
+    } else {
+      if(buffer.length() > 1) throw syntax_error(*loc, "unclosed character literal");
+      buffer += yytext[0];
+    }
   }
   "\\\n"
   {ESCAPE}                      {
-    if(buffer.length() > 1) throw syntax_error(*loc, "unclosed character literal");
-    buffer += escape_to_char(yytext);
+    if(YY_START == IN_WCHAR) {
+      if(wbuffer.length() > 1) throw syntax_error(*loc, "unclosed wide character literal");
+      wbuffer += static_cast<wchar_t>(escape_to_char(yytext));
+    } else {
+      if(buffer.length() > 1) throw syntax_error(*loc, "unclosed character literal");
+      buffer += escape_to_char(yytext);
+    }
   }
-  "\n"                          { throw syntax_error(*loc, "unclosed character literal"); }
+  "\n"                          {
+    if(YY_START == IN_WCHAR) {
+      throw syntax_error(*loc, "unclosed wide character literal");
+    } else {
+      throw syntax_error(*loc, "unclosed character literal");
+    }
+  }
 }
 
-<IN_STRING>{
+<IN_WCHAR>{
+  {UESCAPE}                     {
+    if(wbuffer.length() > 1) throw syntax_error(*loc, "unclosed wide character literal");
+    wbuffer += uescape_to_wchar(yytext);
+  }
+}
+
+<IN_STRING,IN_WSTRING>{
   "\""                          {
+    int old_state = YY_START;
     yy_pop_state();
     BEGIN(tmp_state);
-    value->string = new std::string(buffer);
-    return token::STRING;
+    if(old_state == IN_WSTRING) {
+      value->wstring = new std::wstring(wbuffer);
+      return token::WSTRING;
+    } else {
+      value->string = new std::string(buffer);
+      return token::STRING;
+    }
   }
-  [^\n\"\\]                     { buffer += yytext[0]; }
+  [^\n\"\\]                     {
+    if(YY_START == IN_WSTRING)
+      wbuffer += static_cast<wchar_t>(yytext[0]);
+    else
+      buffer += yytext[0]; }
   "\\\n"
-  {ESCAPE}                      { buffer += escape_to_char(yytext); }
-  "\n"                          { throw syntax_error(*loc, "unclosed string literal"); }
+  {ESCAPE}                      {
+    if(YY_START == IN_WSTRING)
+      wbuffer += static_cast<wchar_t>(escape_to_char(yytext));
+    else
+      buffer += escape_to_char(yytext);
+  }
+  "\n"                          {
+    if(YY_START == IN_WSTRING)
+      throw syntax_error(*loc, "unclosed wide string literal");
+    else
+      throw syntax_error(*loc, "unclosed string literal");
+  }
+}
+
+<IN_WSTRING>{
+  {UESCAPE}                     { wbuffer += uescape_to_wchar(yytext); }
 }
 
 <INITIAL,AFTER_SYMBOL,AFTER_KEYWORD,IN_PAREN>{
@@ -101,6 +160,7 @@ ESCAPE          "\\"([abtnvfr\"\'\\]|([0-3]?[0-7]{1,2})|("x"[0-9A-Fa-f]{1,2}))
 
   "\'"                          { yy_push_state(IN_CHAR); buffer = std::string(); }
 
+  "w\'"                         { yy_push_state(IN_WCHAR); wbuffer = std::wstring(); }
   
   {INT}"i8"                     {
     BEGIN(tmp_state);
@@ -145,6 +205,8 @@ ESCAPE          "\\"([abtnvfr\"\'\\]|([0-3]?[0-7]{1,2})|("x"[0-9A-Fa-f]{1,2}))
   }
 
   "\""                          { yy_push_state(IN_STRING); buffer = std::string(); }
+
+  "w\""                          { yy_push_state(IN_WSTRING); wbuffer = std::wstring(); }
 
   "("                           { BEGIN(tmp_state); yy_push_state(IN_PAREN); tmp_state = YY_START; return '('; }
 
@@ -304,6 +366,22 @@ static char escape_to_char(const char *escape)
         return i;
       } else
         return escape[1];
+  }
+}
+
+static wchar_t uescape_to_wchar(const char *uescape)
+{
+  switch(uescape[1]) {
+    case 'U':
+    case 'u':
+    {
+      std::istringstream iss(uescape + 2);
+      int i;
+      iss >> std::hex >> i;
+      return i;
+    }
+    default:
+      return uescape[1];
   }
 }
 

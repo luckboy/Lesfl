@@ -1394,6 +1394,17 @@ namespace lesfl
       char c() const { return _M_c; }
     };
 
+    class WideCharValue : public SimpleLiteralValue
+    {
+      wchar_t _M_c;
+    public:
+      WideCharValue(wchar_t c) : _M_c(c) {}
+
+      ~WideCharValue();
+
+      wchar_t c() const { return _M_c; }
+    };
+
     class IntValue : public SimpleLiteralValue
     {
       IntType _M_int_type;
@@ -1431,6 +1442,17 @@ namespace lesfl
       ~StringValue();
 
       const std::string &string() const { return _M_string; }
+    };
+
+    class WideStringValue : public SimpleLiteralValue
+    {
+      std::wstring _M_string;
+    public:
+      WideStringValue(const std::wstring &str) : _M_string(str) {}
+
+      ~WideStringValue();
+
+      const std::wstring &string() const { return _M_string; }
     };
 
     class LambdaValue : public LiteralValue, public Inlinable
