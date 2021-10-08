@@ -1536,9 +1536,6 @@ namespace lesfl
         context.template_flag = false;
         clear_type_params(context);
         return is_success;
-      },
-      [&](BuiltinTypeVariable *var) -> bool {
-        return true;
       });
     }
 
