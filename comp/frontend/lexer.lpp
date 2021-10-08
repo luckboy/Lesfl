@@ -88,7 +88,7 @@ ESCAPE          "\\"([abtnvfr\"\'\\]|([0-3]?[0-7]{1,2})|("x"[0-9A-Fa-f]{1,2}))
     value->string = new std::string(buffer);
     return token::STRING;
   }
-  [^\n\'\\]                     { buffer += yytext[0]; }
+  [^\n\"\\]                     { buffer += yytext[0]; }
   "\\\n"
   {ESCAPE}                      { buffer += escape_to_char(yytext); }
   "\n"                          { throw syntax_error(*loc, "unclosed string literal"); }
