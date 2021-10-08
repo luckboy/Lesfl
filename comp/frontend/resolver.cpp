@@ -179,7 +179,7 @@ namespace lesfl
 
     static bool add_ident_or_get_key_ident(ResolverContext &context, AbsoluteIdentifier *ident, KeyIdentifier &key_ident, const Position &pos, list<Error> &errors)
     {
-      if(!context.tree.ident_table()->add_ident_or_get_key_ident(ident, key_ident)) {
+      if(!context.tree.ident_table()->add_ident_or_get_key_ident(new AbsoluteIdentifier(*ident), key_ident)) {
         errors.push_back(Error(pos, "internal error: can't add identifier to identifier table or get key identifier from identifier"));
         return false;
       }
@@ -212,12 +212,15 @@ namespace lesfl
       return true;
     }
 
-    static bool add_constr(ResolverContext &context, const shared_ptr<Constructor> &constr, AccessModifier access_modifier, list<Error> &errors, const string *datatype_ident = nullptr)
+    static bool add_constr(ResolverContext &context, const shared_ptr<Constructor> &constr, AccessModifier access_modifier, bool has_datatype_fun, KeyIdentifier *datatype_key_ident, DatatypeFunctionInstance *datatype_fun_inst, list<Error> &errors, const string *datatype_ident = nullptr)
     {
       unique_ptr<AbsoluteIdentifier> abs_ident(new AbsoluteIdentifier(context.current_module_ident, constr->ident()));
       KeyIdentifier key_ident;
       if(!add_ident_or_get_key_ident(context, abs_ident.get(), key_ident, constr->pos(), errors)) return false;
       bool is_success = true;
+      constr->set_datatype_fun_flag(has_datatype_fun);
+      if(datatype_key_ident != nullptr) constr->set_datatype_key_ident(*datatype_key_ident);
+      constr->set_datatype_fun_inst(datatype_fun_inst);
       shared_ptr<Variable> constr_var(new ConstructorVariable(constr));
       if(!context.tree.add_var(abs_ident->key_ident(), access_modifier, constr_var, constr->access_modifier(), datatype_ident)) {
         if(context.template_flag)
@@ -230,7 +233,7 @@ namespace lesfl
       return is_success;
     }
 
-    static bool add_constrs_from_datatype(ResolverContext &context, Datatype *datatype, AccessModifier access_modifier, const Position &pos, list<Error> &errors, const string *datatype_ident = nullptr)
+    static bool add_constrs_from_datatype(ResolverContext &context, Datatype *datatype, AccessModifier access_modifier, bool has_datatype_fun, KeyIdentifier *datatype_key_ident, DatatypeFunctionInstance *datatype_fun_inst, const Position &pos, list<Error> &errors, const string *datatype_ident = nullptr)
     {
       return dynamic_match(datatype,
       [&pos, &errors](Datatype *datatype) -> bool {
@@ -240,20 +243,20 @@ namespace lesfl
       [&](NonUniqueDatatype *datatype) -> bool {
         bool is_success = true;
         for(auto &constr : datatype->constrs()) {
-          is_success &= add_constr(context, constr, access_modifier, errors, datatype_ident);
+          is_success &= add_constr(context, constr, access_modifier, has_datatype_fun, datatype_key_ident, datatype_fun_inst, errors, datatype_ident);
         }
         return is_success;
       },
       [&](UniqueDatatype *datatype) -> bool {
         bool is_success = true;
         for(auto &constr : datatype->constrs()) {
-          is_success &= add_constr(context, constr, access_modifier, errors, datatype_ident);
+          is_success &= add_constr(context, constr, access_modifier, has_datatype_fun, datatype_key_ident, datatype_fun_inst, errors, datatype_ident);
         }
         return is_success;
       });
     }
 
-    static bool add_constrs_from_type_var(ResolverContext &context, const shared_ptr<DefinableTypeVariable> &var, AccessModifier access_modifier, const Position &pos, list<Error> &errors)
+    static bool add_constrs_from_type_var(ResolverContext &context, const shared_ptr<DefinableTypeVariable> &var, AccessModifier access_modifier, KeyIdentifier datatype_key_ident, const Position &pos, list<Error> &errors)
     {
       return dynamic_match(var.get(),
       [&pos, &errors](TypeVariable *var) -> bool {
@@ -264,14 +267,14 @@ namespace lesfl
         return true;
       },
       [&](DatatypeVariable *var) -> bool {
-        return add_constrs_from_datatype(context, var->datatype(), access_modifier, pos, errors);
+        return add_constrs_from_datatype(context, var->datatype(), access_modifier, false, &datatype_key_ident, nullptr, pos, errors);
       },
       [](BuiltinTypeVariable *var) -> bool {
         return true;
       });
     }
 
-    static bool add_constrs_from_type_fun(ResolverContext &context, const shared_ptr<DefinableTypeFunction> &fun, AccessModifier access_modifier, const Position &pos, list<Error> &errors)
+    static bool add_constrs_from_type_fun(ResolverContext &context, const shared_ptr<DefinableTypeFunction> &fun, AccessModifier access_modifier, KeyIdentifier datatype_key_ident, const Position &pos, list<Error> &errors)
     {
       return dynamic_match(fun.get(),
       [&pos, &errors](TypeFunction *fun) -> bool {
@@ -282,7 +285,7 @@ namespace lesfl
         return true;
       },
       [&](DatatypeFunction *fun) -> bool {
-        return add_constrs_from_datatype(context, fun->datatype(), access_modifier, pos, errors);
+        return add_constrs_from_datatype(context, fun->datatype(), access_modifier, true, &datatype_key_ident, nullptr, pos, errors);
       },
       [](BuiltinTypeFunction *fun) -> bool {
         return true;
@@ -301,7 +304,7 @@ namespace lesfl
       },
       [&](DatatypeFunctionInstance *inst) -> bool {
         context.template_flag = inst->is_template();
-        bool is_success = add_constrs_from_datatype(context, inst->datatype(), AccessModifier::NONE, pos, errors, datatype_ident);
+        bool is_success = add_constrs_from_datatype(context, inst->datatype(), AccessModifier::NONE, true, nullptr, inst, pos, errors, datatype_ident);
         context.template_flag = false;
         return is_success;
       });
@@ -383,7 +386,7 @@ namespace lesfl
           }
           abs_ident.release();
           context.template_flag = false;
-          tmp_is_success &= add_constrs_from_type_var(context, type_var_def->var(), type_var_def->access_modifier(), type_var_def->pos(), errors);
+          tmp_is_success &= add_constrs_from_type_var(context, type_var_def->var(), type_var_def->access_modifier(), key_ident, type_var_def->pos(), errors);
           context.template_flag = false;
           return tmp_is_success;
         },
@@ -398,7 +401,7 @@ namespace lesfl
           }
           abs_ident.release();
           context.template_flag = true;
-          tmp_is_success &= add_constrs_from_type_fun(context, type_fun_def->fun(), type_fun_def->access_modifier(), type_fun_def->pos(), errors);
+          tmp_is_success &= add_constrs_from_type_fun(context, type_fun_def->fun(), type_fun_def->access_modifier(), key_ident, type_fun_def->pos(), errors);
           context.template_flag = false;
           return tmp_is_success;
         },
@@ -1345,8 +1348,9 @@ namespace lesfl
       return is_success;
     }
 
-    static bool resolve_idents_from_constr(ResolverContext &context, const shared_ptr<Constructor> &constr, list<Error> &errors)
+    static bool resolve_idents_from_constr(ResolverContext &context, const shared_ptr<Constructor> &constr, KeyIdentifier *datatype_key_ident, list<Error> &errors)
     {
+      if(datatype_key_ident != nullptr) constr->set_datatype_key_ident(*datatype_key_ident);
       return dynamic_match(constr.get(),
       [&errors](Constructor *constr) -> bool {
         errors.push_back(Error(constr->pos(), "internal error: unknown constructor class"));
@@ -1375,7 +1379,7 @@ namespace lesfl
       });
     }
 
-    static bool resolve_idents_from_datatype(ResolverContext &context, Datatype *datatype, const Position &pos, list<Error> &errors)
+    static bool resolve_idents_from_datatype(ResolverContext &context, Datatype *datatype, const Position &pos, list<Error> &errors, KeyIdentifier *datatype_key_ident = nullptr)
     {
       return dynamic_match(datatype,
       [&pos, &errors](Datatype *datatype) -> bool {
@@ -1385,14 +1389,14 @@ namespace lesfl
       [&](NonUniqueDatatype *datatype) -> bool {
         bool is_success = true;
         for(auto &constr : datatype->constrs()) {
-          is_success &= resolve_idents_from_constr(context, constr, errors);
+          is_success &= resolve_idents_from_constr(context, constr, datatype_key_ident, errors);
         }
         return is_success;
       },
       [&](UniqueDatatype *datatype) -> bool {
         bool is_success = true;
         for(auto &constr : datatype->constrs()) {
-          is_success &= resolve_idents_from_constr(context, constr, errors);
+          is_success &= resolve_idents_from_constr(context, constr, datatype_key_ident, errors);
         }
         return is_success;
       });
@@ -1539,7 +1543,7 @@ namespace lesfl
       });
     }
 
-    static bool resolve_idents_from_fun_inst(ResolverContext &context, const shared_ptr<TypeFunctionInstance> &inst, const Position &pos, list<Error> &errors)
+    static bool resolve_idents_from_type_fun_inst(ResolverContext &context, const shared_ptr<TypeFunctionInstance> &inst, KeyIdentifier datatype_key_ident, const Position &pos, list<Error> &errors)
     { 
       return dynamic_match(inst.get(),
        [&pos, &errors](TypeFunctionInstance *inst) -> bool {
@@ -1563,7 +1567,7 @@ namespace lesfl
         for(auto &arg : inst->args()) {
           is_success &= resolve_idents_from_type_expr(context, arg.get(), errors, true);
         }
-        is_success &= resolve_idents_from_datatype(context, inst->datatype(), pos, errors);
+        is_success &= resolve_idents_from_datatype(context, inst->datatype(), pos, errors, &datatype_key_ident);
         clear_type_params(context);
         context.template_flag = false;
         return is_success;
@@ -1681,7 +1685,7 @@ namespace lesfl
           TypeFunctionInfo *type_fun_info = context.tree.type_fun_info(abs_ident);
           if(type_fun_info != nullptr)
             type_fun_info->add_inst(type_fun_inst_def->fun_inst());
-          tmp_is_success &= resolve_idents_from_fun_inst(context, type_fun_inst_def->fun_inst(), type_fun_inst_def->pos(), errors);
+          tmp_is_success &= resolve_idents_from_type_fun_inst(context, type_fun_inst_def->fun_inst(), abs_ident.key_ident(), type_fun_inst_def->pos(), errors);
           return tmp_is_success;
         });
       }

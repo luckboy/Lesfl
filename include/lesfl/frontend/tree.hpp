@@ -1841,13 +1841,28 @@ namespace lesfl
     {
     protected:
       std::string _M_ident;
+      bool _M_has_datatype_fun;
+      KeyIdentifier _M_datatype_key_ident;
+      DatatypeFunctionInstance *_M_datatype_fun_inst;
 
       Constructor(AccessModifier access_modifier, const std::string &ident, const Position &pos) :
-        Accessible(access_modifier), Positional(pos), _M_ident(ident) {}
+        Accessible(access_modifier), Positional(pos), _M_ident(ident), _M_has_datatype_fun(false), _M_datatype_fun_inst(nullptr) {}
     public:
       ~Constructor();
 
       const std::string &ident() const { return _M_ident; }
+      
+      bool has_datatype_fun() const { return _M_has_datatype_fun; }
+
+      void set_datatype_fun_flag(bool has_datatype_fun) { _M_has_datatype_fun = has_datatype_fun; }
+
+      KeyIdentifier datatype_key_ident() const { return _M_datatype_key_ident; }
+      
+      void set_datatype_key_ident(KeyIdentifier datatype_key_ident) { _M_datatype_key_ident = datatype_key_ident; }
+      
+      DatatypeFunctionInstance *datatype_fun_inst() const { return _M_datatype_fun_inst; }
+
+      void set_datatype_fun_inst(DatatypeFunctionInstance *datatype_fun_inst) { _M_datatype_fun_inst = datatype_fun_inst; }
     };
 
     class VariableConstructor : public Constructor
