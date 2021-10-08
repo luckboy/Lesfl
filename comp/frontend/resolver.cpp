@@ -219,7 +219,7 @@ namespace lesfl
       if(!add_ident_or_get_key_ident(context, abs_ident.get(), key_ident, constr->pos(), errors)) return false;
       bool is_success = true;
       shared_ptr<Variable> constr_var(new ConstructorVariable(constr));
-      if(!context.tree.add_var(abs_ident->key_ident(), access_modifier, constr_var, datatype_ident)) {
+      if(!context.tree.add_var(abs_ident->key_ident(), access_modifier, constr_var, constr->access_modifier(), datatype_ident)) {
         if(context.template_flag)
           errors.push_back(Error(constr->pos(), "constructor template " + abs_ident->to_string() + " is already defined"));
         else

@@ -160,10 +160,11 @@ namespace lesfl
     {
       std::shared_ptr<Variable> _M_var;
       std::shared_ptr<std::list<std::shared_ptr<Instance>>> _M_insts;
+      AccessModifier _M_constr_access_modifier;
       const std::string *_M_datatype_ident;
     public:
-      VariableInfo(AccessModifier access_modifier, const std::shared_ptr<Variable> &var, const std::string *datatype_ident = nullptr) :
-        Accessible(access_modifier), _M_var(var), _M_insts(std::shared_ptr<std::list<std::shared_ptr<Instance>>>(new std::list<std::shared_ptr<Instance>>())), _M_datatype_ident(datatype_ident) {}
+      VariableInfo(AccessModifier access_modifier, const std::shared_ptr<Variable> &var, AccessModifier constr_access_modifier = AccessModifier::NONE, const std::string *datatype_ident = nullptr) :
+        Accessible(constr_access_modifier == AccessModifier::PRIVATE ? constr_access_modifier : access_modifier), _M_var(var), _M_insts(std::shared_ptr<std::list<std::shared_ptr<Instance>>>(new std::list<std::shared_ptr<Instance>>())), _M_constr_access_modifier(constr_access_modifier), _M_datatype_ident(datatype_ident) {}
 
       ~VariableInfo();
 
@@ -176,11 +177,13 @@ namespace lesfl
 
       bool must_update_access_modifier() const { return _M_datatype_ident != nullptr; }
 
+      AccessModifier constr_access_modifier() const { return _M_constr_access_modifier; }
+      
       const std::string *datatype_ident() const { return _M_datatype_ident; }
 
       void update_access_modifier(AccessModifier access_modifier)
       {
-        _M_access_modifier = access_modifier;
+        _M_access_modifier = (_M_constr_access_modifier == AccessModifier::PRIVATE ? _M_constr_access_modifier : access_modifier);
         _M_datatype_ident = nullptr;
       }
     };
@@ -281,8 +284,8 @@ namespace lesfl
       std::shared_ptr<Variable> var(const Identifier &ident) const
       { return var(ident.key_ident()); }
 
-      bool add_var(KeyIdentifier key_ident, AccessModifier access_modifier, const std::shared_ptr<Variable> &var, const std:: string *datatype_ident = nullptr)
-      { return _M_var_infos.insert(std::make_pair(key_ident, VariableInfo(access_modifier, var, datatype_ident))).second; }
+      bool add_var(KeyIdentifier key_ident, AccessModifier access_modifier, const std::shared_ptr<Variable> &var, AccessModifier constr_access_modifier = AccessModifier::NONE, const std::string *datatype_ident = nullptr)
+      { return _M_var_infos.insert(std::make_pair(key_ident, VariableInfo(access_modifier, var, constr_access_modifier, datatype_ident))).second; }
 
       const std::unordered_map<KeyIdentifier, TypeVariableInfo> &type_var_infos() const
       { return _M_type_var_infos; }
@@ -1812,13 +1815,13 @@ namespace lesfl
       const std::list<std::shared_ptr<FunctionConstructor>> &constrs() const { return *_M_constrs; }
     };
 
-    class Constructor : public Positional
+    class Constructor : public Accessible, public Positional
     {
     protected:
       std::string _M_ident;
 
-      Constructor(const std::string &ident, const Position &pos) :
-        Positional(pos), _M_ident(ident) {}
+      Constructor(AccessModifier access_modifier, const std::string &ident, const Position &pos) :
+        Accessible(access_modifier), Positional(pos), _M_ident(ident) {}
     public:
       ~Constructor();
 
@@ -1828,8 +1831,8 @@ namespace lesfl
     class VariableConstructor : public Constructor
     {
     public:
-      VariableConstructor(const std::string &ident, const Position &pos) :
-        Constructor(ident, pos) {}
+      VariableConstructor(AccessModifier access_modifier, const std::string &ident, const Position &pos) :
+        Constructor(access_modifier, ident, pos) {}
 
       ~VariableConstructor();
     };
@@ -1839,8 +1842,8 @@ namespace lesfl
     protected:
       std::unique_ptr<const std::list<std::unique_ptr<Annotation>>> _M_annotations;
 
-      FunctionConstructor(const std::list<std::unique_ptr<Annotation>> *annotations, InlineModifier inline_modifier, const std::string &ident, const Position &pos) :
-        Constructor(ident, pos), Inlinable(inline_modifier), _M_annotations(annotations) {}
+      FunctionConstructor(const std::list<std::unique_ptr<Annotation>> *annotations, AccessModifier access_modifier, InlineModifier inline_modifier, const std::string &ident, const Position &pos) :
+        Constructor(access_modifier, ident, pos), Inlinable(inline_modifier), _M_annotations(annotations) {}
     public:
       ~FunctionConstructor();
 
@@ -1853,8 +1856,8 @@ namespace lesfl
     {
       std::unique_ptr<const std::list<std::unique_ptr<TypeExpression>>> _M_field_types;
     public:
-      UnnamedFieldConstructor(const std::list<std::unique_ptr<Annotation>> *annotations, InlineModifier inline_modifier, const std::string &ident, const std::list<std::unique_ptr<TypeExpression>> *field_types, const Position &pos) :
-        FunctionConstructor(annotations, inline_modifier, ident, pos), _M_field_types(field_types) {}
+      UnnamedFieldConstructor(const std::list<std::unique_ptr<Annotation>> *annotations, AccessModifier access_modifier, InlineModifier inline_modifier, const std::string &ident, const std::list<std::unique_ptr<TypeExpression>> *field_types, const Position &pos) :
+        FunctionConstructor(annotations, access_modifier, inline_modifier, ident, pos), _M_field_types(field_types) {}
 
       ~UnnamedFieldConstructor();
 
@@ -1868,8 +1871,8 @@ namespace lesfl
       std::unique_ptr<const std::list<std::unique_ptr<TypeNamedFieldPair>>> _M_field_types;
       std::unordered_map<std::string, std::size_t> _M_field_indices;
     public:
-      NamedFieldConstructor(const std::list<std::unique_ptr<Annotation>> *annotations, InlineModifier inline_modifier, const std::string &ident, const std::list<std::unique_ptr<TypeNamedFieldPair>> *field_types, const Position &pos) :
-        FunctionConstructor(annotations, inline_modifier, ident, pos), _M_field_types(field_types) {}
+      NamedFieldConstructor(const std::list<std::unique_ptr<Annotation>> *annotations, AccessModifier access_modifier, InlineModifier inline_modifier, const std::string &ident, const std::list<std::unique_ptr<TypeNamedFieldPair>> *field_types, const Position &pos) :
+        FunctionConstructor(annotations, access_modifier, inline_modifier, ident, pos), _M_field_types(field_types) {}
 
       ~NamedFieldConstructor();
 
