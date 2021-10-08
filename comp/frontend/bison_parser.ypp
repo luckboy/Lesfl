@@ -326,10 +326,8 @@
 %type <values>          two_or_more_values
 %type <value_named_field_pairs> one_or_more_value_named_field_pairs
 %type <value_named_field_pair> value_named_field_pair
-%type <constrs>         constrs
 %type <constrs>         one_or_more_constrs
 %type <constr>          constr
-%type <fun_constrs>     fun_constrs
 %type <fun_constrs>     one_or_more_fun_constrs
 %type <fun_constr>      fun_constr
 %type <string>          ident_and_lbrace
@@ -442,7 +440,7 @@ rel_qident:     rel_qident '.' ident            { $1->idents().push_back(*$3); $
 
 constr_qident:  qident '.' CONSTR_IDENT         { $1->idents().push_back(*$3); $$ = $1; delete $3; }
 |               CONSTR_IDENT                    { $$ = new RelativeIdentifier(*$1); delete $1; }
-|               '.' CONSTR_IDENT                { $$ = new RelativeIdentifier(*$2); delete $2; }
+|               '.' CONSTR_IDENT                { $$ = new AbsoluteIdentifier(*$2); delete $2; }
 ;
 
 module_qident:  qident
@@ -607,11 +605,11 @@ def:            "import" qident {
   $$ = new TypeVariableDefinition($1, *$3, new TypeSynonymVariable($5), P(@3));
   delete $3;
 }
-|               access_modifier "datatype" ident '=' constrs {
+|               access_modifier "datatype" ident '=' one_or_more_constrs {
   $$ = new TypeVariableDefinition($1, *$3, new DatatypeVariable(new NonUniqueDatatype($5)), P(@3));
   delete $3;
 }
-|               access_modifier "unique" "datatype" ident '=' fun_constrs {
+|               access_modifier "unique" "datatype" ident '=' one_or_more_fun_constrs {
   $$ = new TypeVariableDefinition($1, *$4, new DatatypeVariable(new UniqueDatatype($6)), P(@4));
   delete $4;
 }
@@ -631,11 +629,11 @@ def:            "import" qident {
   $$ = new TypeFunctionDefinition($2, *$4, new TypeSynonymFunction($1, $6), P(@4));
   delete $4;
 }
-|               template access_modifier "datatype" ident '(' one_or_more_type_args ')' '=' constrs {
+|               template access_modifier "datatype" ident '(' one_or_more_type_args ')' '=' one_or_more_constrs {
   $$ = new TypeFunctionDefinition($2, *$4, new DatatypeFunction($1, $6, new NonUniqueDatatype($9)), P(@4));
   delete $4;
 }
-|               template access_modifier "unique" "datatype" ident '(' one_or_more_type_args ')' '=' fun_constrs {
+|               template access_modifier "unique" "datatype" ident '(' one_or_more_type_args ')' '=' one_or_more_fun_constrs {
   $$ = new TypeFunctionDefinition($2, *$5, new DatatypeFunction($1, $7, new UniqueDatatype($10)), P(@5));
   delete $5;
 }
@@ -651,11 +649,11 @@ def:            "import" qident {
   $$ = new TypeFunctionInstanceDefinition(*$3, new TypeSynonymFunctionInstance(false, $5, $8), P(@4));
   delete $3;
 }
-|               "instance" "datatype" ident '(' one_or_more_type_exprs ')' '=' constrs {
+|               "instance" "datatype" ident '(' one_or_more_type_exprs ')' '=' one_or_more_constrs {
   $$ = new TypeFunctionInstanceDefinition(*$3, new DatatypeFunctionInstance(false, $5, new NonUniqueDatatype($8)), P(@3));
   delete $3;
 }
-|               "instance" "unique" "datatype" ident '(' one_or_more_type_exprs ')' '=' fun_constrs {
+|               "instance" "unique" "datatype" ident '(' one_or_more_type_exprs ')' '=' one_or_more_fun_constrs {
   $$ = new TypeFunctionInstanceDefinition(*$4, new DatatypeFunctionInstance(false, $6, new UniqueDatatype($9)), P(@4));
   delete $4;
 }
@@ -671,11 +669,11 @@ def:            "import" qident {
   $$ = new TypeFunctionInstanceDefinition(*$4, new TypeSynonymFunctionInstance(true, $6, $9), P(@4));
   delete $4;
 }
-|               "template" "instance" "datatype" ident '(' one_or_more_type_exprs ')' '=' constrs {
+|               "template" "instance" "datatype" ident '(' one_or_more_type_exprs ')' '=' one_or_more_constrs {
   $$ = new TypeFunctionInstanceDefinition(*$4, new DatatypeFunctionInstance(true, $6, new NonUniqueDatatype($9)), P(@4));
   delete $4;
 }
-|               "template" "instance" "unique" "datatype" ident '(' one_or_more_type_exprs ')' '=' fun_constrs {
+|               "template" "instance" "unique" "datatype" ident '(' one_or_more_type_exprs ')' '=' one_or_more_fun_constrs {
   $$ = new TypeFunctionInstanceDefinition(*$5, new DatatypeFunctionInstance(true, $7, new UniqueDatatype($10)), P(@5));
   delete $5;
 }
@@ -1023,10 +1021,6 @@ one_or_more_value_named_field_pairs:
 value_named_field_pair: ident '=' value         { $$ = new ValueNamedFieldPair(*$1, $3, P(@1)); delete $1; }
 ;
 
-constrs:        /* empty */                     { $$ = make_shared_ptr_list<Constructor>(); }
-|               one_or_more_constrs
-;
-
 one_or_more_constrs:
                 one_or_more_constrs onl '|' constr { add_shared_ptr_list_elem($1, $4); $$ = $1; }
 |               constr                          { $$ = make_shared_ptr_list($1); }
@@ -1034,10 +1028,6 @@ one_or_more_constrs:
 
 constr:         access_modifier ident           { $$ = new VariableConstructor($1, *$2, P(@2)); delete $2; }
 |               fun_constr                      { $$ = $1; }
-;
-
-fun_constrs:    /* empty */                     { $$ = make_shared_ptr_list<FunctionConstructor>(); }
-|               one_or_more_fun_constrs
 ;
 
 one_or_more_fun_constrs:
