@@ -321,6 +321,10 @@
 %type <literal_value>   unique_literal
 %type <simple_literal_value> simple_literal
 %type <simple_literal_value> neg_simple_literal
+%type <i>               opt_neg_int8
+%type <i>               opt_neg_int16
+%type <i>               opt_neg_int32
+%type <i>               opt_neg_int64
 %type <value>           value
 %type <value>           value2
 %type <value>           value3
@@ -964,12 +968,28 @@ simple_literal: CHAR                            { $$ = new CharValue($1); }
 |               WSTRING                         { $$ = new WideStringValue(*$1); delete $1; }
 ;
 
-neg_simple_literal: '-' INT8                    { $$ = new IntValue(IntType::INT8, -$2); }
-|               '-' INT16                       { $$ = new IntValue(IntType::INT16, -$2); }
-|               '-' INT32                       { $$ = new IntValue(IntType::INT32, -$2); }
-|               '-' INT64                       { $$ = new IntValue(IntType::INT64, -$2); }
+neg_simple_literal: '-' INT8 opt_neg_int8       { $$ = new IntValue(IntType::INT8, -$2 + $3); }
+|               '-' INT16 opt_neg_int16         { $$ = new IntValue(IntType::INT16, -$2 + $3); }
+|               '-' INT32 opt_neg_int32         { $$ = new IntValue(IntType::INT32, -$2 + $3); }
+|               '-' INT64 opt_neg_int64         { $$ = new IntValue(IntType::INT64, -$2 + $3); }
 |               '-' FLOAT                       { $$ = new FloatValue(FloatType::SINGLE, -$2); }
 |               '-' DOUBLE                      { $$ = new FloatValue(FloatType::DOUBLE, -$2); }
+;
+
+opt_neg_int8:   /* empty */                     { $$ = 0; }
+|               '-' INT8                        { $$ = -$2; }
+;
+
+opt_neg_int16:  /* empty */                     { $$ = 0; }
+|               '-' INT16                       { $$ = -$2; }
+;
+
+opt_neg_int32:  /* empty */                     { $$ = 0; }
+|               '-' INT32                       { $$ = -$2; }
+;
+
+opt_neg_int64:  /* empty */                     { $$ = 0; }
+|               '-' INT64                       { $$ = -$2; }
 ;
 
 unique_literal: inline_modifier "unique" '\\' '(' args ')' opt_typing "->" expr {
