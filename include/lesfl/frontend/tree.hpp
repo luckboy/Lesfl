@@ -350,7 +350,7 @@ namespace lesfl
       std::shared_ptr<TypeFunction> type_fun(const Identifier &ident) const
       { return type_fun(ident.key_ident()); }
 
-      bool add_type_fun(KeyIdentifier key_ident, AccessModifier access_modifier, const std::shared_ptr<TypeFunction> &fun, bool must_update_access_modifier = true)
+      bool add_type_fun(KeyIdentifier key_ident, AccessModifier access_modifier, const std::shared_ptr<TypeFunction> &fun)
       { return _M_type_fun_infos.insert(std::make_pair(key_ident, TypeFunctionInfo(access_modifier, fun))).second; }
     };
 
