@@ -177,9 +177,9 @@ namespace lesfl
       return is_success;
     }
 
-    static bool add_ident_or_get_key_ident(ResolverContext &context, AbsoluteIdentifier *ident, KeyIdentifier &key_ident, const Position &pos, list<Error> &errors)
+    static bool add_ident_or_get_key_ident(ResolverContext &context, AbsoluteIdentifier *ident, KeyIdentifier &key_ident, bool &is_added, const Position &pos, list<Error> &errors)
     {
-      if(!context.tree.ident_table()->add_ident_or_get_key_ident(new AbsoluteIdentifier(*ident), key_ident)) {
+      if(!context.tree.ident_table()->add_ident_or_get_key_ident(ident, key_ident, is_added)) {
         errors.push_back(Error(pos, "internal error: can't add identifier to identifier table or get key identifier from identifier"));
         return false;
       }
@@ -206,8 +206,10 @@ namespace lesfl
     static bool add_root_module(ResolverContext &context, list<Error> &errors)
     {
       unique_ptr<AbsoluteIdentifier> abs_ident(new AbsoluteIdentifier());
+      bool is_added_abs_ident;
       KeyIdentifier key_ident;
-      if(!add_ident_or_get_key_ident(context, abs_ident.get(), key_ident, Position(Source(), 0, 0), errors)) return false;
+      if(!add_ident_or_get_key_ident(context, abs_ident.get(), key_ident, is_added_abs_ident, Position(Source(), 0, 0), errors)) return false;
+      if(is_added_abs_ident) abs_ident.release();
       context.tree.add_module(key_ident);
       return true;
     }
@@ -215,8 +217,10 @@ namespace lesfl
     static bool add_constr(ResolverContext &context, const shared_ptr<Constructor> &constr, AccessModifier access_modifier, bool has_datatype_fun, KeyIdentifier *datatype_key_ident, DatatypeFunctionInstance *datatype_fun_inst, list<Error> &errors, const string *datatype_ident = nullptr)
     {
       unique_ptr<AbsoluteIdentifier> abs_ident(new AbsoluteIdentifier(context.current_module_ident, constr->ident()));
+      bool is_added_abs_ident;
       KeyIdentifier key_ident;
-      if(!add_ident_or_get_key_ident(context, abs_ident.get(), key_ident, constr->pos(), errors)) return false;
+      if(!add_ident_or_get_key_ident(context, abs_ident.get(), key_ident, is_added_abs_ident, constr->pos(), errors)) return false;
+      if(is_added_abs_ident) abs_ident.release();
       bool is_success = true;
       constr->set_datatype_fun_flag(has_datatype_fun);
       if(datatype_key_ident != nullptr) constr->set_datatype_key_ident(*datatype_key_ident);
@@ -229,7 +233,6 @@ namespace lesfl
           errors.push_back(Error(constr->pos(), "constructor " + abs_ident->to_string() + " is already defined"));
         is_success = false;
       }
-      abs_ident.release();
       return is_success;
     }
 
@@ -324,20 +327,21 @@ namespace lesfl
           KeyIdentifier key_ident;
           {
             AbsoluteIdentifier module_abs_ident;
+            bool is_added_abs_ident;
             if(get_module_abs_ident(context, *(module_def->ident()), module_abs_ident, module_def->pos(), errors)) return false;
             auto iter = module_abs_ident.idents().begin();
             while(true) {
               abs_ident.reset(new AbsoluteIdentifier());
               auto inserter = back_inserter(abs_ident->idents());
               copy(module_abs_ident.idents().begin(), iter, inserter);
-              if(!add_ident_or_get_key_ident(context, abs_ident.get(), key_ident, module_def->pos(), errors)) return false;
+              if(!add_ident_or_get_key_ident(context, abs_ident.get(), key_ident, is_added_abs_ident, module_def->pos(), errors)) return false;
+              if(is_added_abs_ident) abs_ident.release();
               context.tree.add_module(key_ident);
               if(iter == module_abs_ident.idents().end()) break;
               abs_ident.release();
             }
           }
           module_def->ident()->set_key_ident(key_ident);
-          abs_ident.release();
           AbsoluteIdentifier saved_current_module = context.current_module_ident;
           context.current_module_ident = *abs_ident;
           bool tmp_is_success = add_defs(context, module_def->defs(), errors);
@@ -346,8 +350,10 @@ namespace lesfl
         },
         [&](VariableDefinition *var_def) -> bool {
           unique_ptr<AbsoluteIdentifier> abs_ident(new AbsoluteIdentifier(context.current_module_ident, var_def->ident()));
+          bool is_added_abs_ident;
           KeyIdentifier key_ident;
-          if(!add_ident_or_get_key_ident(context, abs_ident.get(), key_ident, var_def->pos(), errors)) return false;
+          if(!add_ident_or_get_key_ident(context, abs_ident.get(), key_ident, is_added_abs_ident, var_def->pos(), errors)) return false;
+          if(is_added_abs_ident) abs_ident.release();
           bool tmp_is_success = true;
           if(!context.tree.add_var(key_ident, var_def->access_modifier(), var_def->var())) {
             if(var_def->var()->is_template())
@@ -356,13 +362,14 @@ namespace lesfl
               errors.push_back(Error(var_def->pos(), "variable " + abs_ident->to_string() + " is already defined"));
             tmp_is_success = false;
           }
-          abs_ident.release();
           return tmp_is_success;
         },
         [&](FunctionDefinition *fun_def) -> bool {
           unique_ptr<AbsoluteIdentifier> abs_ident(new AbsoluteIdentifier(context.current_module_ident, fun_def->ident()));
+          bool is_added_abs_ident;
           KeyIdentifier key_ident;
-          if(!add_ident_or_get_key_ident(context, abs_ident.get(), key_ident, fun_def->pos(), errors)) return false;
+          if(!add_ident_or_get_key_ident(context, abs_ident.get(), key_ident, is_added_abs_ident, fun_def->pos(), errors)) return false;
+          if(is_added_abs_ident) abs_ident.release();
           bool tmp_is_success = true;
           shared_ptr<Variable> fun_var(new FunctionVariable(fun_def->fun()));
           if(!context.tree.add_var(key_ident, fun_def->access_modifier(), fun_var)) {
@@ -372,19 +379,19 @@ namespace lesfl
               errors.push_back(Error(fun_def->pos(), "function " + abs_ident->to_string() + " is already defined"));
             tmp_is_success = false;
           }
-          abs_ident.release();
           return tmp_is_success;
         },
         [&](TypeVariableDefinition *type_var_def) -> bool {
           unique_ptr<AbsoluteIdentifier> abs_ident(new AbsoluteIdentifier(context.current_module_ident, type_var_def->ident()));
+          bool is_added_abs_ident;
           KeyIdentifier key_ident;
-          if(!add_ident_or_get_key_ident(context, abs_ident.get(), key_ident, type_var_def->pos(), errors)) return false;
+          if(!add_ident_or_get_key_ident(context, abs_ident.get(), key_ident, is_added_abs_ident, type_var_def->pos(), errors)) return false;
+          if(is_added_abs_ident) abs_ident.release();
           bool tmp_is_success = true;
           if(!context.tree.add_type_var(key_ident, type_var_def->access_modifier(), type_var_def->var())) {
             errors.push_back(Error(type_var_def->pos(), "type " + abs_ident->to_string() + " is already defined"));
             tmp_is_success = false;
           }
-          abs_ident.release();
           context.template_flag = false;
           tmp_is_success &= add_constrs_from_type_var(context, type_var_def->var(), type_var_def->access_modifier(), key_ident, type_var_def->pos(), errors);
           context.template_flag = false;
@@ -392,14 +399,15 @@ namespace lesfl
         },
         [&](TypeFunctionDefinition *type_fun_def) -> bool {
           unique_ptr<AbsoluteIdentifier> abs_ident(new AbsoluteIdentifier(context.current_module_ident, type_fun_def->ident()));
+          bool is_added_abs_ident;
           KeyIdentifier key_ident;
-          if(!add_ident_or_get_key_ident(context, abs_ident.get(), key_ident, type_fun_def->pos(), errors)) return false;
+          if(!add_ident_or_get_key_ident(context, abs_ident.get(), key_ident, is_added_abs_ident, type_fun_def->pos(), errors)) return false;
+          if(is_added_abs_ident) abs_ident.release();
           bool tmp_is_success = true;
           if(!context.tree.add_type_fun(key_ident, type_fun_def->access_modifier(), type_fun_def->fun())) {
             errors.push_back(Error(def->pos(), "type template" + abs_ident->to_string() + " is already defined"));
             tmp_is_success = false;
           }
-          abs_ident.release();
           context.template_flag = true;
           tmp_is_success &= add_constrs_from_type_fun(context, type_fun_def->fun(), type_fun_def->access_modifier(), key_ident, type_fun_def->pos(), errors);
           context.template_flag = false;

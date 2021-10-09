@@ -1,5 +1,5 @@
 /****************************************************************************
- *   Copyright (C) 2016 Łukasz Szpakowski.                                  *
+ *   Copyright (C) 2016, 2021 Łukasz Szpakowski.                            *
  *                                                                          *
  *   This software is licensed under the GNU Lesser General Public          *
  *   License v3 or later. See the LICENSE file and the GPL file for         *
@@ -196,9 +196,13 @@ namespace lesfl
       return true;
     }
 
-    bool AbsoluteIdentifierTable::add_ident_or_get_key_ident(AbsoluteIdentifier *ident, KeyIdentifier &key_ident)
+    bool AbsoluteIdentifierTable::add_ident_or_get_key_ident(AbsoluteIdentifier *ident, KeyIdentifier &key_ident, bool &is_added)
     {
-      if(add_ident(ident, key_ident)) return true;
+      if(add_ident(ident, key_ident)) {
+        is_added= true;
+        return true;
+      }
+      is_added = false;
       if(!ident->has_key_ident()) {
         if(ident->set_key_ident(*this)) return false;
       }
