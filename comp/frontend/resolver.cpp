@@ -180,7 +180,7 @@ namespace lesfl
     static bool add_ident_or_get_key_ident(ResolverContext &context, AbsoluteIdentifier *ident, KeyIdentifier &key_ident, bool &is_added, const Position &pos, list<Error> &errors)
     {
       if(!context.tree.ident_table()->add_ident_or_get_key_ident(ident, key_ident, is_added)) {
-        errors.push_back(Error(pos, "internal error: can't add identifier to identifier table or get key identifier from identifier"));
+        errors.push_back(Error(pos, "internal error: can't add identifier to identifier table or get key identifier from identifier table"));
         return false;
       }
       return true;
