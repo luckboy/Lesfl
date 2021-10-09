@@ -25,7 +25,7 @@
 
   static wchar_t uescape_to_wchar(const char *uescape);
 
-  static bool string_to_int(const char *str, std::int64_t &i, std::int64_t max);
+  static bool string_to_int(const char *str, std::int64_t &i, std::int64_t max, std::uint64_t umax, unsigned bits);
 
   static bool string_to_float(const char *str, double &f, double max);
 
@@ -164,28 +164,28 @@ UESCAPE         "\\"(("u"[0-9A-Fa-f]{4})|("U"[0-9A-Fa-f]{8}))
   
   {INT}"i8"                     {
     BEGIN(tmp_state);
-    if(!string_to_int(yytext, value->i, INT8_MAX))
+    if(!string_to_int(yytext, value->i, INT8_MAX, UINT8_MAX, 8))
       throw syntax_error(*loc, "integer number is too large");
     return token::INT8;
   }
 
   {INT}"i16"                    {
     BEGIN(tmp_state);
-    if(!string_to_int(yytext, value->i, INT16_MAX))
+    if(!string_to_int(yytext, value->i, INT16_MAX, UINT16_MAX, 16))
       throw syntax_error(*loc, "integer number is too large");
     return token::INT16;
   }
 
   {INT}"i32"                    {
     BEGIN(tmp_state);
-    if(!string_to_int(yytext, value->i, INT32_MAX))
+    if(!string_to_int(yytext, value->i, INT32_MAX, UINT32_MAX, 32))
       throw syntax_error(*loc, "integer number is too large");
     return token::INT32;
   }
 
   {INT}"i64"?                   {
     BEGIN(tmp_state);
-    if(string_to_int(yytext, value->i, INT64_MAX))
+    if(string_to_int(yytext, value->i, INT64_MAX, UINT64_MAX, 64))
       throw syntax_error(*loc, "integer number is too large");
     return token::INT64;
   }
@@ -385,7 +385,7 @@ static wchar_t uescape_to_wchar(const char *uescape)
   }
 }
 
-static bool string_to_int(const char *str, std::int64_t &i, std::int64_t max)
+static bool string_to_int(const char *str, std::int64_t &i, std::int64_t max, std::uint64_t umax, unsigned bits)
 {
   if(str[0] == '0') {
     if(str[1] == 'X' || str[1] == 'x') {
@@ -397,13 +397,16 @@ static bool string_to_int(const char *str, std::int64_t &i, std::int64_t max)
       iss >> std::oct >> i;
       if(iss.fail()) return false;
     }
+    if(static_cast<std::uint64_t>(i) > umax) return false;
+    i = (i << (64 - bits)) >> (64 - bits);
+    return true;
   } else {
     std::istringstream iss(str);
     iss >> std::hex >> i;
     if(iss.fail()) return false;
+    if(i > max) return false;
+    return true;
   }
-  if(i > max) return false;
-  return true;
 }
 
 static bool string_to_float(const char *str, double &f, double max)
