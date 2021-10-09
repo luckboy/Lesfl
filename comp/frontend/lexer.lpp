@@ -7,6 +7,7 @@
  ****************************************************************************/
 %{
 #include <cfloat>
+#include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <iomanip>
@@ -201,6 +202,30 @@ UESCAPE         "\\"(("u"[0-9A-Fa-f]{4})|("U"[0-9A-Fa-f]{8}))
     BEGIN(tmp_state);
     if(!string_to_float(yytext, value->f, DBL_MAX))
       throw syntax_error(*loc, "floating-point number is too large");
+    return token::DOUBLE;
+  }
+
+  "inf""f"                      {
+    BEGIN(tmp_state);
+    value->f = INFINITY;
+    return token::FLOAT;
+  }
+
+  "inf""d"?                     {
+    BEGIN(tmp_state);
+    value->f = INFINITY;
+    return token::DOUBLE;
+  }
+
+  "nan""f"                      {
+    BEGIN(tmp_state);
+    value->f = NAN;
+    return token::FLOAT;
+  }
+
+  "nan""d"?                     {
+    BEGIN(tmp_state);
+    value->f = NAN;
     return token::DOUBLE;
   }
 
