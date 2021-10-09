@@ -226,13 +226,14 @@ namespace lesfl
       if(datatype_key_ident != nullptr) constr->set_datatype_key_ident(*datatype_key_ident);
       constr->set_datatype_fun_inst(datatype_fun_inst);
       shared_ptr<Variable> constr_var(new ConstructorVariable(constr));
-      if(!context.tree.add_var(abs_ident->key_ident(), access_modifier, constr_var, constr->access_modifier(), datatype_ident)) {
+      if(!context.tree.add_var(key_ident, access_modifier, constr_var, constr->access_modifier(), datatype_ident)) {
         if(context.template_flag)
           errors.push_back(Error(constr->pos(), "constructor template " + abs_ident->to_string() + " is already defined"));
         else
           errors.push_back(Error(constr->pos(), "constructor " + abs_ident->to_string() + " is already defined"));
         is_success = false;
       }
+      context.tree.uncompiled_var_key_idents().push_back(key_ident);
       return is_success;
     }
 
@@ -362,6 +363,7 @@ namespace lesfl
               errors.push_back(Error(var_def->pos(), "variable " + abs_ident->to_string() + " is already defined"));
             tmp_is_success = false;
           }
+          context.tree.uncompiled_var_key_idents().push_back(key_ident);
           return tmp_is_success;
         },
         [&](FunctionDefinition *fun_def) -> bool {
@@ -379,6 +381,7 @@ namespace lesfl
               errors.push_back(Error(fun_def->pos(), "function " + abs_ident->to_string() + " is already defined"));
             tmp_is_success = false;
           }
+          context.tree.uncompiled_var_key_idents().push_back(key_ident);
           return tmp_is_success;
         },
         [&](TypeVariableDefinition *type_var_def) -> bool {
@@ -395,6 +398,7 @@ namespace lesfl
           context.template_flag = false;
           tmp_is_success &= add_constrs_from_type_var(context, type_var_def->var(), type_var_def->access_modifier(), key_ident, type_var_def->pos(), errors);
           context.template_flag = false;
+          context.tree.uncompiled_type_var_key_idents().push_back(key_ident);
           return tmp_is_success;
         },
         [&](TypeFunctionDefinition *type_fun_def) -> bool {
@@ -411,6 +415,7 @@ namespace lesfl
           context.template_flag = true;
           tmp_is_success &= add_constrs_from_type_fun(context, type_fun_def->fun(), type_fun_def->access_modifier(), key_ident, type_fun_def->pos(), errors);
           context.template_flag = false;
+          context.tree.uncompiled_type_fun_key_idents().push_back(key_ident);
           return tmp_is_success;
         },
         [&](TypeFunctionInstanceDefinition *type_fun_inst_def) -> bool {

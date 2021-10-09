@@ -10,6 +10,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <vector>
 #include <utility>
 #include <lesfl/frontend/builtin.hpp>
 #include <lesfl/frontend/ident.hpp>
@@ -226,6 +227,9 @@ namespace lesfl
       std::unordered_map<KeyIdentifier, VariableInfo> _M_var_infos;
       std::unordered_map<KeyIdentifier, TypeVariableInfo> _M_type_var_infos;
       std::unordered_map<KeyIdentifier, TypeFunctionInfo> _M_type_fun_infos;
+      std::vector<KeyIdentifier> _M_uncompiled_var_key_idents;
+      std::vector<KeyIdentifier> _M_uncompiled_type_var_key_idents;
+      std::vector<KeyIdentifier> _M_uncompiled_type_fun_key_idents;
     public:
       Tree() : _M_ident_table(std::shared_ptr<AbsoluteIdentifierTable>(new AbsoluteIdentifierTable())) {}
 
@@ -352,6 +356,18 @@ namespace lesfl
 
       bool add_type_fun(KeyIdentifier key_ident, AccessModifier access_modifier, const std::shared_ptr<TypeFunction> &fun)
       { return _M_type_fun_infos.insert(std::make_pair(key_ident, TypeFunctionInfo(access_modifier, fun))).second; }
+      
+      const std::vector<KeyIdentifier> &uncompiled_var_key_idents() const { return _M_uncompiled_var_key_idents; }
+
+      std::vector<KeyIdentifier> &uncompiled_var_key_idents() { return _M_uncompiled_var_key_idents; }
+
+      const std::vector<KeyIdentifier> &uncompiled_type_var_key_idents() const { return _M_uncompiled_type_var_key_idents; }
+
+      std::vector<KeyIdentifier> &uncompiled_type_var_key_idents() { return _M_uncompiled_type_var_key_idents; }
+
+      const std::vector<KeyIdentifier> &uncompiled_type_fun_key_idents() const { return _M_uncompiled_type_fun_key_idents; }
+
+      std::vector<KeyIdentifier> &uncompiled_type_fun_key_idents() { return _M_uncompiled_type_fun_key_idents; }
     };
 
     class Definition : public Positional
