@@ -231,7 +231,7 @@ UESCAPE         "\\"(("u"[0-9A-Fa-f]{4})|("U"[0-9A-Fa-f]{8}))
 
   "\""                          { yy_push_state(IN_STRING); buffer = std::string(); }
 
-  "w\""                          { yy_push_state(IN_WSTRING); wbuffer = std::wstring(); }
+  "w\""                         { yy_push_state(IN_WSTRING); wbuffer = std::wstring(); }
 
   "("                           { BEGIN(tmp_state); yy_push_state(IN_PAREN); tmp_state = YY_START; return '('; }
 
