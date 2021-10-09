@@ -968,10 +968,10 @@ simple_literal: CHAR                            { $$ = new CharValue($1); }
 |               WSTRING                         { $$ = new WideStringValue(*$1); delete $1; }
 ;
 
-neg_simple_literal: '-' INT8 opt_neg_int8       { $$ = new IntValue(IntType::INT8, -$2 + $3); }
-|               '-' INT16 opt_neg_int16         { $$ = new IntValue(IntType::INT16, -$2 + $3); }
-|               '-' INT32 opt_neg_int32         { $$ = new IntValue(IntType::INT32, -$2 + $3); }
-|               '-' INT64 opt_neg_int64         { $$ = new IntValue(IntType::INT64, -$2 + $3); }
+neg_simple_literal: '-' INT8 opt_neg_int8       { $$ = new IntValue(IntType::INT8, static_cast<std::int8_t>(-$2 + $3)); }
+|               '-' INT16 opt_neg_int16         { $$ = new IntValue(IntType::INT16, static_cast<std::int16_t>(-$2 + $3)); }
+|               '-' INT32 opt_neg_int32         { $$ = new IntValue(IntType::INT32, static_cast<std::int32_t>(-$2 + $3)); }
+|               '-' INT64 opt_neg_int64         { $$ = new IntValue(IntType::INT64, static_cast<std::int64_t>(-$2 + $3)); }
 |               '-' FLOAT                       { $$ = new FloatValue(FloatType::SINGLE, -$2); }
 |               '-' DOUBLE                      { $$ = new FloatValue(FloatType::DOUBLE, -$2); }
 ;
