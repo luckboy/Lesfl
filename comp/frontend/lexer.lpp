@@ -343,6 +343,8 @@ UESCAPE         "\\"(("u"[0-9A-Fa-f]{4})|("U"[0-9A-Fa-f]{8}))
 
 <AFTER_SYMBOL,AFTER_KEYWORD,IN_PAREN>{
   [ \t\n\r]                     { loc->step(); }
+
+  .                             { throw syntax_error(*loc, "incorrect character"); }
 }
 
 .                               { throw syntax_error(*loc, "incorrect character"); }
