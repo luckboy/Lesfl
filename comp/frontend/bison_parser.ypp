@@ -377,46 +377,46 @@ builtin_fun:    '#' ident                       {
 }
 ;
 
-modifiers:      access_modifier fun_modifier    {
+modifiers:      access_modifier fun_modifier %dprec 2 {
   $$ = new std::pair<AccessModifier, FunctionModifier>($1, $2);
 }
-|               fun_modifier access_modifier    {
+|               fun_modifier access_modifier %dprec 1 {
   $$ = new std::pair<AccessModifier, FunctionModifier>($2, $1);
 }
 ;
 
-modifiers2:      access_modifier inline_modifier fun_modifier {
+modifiers2:     access_modifier inline_modifier fun_modifier %dprec 6 {
   $$ = new std::tuple<AccessModifier, InlineModifier, FunctionModifier>($1, $2, $3);
 }
-|               access_modifier fun_modifier inline_modifier {
+|               access_modifier fun_modifier inline_modifier %dprec 5 {
   $$ = new std::tuple<AccessModifier, InlineModifier, FunctionModifier>($1, $3, $2);
 }
-|               inline_modifier access_modifier fun_modifier {
+|               inline_modifier access_modifier fun_modifier %dprec 4 {
   $$ = new std::tuple<AccessModifier, InlineModifier, FunctionModifier>($2, $1, $3);
 }
-|               fun_modifier access_modifier inline_modifier {
+|               fun_modifier access_modifier inline_modifier %dprec 3 {
   $$ = new std::tuple<AccessModifier, InlineModifier, FunctionModifier>($2, $3, $1);
 }
-|               inline_modifier fun_modifier access_modifier {
+|               inline_modifier fun_modifier access_modifier %dprec 2 {
   $$ = new std::tuple<AccessModifier, InlineModifier, FunctionModifier>($3, $1, $2);
 }
-|               fun_modifier inline_modifier access_modifier {
+|               fun_modifier inline_modifier access_modifier %dprec 1 {
   $$ = new std::tuple<AccessModifier, InlineModifier, FunctionModifier>($3, $2, $1);
 }
 ;
 
-modifiers3:     inline_modifier fun_modifier    {
+modifiers3:     inline_modifier fun_modifier %dprec 2 {
   $$ = new std::pair<InlineModifier, FunctionModifier>($1, $2);
 }
-|               fun_modifier inline_modifier    {
+|               fun_modifier inline_modifier %dprec 1 {
   $$ = new std::pair<InlineModifier, FunctionModifier>($2, $1);
 }
 ;
 
-modifiers4:     access_modifier inline_modifier {
+modifiers4:     access_modifier inline_modifier %dprec 2 {
   $$ = new std::pair<AccessModifier, InlineModifier>($1, $2);
 }
-|               inline_modifier access_modifier {
+|               inline_modifier access_modifier %dprec 1 {
   $$ = new std::pair<AccessModifier, InlineModifier>($2, $1);
 }
 ;
@@ -746,8 +746,8 @@ annotations:    /* empty */                     { $$ = make_unique_ptr_list<Anno
 ;
 
 one_or_more_annotations:
-                one_or_more_annotations ',' annotation { add_unique_ptr_list_elem($1, $3); $$ = $1; }
-|               annotation                      { $$ = make_unique_ptr_list($1); }
+                one_or_more_annotations annotation onl { add_unique_ptr_list_elem($1, $2); $$ = $1; }
+|               annotation onl                  { $$ = make_unique_ptr_list($1); }
 ;
 
 annotation:     '@' ident                       { $$ = new Annotation(*$2, P(@2)); delete $2; }
@@ -903,8 +903,8 @@ pattern2:       pattern3 constr_bin_op pattern2 { $$ = make_binary_op_pattern($1
 
 pattern3:       constr_qident                   { $$ = new VariableConstructorPattern($1, P(@1)); }
 |               constr_qident '(' patterns ')'  { $$ = new UnnamedFieldConstructorPattern($1, $3, P(@1)); }
-|               constr_qident_and_lbrace onl one_or_more_pattern_named_field_pairs onl '}' {
-  $$ = new NamedFieldConstructorPattern($1, $3, P(@1));
+|               constr_qident_and_lbrace  one_or_more_pattern_named_field_pairs '}' {
+  $$ = new NamedFieldConstructorPattern($1, $2, P(@1));
 }
 |               '[' patterns ']'                { $$ = new ListPattern($2, P(@1)); }
 |               '#' '[' patterns ']'            { $$ = new NonUniqueArrayPattern($3, P(@1)); }
@@ -1185,6 +1185,8 @@ namespace lesfl
     {
       void BisonParser::error(const location_type &loc, const std::string &msg)
       { driver.add_error(Error(loc_to_pos(loc, driver), msg)); }
+      
+      BisonParser::syntax_error::syntax_error(const location_type &l, const std::string &m) : std::runtime_error(m), location(l) {}
     }
   }
 }

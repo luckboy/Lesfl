@@ -15,9 +15,12 @@
 #include <string>
 #include "frontend/driver.hpp"
 #include "frontend/lexer.hpp"
+#include "frontend/bison_parser.hpp"
 
 #define YY_USER_ACTION         update_loc(*loc, yytext); 
-
+#define ECHO
+  
+  
   using namespace lesfl;
   using namespace lesfl::frontend;
   using namespace lesfl::frontend::priv;
@@ -39,8 +42,8 @@
 %option stack
 %option noyywrap
 
-INT	            ([1-9][0-9]+)|("0"[0-9]*)|("0"[Xx][0-9A-Fa-f]+)
-FLOAT           ([0-9]+"."[0-9]*([Ee][+\-]?[0-9]+)?)|([0-9]+([Ee][+\-]?[0-9]+)?)
+INT	            ([1-9][0-9]*)|("0"[0-9]*)|("0"[Xx][0-9A-Fa-f]+)
+FLOAT           ([0-9]+"."[0-9]*([Ee][+\-]?[0-9]+)?)|([0-9]+[Ee][+\-]?[0-9]+)
 CONSTR_IDENT    [A-Z][_A-Za-z0-9]*
 VAR_IDENT       [_a-z][_A-Za-z0-9]*
 ESCAPE          "\\"([abtnvfr\"\'\\]|([0-3]?[0-7]{1,2})|("x"[0-9A-Fa-f]{1,2}))
@@ -63,7 +66,7 @@ UESCAPE         "\\"(("u"[0-9A-Fa-f]{4})|("U"[0-9A-Fa-f]{8}))
 
 <IN_COMMENT>{
   "/*"                          { yy_push_state(IN_COMMENT); }
-  "*/"                          { yy_pop_state(); }
+  "*/"                          { yy_pop_state(); loc->step();}
   .
 }
 
@@ -186,7 +189,7 @@ UESCAPE         "\\"(("u"[0-9A-Fa-f]{4})|("U"[0-9A-Fa-f]{8}))
 
   {INT}"i64"?                   {
     BEGIN(tmp_state);
-    if(string_to_int(yytext, value->i, INT64_MAX, UINT64_MAX, 64))
+    if(!string_to_int(yytext, value->i, INT64_MAX, UINT64_MAX, 64))
       throw syntax_error(*loc, "integer number is too large");
     return token::INT64;
   }
@@ -245,10 +248,12 @@ UESCAPE         "\\"(("u"[0-9A-Fa-f]{4})|("U"[0-9A-Fa-f]{8}))
 
   '\}'                          { if(yy_start_stack_ptr > 0) yy_pop_state(); tmp_state = YY_START; return '}'; }
 
-  "!"|"#"|"%"|"&"|"*"|"+"|","|"-"|"."|"/"|":"|";"|"<"|"="|">"|"@"|"["|"\\"|"]"|"^"|"_"|"|"|"~" {
+  "!"|"#"|"%"|"&"|"*"|"+"|","|"-"|"."|"/"|":"|"<"|"="|">"|"@"|"["|"\\"|"]"|"^"|"_"|"|"|"~" {
     BEGIN(AFTER_SYMBOL);
     return yytext[0];
   }
+  
+  ";"                           { return ';'; }
 
   "!="                          { BEGIN(AFTER_SYMBOL); return token::EXEQ; }
 
@@ -266,7 +271,7 @@ UESCAPE         "\\"(("u"[0-9A-Fa-f]{4})|("U"[0-9A-Fa-f]{8}))
 
   "=="                          { BEGIN(AFTER_SYMBOL); return token::EQEQ; }
 
-  ">="                          { BEGIN(AFTER_SYMBOL); return token::LTEQ; }
+  ">="                          { BEGIN(AFTER_SYMBOL); return token::GTEQ; }
 
   ">>"                          { BEGIN(AFTER_SYMBOL); return token::GTGT; }
 
@@ -355,10 +360,12 @@ namespace lesfl
 {
   namespace frontend
   {
+    Lexer::~Lexer() {}
+
     namespace priv
     {
       void Lexer::set_state_for_name_fields()
-      { BEGIN(IN_PAREN); }
+      { BEGIN(IN_PAREN); tmp_state = IN_PAREN; }
     }
   }
 }
@@ -429,7 +436,7 @@ static bool string_to_int(const char *str, std::int64_t &i, std::int64_t max, st
     return true;
   } else {
     std::istringstream iss(str);
-    iss >> std::hex >> i;
+    iss >> std::dec >> i;
     if(iss.fail()) return false;
     if(i > max) return false;
     return true;

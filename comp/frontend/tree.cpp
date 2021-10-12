@@ -795,6 +795,24 @@ namespace lesfl
     DatatypeFunctionInstance::~DatatypeFunctionInstance() {}
 
     //
+    // A Datatype class.
+    //
+
+    Datatype::~Datatype() {}
+
+    //
+    // A NonUniqueDatatype class.
+    //
+
+    NonUniqueDatatype::~NonUniqueDatatype() {}
+
+    //
+    // An UniqueDatatype class.
+    //
+
+    UniqueDatatype::~UniqueDatatype() {}
+    
+    //
     // A Constructor class.
     //
 

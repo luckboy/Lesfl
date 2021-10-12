@@ -513,16 +513,9 @@ namespace lesfl
     class Variable
     {
     protected:
-      AccessModifier _M_access_modifier;
-
-      Variable() : _M_access_modifier(AccessModifier::NONE) {}
+      Variable() {}
     public:
       virtual ~Variable();
-
-      AccessModifier access_modifier() const { return _M_access_modifier; }
-
-      void set_access_modifier(AccessModifier access_modifier)
-      { _M_access_modifier = access_modifier; }
     };
 
     class DefinableVariable : public Variable
