@@ -12,3 +12,11 @@ endif(CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 include_directories("${LETINCOMP_INCLUDE_DIR}" include)
 
 add_subdirectory(comp)
+
+if(BUILD_TESTING)
+	enable_testing()
+
+	find_package(CPPUNIT REQUIRED)
+
+	add_subdirectory(test)
+endif(BUILD_TESTING)

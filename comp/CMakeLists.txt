@@ -31,6 +31,10 @@ list(APPEND comp_sources "${CMAKE_CURRENT_BINARY_DIR}/frontend/lexer.cpp")
 aux_source_directory("${CMAKE_CURRENT_SOURCE_DIR}/frontend" comp_sources)
 aux_source_directory("${CMAKE_CURRENT_SOURCE_DIR}" comp_sources)
 
+list(APPEND comp_libraries ${LETINCOMP_LIBRARIES})
+
 add_library(lesfl SHARED ${comp_sources})
+target_link_libraries(lesfl ${comp_libraries})
 add_library(lesfl_static STATIC ${comp_sources})
+target_link_libraries(lesfl_static ${comp_libraries})
 set_target_properties(lesfl_static PROPERTIES OUTPUT_NAME lesfl)
