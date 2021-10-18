@@ -689,6 +689,10 @@ i() = somelib3.SomeConstr2\n\
 j() = somefun3\n\
 \n\
 k() = .SomeConstr3\n\
+\n\
+l() = ``::``\n\
+\n\
+m() = `+`\n\
 ");
         vector<Source> sources;
         sources.push_back(Source("test.lesfl", iss));
@@ -698,7 +702,7 @@ k() = .SomeConstr3\n\
         CPPUNIT_ASSERT(errors.empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
         auto def_list_iter = tree.defs().begin();
-        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), (*def_list_iter)->size());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), (*def_list_iter)->size());
         auto def_iter = (*def_list_iter)->begin();
         {
           FunctionDefinition *fun_def = dynamic_cast<FunctionDefinition *>(def_iter->get());
@@ -854,6 +858,58 @@ k() = .SomeConstr3\n\
           list<string> expected_idents1 { "SomeConstr3" };
           CPPUNIT_ASSERT_EQUAL(expected_idents1.size(), abs_ident1->idents().size());
           CPPUNIT_ASSERT(equal(expected_idents1.begin(), expected_idents1.end(), abs_ident1->idents().begin())); 
+        }
+        def_iter++;
+        {
+          FunctionDefinition *fun_def = dynamic_cast<FunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, fun_def->access_modifier());          
+          CPPUNIT_ASSERT_EQUAL(string("l"), fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_def->pos().column());
+          UserDefinedFunction *user_defined_fun = dynamic_cast<UserDefinedFunction *>(fun_def->fun().get());
+          CPPUNIT_ASSERT_EQUAL(false, user_defined_fun->is_template());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, user_defined_fun->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, user_defined_fun->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->args().empty());
+          CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
+          VariableExpression *var_expr1 = dynamic_cast<VariableExpression *>(user_defined_fun->body());
+          CPPUNIT_ASSERT(nullptr != var_expr1);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), var_expr1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), var_expr1->pos().column());
+          RelativeIdentifier *rel_ident1 = dynamic_cast<RelativeIdentifier *>(var_expr1->ident());
+          CPPUNIT_ASSERT(nullptr != rel_ident1);
+          list<string> expected_idents1 { "::" };
+          CPPUNIT_ASSERT_EQUAL(expected_idents1.size(), rel_ident1->idents().size());
+          CPPUNIT_ASSERT(equal(expected_idents1.begin(), expected_idents1.end(), rel_ident1->idents().begin()));
+        }
+        def_iter++;
+        {
+          FunctionDefinition *fun_def = dynamic_cast<FunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, fun_def->access_modifier());          
+          CPPUNIT_ASSERT_EQUAL(string("m"), fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(15), fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_def->pos().column());
+          UserDefinedFunction *user_defined_fun = dynamic_cast<UserDefinedFunction *>(fun_def->fun().get());
+          CPPUNIT_ASSERT_EQUAL(false, user_defined_fun->is_template());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, user_defined_fun->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, user_defined_fun->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->args().empty());
+          CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
+          VariableExpression *var_expr1 = dynamic_cast<VariableExpression *>(user_defined_fun->body());
+          CPPUNIT_ASSERT(nullptr != var_expr1);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(15), var_expr1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), var_expr1->pos().column());
+          RelativeIdentifier *rel_ident1 = dynamic_cast<RelativeIdentifier *>(var_expr1->ident());
+          CPPUNIT_ASSERT(nullptr != rel_ident1);
+          list<string> expected_idents1 { "+" };
+          CPPUNIT_ASSERT_EQUAL(expected_idents1.size(), rel_ident1->idents().size());
+          CPPUNIT_ASSERT(equal(expected_idents1.begin(), expected_idents1.end(), rel_ident1->idents().begin())); 
         }
       }
       
@@ -1301,6 +1357,8 @@ j() = 9223372036854775802\n\
 k() = 0xfedcba43210\n\
 \n\
 l() = 01234567\n\
+\n\
+m() = 0\n\
 ");
         vector<Source> sources;
         sources.push_back(Source("test.lesfl", iss));
@@ -1310,7 +1368,7 @@ l() = 01234567\n\
         CPPUNIT_ASSERT(errors.empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
         auto def_list_iter = tree.defs().begin();
-        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), (*def_list_iter)->size());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), (*def_list_iter)->size());
         auto def_iter = (*def_list_iter)->begin();
         {
           FunctionDefinition *fun_def = dynamic_cast<FunctionDefinition *>(def_iter->get());
@@ -1478,6 +1536,30 @@ l() = 01234567\n\
           IntValue *int_value = dynamic_cast<IntValue *>(literal->literal_value());
           CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value->int_type());
           CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(01234567LL), int_value->i());
+        }
+        def_iter++;
+        {
+          FunctionDefinition *fun_def = dynamic_cast<FunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, fun_def->access_modifier());          
+          CPPUNIT_ASSERT_EQUAL(string("m"), fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(15), fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_def->pos().column());
+          UserDefinedFunction *user_defined_fun = dynamic_cast<UserDefinedFunction *>(fun_def->fun().get());
+          CPPUNIT_ASSERT_EQUAL(false, user_defined_fun->is_template());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, user_defined_fun->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, user_defined_fun->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->args().empty());
+          CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
+          Literal *literal = dynamic_cast<Literal *>(user_defined_fun->body());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(15), literal->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), literal->pos().column());
+          IntValue *int_value = dynamic_cast<IntValue *>(literal->literal_value());
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(0), int_value->i());
         }
       }
       
@@ -1689,6 +1771,8 @@ k() = 1234.e-20\n\
 l() = 1234E10\n\
 \n\
 m() = 1234e-23\n\
+\n\
+n() = 0.0\n\
 ");
         vector<Source> sources;
         sources.push_back(Source("test.lesfl", iss));
@@ -1698,7 +1782,7 @@ m() = 1234e-23\n\
         CPPUNIT_ASSERT(errors.empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
         auto def_list_iter = tree.defs().begin();
-        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), (*def_list_iter)->size());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), (*def_list_iter)->size());
         auto def_iter = (*def_list_iter)->begin();
         {
           FunctionDefinition *fun_def = dynamic_cast<FunctionDefinition *>(def_iter->get());
@@ -1890,6 +1974,30 @@ m() = 1234e-23\n\
           FloatValue *float_value = dynamic_cast<FloatValue *>(literal->literal_value());
           CPPUNIT_ASSERT_EQUAL(FloatType::DOUBLE, float_value->float_type());
           CPPUNIT_ASSERT_EQUAL(1234.0e-23, float_value->f());
+        }
+        def_iter++;
+        {
+          FunctionDefinition *fun_def = dynamic_cast<FunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, fun_def->access_modifier());          
+          CPPUNIT_ASSERT_EQUAL(string("n"), fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(17), fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_def->pos().column());
+          UserDefinedFunction *user_defined_fun = dynamic_cast<UserDefinedFunction *>(fun_def->fun().get());
+          CPPUNIT_ASSERT_EQUAL(false, user_defined_fun->is_template());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, user_defined_fun->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, user_defined_fun->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->args().empty());
+          CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
+          Literal *literal = dynamic_cast<Literal *>(user_defined_fun->body());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(17), literal->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), literal->pos().column());
+          FloatValue *float_value = dynamic_cast<FloatValue *>(literal->literal_value());
+          CPPUNIT_ASSERT_EQUAL(FloatType::DOUBLE, float_value->float_type());
+          CPPUNIT_ASSERT_EQUAL(0.0, float_value->f());
         }
       }
 
