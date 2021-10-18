@@ -331,13 +331,13 @@ UESCAPE         "\\"(("u"[0-9A-Fa-f]{4})|("U"[0-9A-Fa-f]{8}))
   
   ``[^\n]+``                    {
     BEGIN(tmp_state);
-    value->string = new std::string(yytext + 2, yytext + std::strlen(yytext) - 4);
+    value->string = new std::string(yytext + 2, yytext + std::strlen(yytext) - 2);
     return token::CONSTR_IDENT;
   }
 
   `[^\n]+`                      {
     BEGIN(tmp_state);
-    value->string = new std::string(yytext + 1, yytext + std::strlen(yytext) - 2);
+    value->string = new std::string(yytext + 1, yytext + std::strlen(yytext) - 1);
     return token::VAR_IDENT;
   }
 }
