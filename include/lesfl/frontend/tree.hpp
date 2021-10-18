@@ -672,7 +672,7 @@ namespace lesfl
 
       bool is_template() const { return _M_inst_type_params.get() != nullptr; }
 
-      const std::list<std::unique_ptr<TypeParameter>> *inst_type_params() const { return _M_inst_type_params.get(); }
+      const std::list<std::unique_ptr<TypeParameter>> &inst_type_params() const { return *_M_inst_type_params; }
 
       const std::list<std::unique_ptr<Annotation>> &annotations() const { return *_M_annotations; }
 

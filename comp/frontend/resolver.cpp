@@ -1460,7 +1460,7 @@ namespace lesfl
       [&](UserDefinedFunction *fun) -> bool {
         bool is_success = check_and_clear_type_param_indices(context, pos, errors);
         if(fun->is_template())
-          is_success &= resolve_idents_from_type_params(context, *(fun->inst_type_params()), errors, true);
+          is_success &= resolve_idents_from_type_params(context, fun->inst_type_params(), errors, true);
         is_success &= check_annotations(fun->annotations(), errors);
         context.template_flag = fun->is_template();
         is_success &= check_and_clear_local_var_pair_iter_stack(context, pos, errors);

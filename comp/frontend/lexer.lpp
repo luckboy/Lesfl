@@ -244,16 +244,16 @@ UESCAPE         "\\"(("u"[0-9A-Fa-f]{4})|("U"[0-9A-Fa-f]{8}))
 
   "]"                           { if(yy_start_stack_ptr > 0) yy_pop_state(); tmp_state = YY_START; return ']'; }
   
-  '\{'                          { BEGIN(tmp_state); yy_push_state(INITIAL); tmp_state = YY_START; return '{'; }
+  "{"                           { BEGIN(tmp_state); yy_push_state(INITIAL); tmp_state = YY_START; return '{'; }
 
-  '\}'                          { if(yy_start_stack_ptr > 0) yy_pop_state(); tmp_state = YY_START; return '}'; }
+  "}"                           { if(yy_start_stack_ptr > 0) yy_pop_state(); tmp_state = YY_START; return '}'; }
 
   "!"|"#"|"%"|"&"|"*"|"+"|","|"-"|"."|"/"|":"|"<"|"="|">"|"@"|"["|"\\"|"]"|"^"|"_"|"|"|"~" {
     BEGIN(AFTER_SYMBOL);
     return yytext[0];
   }
   
-  ";"                           { return ';'; }
+  ";"                           { BEGIN(tmp_state); return ';'; }
 
   "!="                          { BEGIN(AFTER_SYMBOL); return token::EXEQ; }
 
