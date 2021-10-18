@@ -72,8 +72,6 @@ g(x) = f() + v + x\n\
           FunctionDefinition *fun_def = dynamic_cast<FunctionDefinition *>(def_iter->get());
           CPPUNIT_ASSERT(nullptr != fun_def);
           CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, fun_def->access_modifier());          
-          CPPUNIT_ASSERT(nullptr != fun_def);
-          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, fun_def->access_modifier());
           CPPUNIT_ASSERT_EQUAL(string("f"), fun_def->ident());
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_def->pos().source().file_name());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), fun_def->pos().line());
@@ -109,8 +107,11 @@ g(x) = f() + v + x\n\
           CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, user_defined_fun->fun_modifier());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), user_defined_fun->args().size());
           auto arg_iter = user_defined_fun->args().begin();
-          CPPUNIT_ASSERT_EQUAL(string("x"), arg_iter->get()->ident());
-          CPPUNIT_ASSERT(nullptr == arg_iter->get()->type_expr());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*arg_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), (*arg_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), (*arg_iter)->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("x"), (*arg_iter)->ident());
+          CPPUNIT_ASSERT(nullptr == (*arg_iter)->type_expr());
           CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
           NonUniqueApplication *app1 = dynamic_cast<NonUniqueApplication *>(user_defined_fun->body());
           CPPUNIT_ASSERT(nullptr != app1);
