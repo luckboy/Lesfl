@@ -3377,175 +3377,8 @@ private v: T(t, u) = C\n\
       void ParserTests::test_parser_parses_user_defined_variable_instance_definition()
       {
         istringstream iss("\
-instance v = 1\n\
-");
-        vector<Source> sources;
-        sources.push_back(Source("test.lesfl", iss));
-        list<Error> errors;
-        Tree tree;
-        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
-        CPPUNIT_ASSERT(errors.empty());
-        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
-        auto def_list_iter = tree.defs().begin();
-        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
-        auto def_iter = (*def_list_iter)->begin();
-        {
-          VariableInstanceDefinition *var_inst_def = dynamic_cast<VariableInstanceDefinition *>(def_iter->get());
-          CPPUNIT_ASSERT(nullptr != var_inst_def);
-          CPPUNIT_ASSERT_EQUAL(string("v"), var_inst_def->ident());
-          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), var_inst_def->pos().source().file_name());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), var_inst_def->pos().line());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), var_inst_def->pos().column());
-          UserDefinedVariable *user_defined_var = dynamic_cast<UserDefinedVariable *>(var_inst_def->var_inst()->var().get());
-          CPPUNIT_ASSERT(nullptr != user_defined_var);
-          CPPUNIT_ASSERT_EQUAL(false, user_defined_var->is_template());
-          CPPUNIT_ASSERT(nullptr == user_defined_var->type_expr());
-          VariableLiteralValue *var_literal_value = dynamic_cast<VariableLiteralValue *>(user_defined_var->value());
-          CPPUNIT_ASSERT(nullptr != var_literal_value);
-          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), var_literal_value->pos().source().file_name());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), var_literal_value->pos().line());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), var_literal_value->pos().column());
-          IntValue *int_value = dynamic_cast<IntValue *>(var_literal_value->literal_value());
-          CPPUNIT_ASSERT(nullptr != int_value);
-          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value->int_type());
-          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(1), int_value->i());
-        }
-      }
-
-      void ParserTests::test_parser_parses_user_defined_variable_instance_definition_with_type()
-      {
-        istringstream iss("\
-instance v: Int = 1\n\
-");
-        vector<Source> sources;
-        sources.push_back(Source("test.lesfl", iss));
-        list<Error> errors;
-        Tree tree;
-        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
-        CPPUNIT_ASSERT(errors.empty());
-        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
-        auto def_list_iter = tree.defs().begin();
-        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
-        auto def_iter = (*def_list_iter)->begin();
-        {
-          VariableInstanceDefinition *var_inst_def = dynamic_cast<VariableInstanceDefinition *>(def_iter->get());
-          CPPUNIT_ASSERT(nullptr != var_inst_def);
-          CPPUNIT_ASSERT_EQUAL(string("v"), var_inst_def->ident());
-          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), var_inst_def->pos().source().file_name());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), var_inst_def->pos().line());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), var_inst_def->pos().column());
-          UserDefinedVariable *user_defined_var = dynamic_cast<UserDefinedVariable *>(var_inst_def->var_inst()->var().get());
-          CPPUNIT_ASSERT(nullptr != user_defined_var);
-          CPPUNIT_ASSERT_EQUAL(false, user_defined_var->is_template());
-          CPPUNIT_ASSERT(nullptr != user_defined_var->type_expr());
-          TypeVariableExpression *type_var_expr = dynamic_cast<TypeVariableExpression *>(user_defined_var->type_expr());
-          CPPUNIT_ASSERT(nullptr != type_var_expr);
-          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr->pos().source().file_name());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr->pos().line());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), type_var_expr->pos().column());
-          RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr->ident());
-          CPPUNIT_ASSERT(nullptr != type_rel_ident1);
-          list<string> expected_type_idents1 { "Int" };
-          CPPUNIT_ASSERT_EQUAL(expected_type_idents1.size(), type_rel_ident1->idents().size());
-          CPPUNIT_ASSERT(equal(expected_type_idents1.begin(), expected_type_idents1.end(), type_rel_ident1->idents().begin())); 
-          VariableLiteralValue *var_literal_value = dynamic_cast<VariableLiteralValue *>(user_defined_var->value());
-          CPPUNIT_ASSERT(nullptr != var_literal_value);
-          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), var_literal_value->pos().source().file_name());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), var_literal_value->pos().line());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(19), var_literal_value->pos().column());
-          IntValue *int_value = dynamic_cast<IntValue *>(var_literal_value->literal_value());
-          CPPUNIT_ASSERT(nullptr != int_value);
-          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value->int_type());
-          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(1), int_value->i());
-        }
-      }
-      
-      void ParserTests::test_parser_parses_external_variable_instance_definition()
-      {
-        istringstream iss("\
-instance extern v: Int = somevar\n\
-");
-        vector<Source> sources;
-        sources.push_back(Source("test.lesfl", iss));
-        list<Error> errors;
-        Tree tree;
-        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
-        CPPUNIT_ASSERT(errors.empty());
-        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
-        auto def_list_iter = tree.defs().begin();
-        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
-        auto def_iter = (*def_list_iter)->begin();
-        {
-          VariableInstanceDefinition *var_inst_def = dynamic_cast<VariableInstanceDefinition *>(def_iter->get());
-          CPPUNIT_ASSERT(nullptr != var_inst_def);
-          CPPUNIT_ASSERT_EQUAL(string("v"), var_inst_def->ident());
-          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), var_inst_def->pos().source().file_name());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), var_inst_def->pos().line());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(17), var_inst_def->pos().column());
-          ExternalVariable *external_var = dynamic_cast<ExternalVariable *>(var_inst_def->var_inst()->var().get());
-          CPPUNIT_ASSERT(nullptr != external_var);
-          CPPUNIT_ASSERT_EQUAL(false, external_var->is_template());
-          TypeVariableExpression *type_var_expr = dynamic_cast<TypeVariableExpression *>(external_var->type_expr());
-          CPPUNIT_ASSERT(nullptr != type_var_expr);
-          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr->pos().source().file_name());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr->pos().line());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(20), type_var_expr->pos().column());
-          RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr->ident());
-          CPPUNIT_ASSERT(nullptr != type_rel_ident1);
-          list<string> expected_type_idents1 { "Int" };
-          CPPUNIT_ASSERT_EQUAL(expected_type_idents1.size(), type_rel_ident1->idents().size());
-          CPPUNIT_ASSERT(equal(expected_type_idents1.begin(), expected_type_idents1.end(), type_rel_ident1->idents().begin()));
-          CPPUNIT_ASSERT_EQUAL(string("somevar"), external_var->external_var_ident());
-        }
-      }
-      
-      void ParserTests::test_parser_parses_user_defined_variable_instance_template_definition()
-      {
-        istringstream iss("\
-template\n\
-instance v = Nil\n\
-");
-        vector<Source> sources;
-        sources.push_back(Source("test.lesfl", iss));
-        list<Error> errors;
-        Tree tree;
-        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
-        CPPUNIT_ASSERT(errors.empty());
-        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
-        auto def_list_iter = tree.defs().begin();
-        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
-        auto def_iter = (*def_list_iter)->begin();
-        {
-          VariableInstanceDefinition *var_def = dynamic_cast<VariableInstanceDefinition *>(def_iter->get());
-          CPPUNIT_ASSERT(nullptr != var_def);
-          CPPUNIT_ASSERT_EQUAL(string("v"), var_def->ident());
-          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), var_def->pos().source().file_name());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), var_def->pos().line());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), var_def->pos().column());
-          UserDefinedVariable *user_defined_var = dynamic_cast<UserDefinedVariable *>(var_def->var_inst()->var().get());
-          CPPUNIT_ASSERT(nullptr != user_defined_var);
-          CPPUNIT_ASSERT_EQUAL(true, user_defined_var->is_template());
-          CPPUNIT_ASSERT_EQUAL(true, user_defined_var->inst_type_params().empty());
-          CPPUNIT_ASSERT(nullptr == user_defined_var->type_expr());
-          CPPUNIT_ASSERT(nullptr != user_defined_var->value());
-          ConstructorValue *constr_value = dynamic_cast<ConstructorValue *>(user_defined_var->value());
-          CPPUNIT_ASSERT(nullptr != constr_value);
-          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr_value->pos().source().file_name());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr_value->pos().line());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), constr_value->pos().column());
-          RelativeIdentifier *rel_ident = dynamic_cast<RelativeIdentifier *>(constr_value->constr_ident());
-          CPPUNIT_ASSERT(nullptr != rel_ident);
-          list<string> expected_idents { "Nil" };
-          CPPUNIT_ASSERT_EQUAL(expected_idents.size(), rel_ident->idents().size());
-          CPPUNIT_ASSERT(equal(expected_idents.begin(), expected_idents.end(), rel_ident->idents().begin()));
-        }
-      }
-      
-      void ParserTests::test_parser_parses_user_defined_variable_instance_template_definition_with_type()
-      {
-        istringstream iss("\
-template\n\
-instance v: T(t, u) = C\n\
+instance\n\
+v = 1\n\
 ");
         vector<Source> sources;
         sources.push_back(Source("test.lesfl", iss));
@@ -3563,7 +3396,177 @@ instance v: T(t, u) = C\n\
           CPPUNIT_ASSERT_EQUAL(string("v"), var_inst_def->ident());
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), var_inst_def->pos().source().file_name());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), var_inst_def->pos().line());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), var_inst_def->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), var_inst_def->pos().column());
+          UserDefinedVariable *user_defined_var = dynamic_cast<UserDefinedVariable *>(var_inst_def->var_inst()->var().get());
+          CPPUNIT_ASSERT(nullptr != user_defined_var);
+          CPPUNIT_ASSERT_EQUAL(false, user_defined_var->is_template());
+          CPPUNIT_ASSERT(nullptr == user_defined_var->type_expr());
+          VariableLiteralValue *var_literal_value = dynamic_cast<VariableLiteralValue *>(user_defined_var->value());
+          CPPUNIT_ASSERT(nullptr != var_literal_value);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), var_literal_value->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), var_literal_value->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), var_literal_value->pos().column());
+          IntValue *int_value = dynamic_cast<IntValue *>(var_literal_value->literal_value());
+          CPPUNIT_ASSERT(nullptr != int_value);
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(1), int_value->i());
+        }
+      }
+
+      void ParserTests::test_parser_parses_user_defined_variable_instance_definition_with_type()
+      {
+        istringstream iss("\
+instance\n\
+v: Int = 1\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          VariableInstanceDefinition *var_inst_def = dynamic_cast<VariableInstanceDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != var_inst_def);
+          CPPUNIT_ASSERT_EQUAL(string("v"), var_inst_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), var_inst_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), var_inst_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), var_inst_def->pos().column());
+          UserDefinedVariable *user_defined_var = dynamic_cast<UserDefinedVariable *>(var_inst_def->var_inst()->var().get());
+          CPPUNIT_ASSERT(nullptr != user_defined_var);
+          CPPUNIT_ASSERT_EQUAL(false, user_defined_var->is_template());
+          CPPUNIT_ASSERT(nullptr != user_defined_var->type_expr());
+          TypeVariableExpression *type_var_expr = dynamic_cast<TypeVariableExpression *>(user_defined_var->type_expr());
+          CPPUNIT_ASSERT(nullptr != type_var_expr);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_var_expr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), type_var_expr->pos().column());
+          RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+          list<string> expected_type_idents1 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents1.size(), type_rel_ident1->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents1.begin(), expected_type_idents1.end(), type_rel_ident1->idents().begin())); 
+          VariableLiteralValue *var_literal_value = dynamic_cast<VariableLiteralValue *>(user_defined_var->value());
+          CPPUNIT_ASSERT(nullptr != var_literal_value);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), var_literal_value->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), var_literal_value->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), var_literal_value->pos().column());
+          IntValue *int_value = dynamic_cast<IntValue *>(var_literal_value->literal_value());
+          CPPUNIT_ASSERT(nullptr != int_value);
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(1), int_value->i());
+        }
+      }
+      
+      void ParserTests::test_parser_parses_external_variable_instance_definition()
+      {
+        istringstream iss("\
+instance\n\
+extern v: Int = somevar\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          VariableInstanceDefinition *var_inst_def = dynamic_cast<VariableInstanceDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != var_inst_def);
+          CPPUNIT_ASSERT_EQUAL(string("v"), var_inst_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), var_inst_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), var_inst_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), var_inst_def->pos().column());
+          ExternalVariable *external_var = dynamic_cast<ExternalVariable *>(var_inst_def->var_inst()->var().get());
+          CPPUNIT_ASSERT(nullptr != external_var);
+          CPPUNIT_ASSERT_EQUAL(false, external_var->is_template());
+          TypeVariableExpression *type_var_expr = dynamic_cast<TypeVariableExpression *>(external_var->type_expr());
+          CPPUNIT_ASSERT(nullptr != type_var_expr);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_var_expr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), type_var_expr->pos().column());
+          RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+          list<string> expected_type_idents1 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents1.size(), type_rel_ident1->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents1.begin(), expected_type_idents1.end(), type_rel_ident1->idents().begin()));
+          CPPUNIT_ASSERT_EQUAL(string("somevar"), external_var->external_var_ident());
+        }
+      }
+      
+      void ParserTests::test_parser_parses_user_defined_variable_instance_template_definition()
+      {
+        istringstream iss("\
+template instance\n\
+v = Nil\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          VariableInstanceDefinition *var_def = dynamic_cast<VariableInstanceDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != var_def);
+          CPPUNIT_ASSERT_EQUAL(string("v"), var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), var_def->pos().column());
+          UserDefinedVariable *user_defined_var = dynamic_cast<UserDefinedVariable *>(var_def->var_inst()->var().get());
+          CPPUNIT_ASSERT(nullptr != user_defined_var);
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_var->is_template());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_var->inst_type_params().empty());
+          CPPUNIT_ASSERT(nullptr == user_defined_var->type_expr());
+          CPPUNIT_ASSERT(nullptr != user_defined_var->value());
+          ConstructorValue *constr_value = dynamic_cast<ConstructorValue *>(user_defined_var->value());
+          CPPUNIT_ASSERT(nullptr != constr_value);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr_value->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr_value->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), constr_value->pos().column());
+          RelativeIdentifier *rel_ident = dynamic_cast<RelativeIdentifier *>(constr_value->constr_ident());
+          CPPUNIT_ASSERT(nullptr != rel_ident);
+          list<string> expected_idents { "Nil" };
+          CPPUNIT_ASSERT_EQUAL(expected_idents.size(), rel_ident->idents().size());
+          CPPUNIT_ASSERT(equal(expected_idents.begin(), expected_idents.end(), rel_ident->idents().begin()));
+        }
+      }
+      
+      void ParserTests::test_parser_parses_user_defined_variable_instance_template_definition_with_type()
+      {
+        istringstream iss("\
+template instance\n\
+v: T(t, u) = C\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          VariableInstanceDefinition *var_inst_def = dynamic_cast<VariableInstanceDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != var_inst_def);
+          CPPUNIT_ASSERT_EQUAL(string("v"), var_inst_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), var_inst_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), var_inst_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), var_inst_def->pos().column());
           UserDefinedVariable *user_defined_var = dynamic_cast<UserDefinedVariable *>(var_inst_def->var_inst()->var().get());
           CPPUNIT_ASSERT(nullptr != user_defined_var);
           CPPUNIT_ASSERT_EQUAL(true, user_defined_var->is_template());
@@ -3573,7 +3576,7 @@ instance v: T(t, u) = C\n\
           CPPUNIT_ASSERT(nullptr != type_app);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_app->pos().source().file_name());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_app->pos().line());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), type_app->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), type_app->pos().column());
           RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_app->fun_ident());
           CPPUNIT_ASSERT(nullptr != type_rel_ident1);
           list<string> expected_type_idents1 { "T" };
@@ -3585,21 +3588,21 @@ instance v: T(t, u) = C\n\
           CPPUNIT_ASSERT(nullptr != type_param_expr1);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_param_expr1->pos().source().file_name());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_param_expr1->pos().line());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(15), type_param_expr1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_param_expr1->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("t"), type_param_expr1->ident());
           type_arg_iter++;
           TypeParameterExpression *type_param_expr2 = dynamic_cast<TypeParameterExpression *>(type_arg_iter->get());
           CPPUNIT_ASSERT(nullptr != type_param_expr2);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_param_expr2->pos().source().file_name());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_param_expr2->pos().line());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(18), type_param_expr2->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), type_param_expr2->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("u"), type_param_expr2->ident());
           CPPUNIT_ASSERT(nullptr != user_defined_var->value());
           ConstructorValue *constr_value = dynamic_cast<ConstructorValue *>(user_defined_var->value());
           CPPUNIT_ASSERT(nullptr != constr_value);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr_value->pos().source().file_name());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr_value->pos().line());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(23), constr_value->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), constr_value->pos().column());
           RelativeIdentifier *rel_ident = dynamic_cast<RelativeIdentifier *>(constr_value->constr_ident());
           CPPUNIT_ASSERT(nullptr != rel_ident);
           list<string> expected_idents { "C" };
