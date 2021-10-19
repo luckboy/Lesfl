@@ -3655,6 +3655,7 @@ f(x, y) = g(x, y)\n\
           CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
           NonUniqueApplication *app1 = dynamic_cast<NonUniqueApplication *>(user_defined_fun->body());
           CPPUNIT_ASSERT(nullptr != app1);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, app1->fun_modifier());
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), app1->pos().source().file_name());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), app1->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), app1->pos().column());
@@ -3769,6 +3770,7 @@ private primitive inline f(x, y: Int8): Int = g(x, y)\n\
           CPPUNIT_ASSERT(equal(expected_type_idents3.begin(), expected_type_idents3.end(), type_rel_ident3->idents().begin()));          
           NonUniqueApplication *app1 = dynamic_cast<NonUniqueApplication *>(user_defined_fun->body());
           CPPUNIT_ASSERT(nullptr != app1);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, app1->fun_modifier());
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), app1->pos().source().file_name());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), app1->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(47), app1->pos().column());
@@ -4168,6 +4170,7 @@ f(x, y) = g(x, y)\n\
           CPPUNIT_ASSERT(nullptr != user_defined_fun->body());
           NonUniqueApplication *app1 = dynamic_cast<NonUniqueApplication *>(user_defined_fun->body());
           CPPUNIT_ASSERT(nullptr != app1);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, app1->fun_modifier());
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), app1->pos().source().file_name());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), app1->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), app1->pos().column());
@@ -4310,6 +4313,7 @@ private inline primitive f(x: T(t, u), y): Int = g(x, y)\n\
           CPPUNIT_ASSERT(nullptr != user_defined_fun->body());          
           NonUniqueApplication *app1 = dynamic_cast<NonUniqueApplication *>(user_defined_fun->body());
           CPPUNIT_ASSERT(nullptr != app1);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, app1->fun_modifier());
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), app1->pos().source().file_name());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), app1->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(50), app1->pos().column());
@@ -4578,6 +4582,7 @@ f(x, y) = g(x, y)\n\
           CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
           NonUniqueApplication *app1 = dynamic_cast<NonUniqueApplication *>(user_defined_fun->body());
           CPPUNIT_ASSERT(nullptr != app1);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, app1->fun_modifier());
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), app1->pos().source().file_name());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), app1->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), app1->pos().column());
@@ -4692,6 +4697,7 @@ primitive inline f(x, y: Int8): Int = g(x, y)\n\
           CPPUNIT_ASSERT(equal(expected_type_idents3.begin(), expected_type_idents3.end(), type_rel_ident3->idents().begin()));          
           NonUniqueApplication *app1 = dynamic_cast<NonUniqueApplication *>(user_defined_fun->body());
           CPPUNIT_ASSERT(nullptr != app1);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, app1->fun_modifier());
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), app1->pos().source().file_name());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), app1->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(39), app1->pos().column());
@@ -5090,6 +5096,7 @@ f(x, y) = g(x, y)\n\
           CPPUNIT_ASSERT(nullptr != user_defined_fun->body());
           NonUniqueApplication *app1 = dynamic_cast<NonUniqueApplication *>(user_defined_fun->body());
           CPPUNIT_ASSERT(nullptr != app1);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, app1->fun_modifier());
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), app1->pos().source().file_name());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), app1->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), app1->pos().column());
@@ -5221,6 +5228,7 @@ inline primitive f(x: T(t, u), y): Int = g(x, y)\n\
           CPPUNIT_ASSERT(nullptr != user_defined_fun->body());          
           NonUniqueApplication *app1 = dynamic_cast<NonUniqueApplication *>(user_defined_fun->body());
           CPPUNIT_ASSERT(nullptr != app1);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, app1->fun_modifier());
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), app1->pos().source().file_name());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), app1->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(42), app1->pos().column());
