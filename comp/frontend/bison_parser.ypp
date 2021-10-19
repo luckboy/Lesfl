@@ -605,7 +605,7 @@ def:            "import" module_qident {
   delete $8;
 }
 |               "template" "instance" annotations modifiers3 ident_and_args opt_typing '=' expr {
-  $$ = new FunctionInstanceDefinition(std::get<0>(*$5),  new FunctionInstance(new UserDefinedFunction($3, $4->first, $4->second, std::get<1>(*$5), $6, $8)), std::get<2>(*$5));
+  $$ = new FunctionInstanceDefinition(std::get<0>(*$5),  new FunctionInstance(new UserDefinedFunction(make_unique_ptr_list<TypeParameter>(), $3, $4->first, $4->second, std::get<1>(*$5), $6, $8)), std::get<2>(*$5));
   delete $4;
   delete $5;
 }
@@ -654,7 +654,7 @@ def:            "import" module_qident {
   delete $5;
 }
 |               "instance" "type" ident '(' one_or_more_type_exprs ')' '=' type_expr {
-  $$ = new TypeFunctionInstanceDefinition(*$3, new TypeSynonymFunctionInstance(false, $5, $8), P(@4));
+  $$ = new TypeFunctionInstanceDefinition(*$3, new TypeSynonymFunctionInstance(false, $5, $8), P(@3));
   delete $3;
 }
 |               "instance" "datatype" ident '(' one_or_more_type_exprs ')' '=' one_or_more_constrs {
