@@ -132,12 +132,12 @@ g(x) = f() + v + x\n\
           NonUniqueApplication *app2 = dynamic_cast<NonUniqueApplication *>(arg_iter1->get());
           CPPUNIT_ASSERT(nullptr != app2);
           CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, app2->fun_modifier());
-          CPPUNIT_ASSERT_EQUAL(5UL, app2->pos().line());
-          CPPUNIT_ASSERT_EQUAL(8UL, app2->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), app2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), app2->pos().column());
           VariableExpression *var_expr2 = dynamic_cast<VariableExpression *>(app2->fun());
           CPPUNIT_ASSERT(nullptr != var_expr2);
-          CPPUNIT_ASSERT_EQUAL(5UL, var_expr2->pos().line());
-          CPPUNIT_ASSERT_EQUAL(12UL, var_expr2->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(12), var_expr2->pos().column());
           RelativeIdentifier *rel_ident2 = dynamic_cast<RelativeIdentifier *>(var_expr2->ident());
           CPPUNIT_ASSERT(nullptr != rel_ident2);
           list<string> expected_idents2 { "+" };
