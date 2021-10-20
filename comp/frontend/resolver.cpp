@@ -1539,7 +1539,8 @@ namespace lesfl
         is_success &= resolve_idents_from_type_args(context, fun->args(), errors);
         is_success &= resolve_idents_from_type_params(context, fun->inst_type_params(), errors);
         context.template_flag = true;
-        is_success &= resolve_idents_from_type_expr(context, fun->body(), errors);
+        if(fun->body() != nullptr)
+          is_success &= resolve_idents_from_type_expr(context, fun->body(), errors);
         context.template_flag = false;
         clear_type_params(context);
         return is_success;
