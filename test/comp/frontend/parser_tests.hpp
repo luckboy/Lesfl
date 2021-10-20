@@ -91,6 +91,8 @@ namespace lesfl
         CPPUNIT_TEST(test_parser_parses_unique_datatype_variable_definition_without_constructors_with_modifier);
         CPPUNIT_TEST(test_parser_parses_type_synonym_function_definition);
         CPPUNIT_TEST(test_parser_parses_type_synonym_function_definition_with_modifier_and_instance_type_parameters);
+        CPPUNIT_TEST(test_parser_parses_type_synonym_function_definition_without_body);
+        CPPUNIT_TEST(test_parser_parses_type_synonym_function_definition_without_body_with_modifier_and_instance_type_parameters);
         CPPUNIT_TEST(test_parser_parses_datatype_function_definition);
         CPPUNIT_TEST(test_parser_parses_datatype_function_definition_with_modifier_and_instance_type_parameters);
         CPPUNIT_TEST(test_parser_parses_unique_datatype_function_definition);
@@ -186,6 +188,8 @@ namespace lesfl
         void test_parser_parses_unique_datatype_variable_definition_without_constructors_with_modifier();
         void test_parser_parses_type_synonym_function_definition();
         void test_parser_parses_type_synonym_function_definition_with_modifier_and_instance_type_parameters();
+        void test_parser_parses_type_synonym_function_definition_without_body();
+        void test_parser_parses_type_synonym_function_definition_without_body_with_modifier_and_instance_type_parameters();
         void test_parser_parses_datatype_function_definition();
         void test_parser_parses_datatype_function_definition_with_modifier_and_instance_type_parameters();
         void test_parser_parses_unique_datatype_function_definition();

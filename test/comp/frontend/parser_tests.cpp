@@ -5750,6 +5750,7 @@ type T(t, u) = U(t, u)\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*type_arg_iter)->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), (*type_arg_iter)->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("u"), (*type_arg_iter)->ident());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun->body());
           TypeApplication *type_app1 = dynamic_cast<TypeApplication *>(type_synonym_fun->body());
           CPPUNIT_ASSERT(nullptr != type_app1);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_app1->pos().source().file_name());
@@ -5783,6 +5784,125 @@ type T(t, u) = U(t, u)\n\
         istringstream iss("\
 template(t, u)\n\
 private type T(t, u) = U(t, u)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeFunctionDefinition *type_fun_def = dynamic_cast<TypeFunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::PRIVATE, type_fun_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), type_fun_def->pos().column());
+          TypeSynonymFunction *type_synonym_fun = dynamic_cast<TypeSynonymFunction *>(type_fun_def->fun().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_synonym_fun->inst_type_params().size());
+          auto inst_type_param_iter = type_synonym_fun->inst_type_params().begin();
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*inst_type_param_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*inst_type_param_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), (*inst_type_param_iter)->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), (*inst_type_param_iter)->ident());
+          inst_type_param_iter++;
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*inst_type_param_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*inst_type_param_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), (*inst_type_param_iter)->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("u"), (*inst_type_param_iter)->ident());          
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_synonym_fun->args().size());
+          auto type_arg_iter = type_synonym_fun->args().begin();
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*type_arg_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*type_arg_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(16), (*type_arg_iter)->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), (*type_arg_iter)->ident());
+          type_arg_iter++;
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*type_arg_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*type_arg_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(19), (*type_arg_iter)->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("u"), (*type_arg_iter)->ident());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun->body());
+          TypeApplication *type_app1 = dynamic_cast<TypeApplication *>(type_synonym_fun->body());
+          CPPUNIT_ASSERT(nullptr != type_app1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_app1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_app1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(24), type_app1->pos().column());
+          RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_app1->fun_ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+          list<string> expected_type_idents1 { "U" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents1.size(), type_rel_ident1->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents1.begin(), expected_type_idents1.end(), type_rel_ident1->idents().begin()));
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_app1->args().size());
+          auto type_arg_iter1 = type_app1->args().begin();
+          TypeParameterExpression *type_param_expr2 = dynamic_cast<TypeParameterExpression *>(type_arg_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_param_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_param_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_param_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(26), type_param_expr2->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), type_param_expr2->ident());
+          type_arg_iter1++;
+          TypeParameterExpression *type_param_expr3 = dynamic_cast<TypeParameterExpression *>(type_arg_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_param_expr3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_param_expr3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_param_expr3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(29), type_param_expr3->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("u"), type_param_expr3->ident());
+        }
+      }
+
+      void ParserTests::test_parser_parses_type_synonym_function_definition_without_body()
+      {
+        istringstream iss("\
+template\n\
+type T(t, u)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeFunctionDefinition *type_fun_def = dynamic_cast<TypeFunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_fun_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_fun_def->pos().column());
+          TypeSynonymFunction *type_synonym_fun = dynamic_cast<TypeSynonymFunction *>(type_fun_def->fun().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun);
+          CPPUNIT_ASSERT_EQUAL(true, type_synonym_fun->inst_type_params().empty());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_synonym_fun->args().size());
+          auto type_arg_iter = type_synonym_fun->args().begin();
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*type_arg_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*type_arg_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), (*type_arg_iter)->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), (*type_arg_iter)->ident());
+          type_arg_iter++;
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*type_arg_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*type_arg_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), (*type_arg_iter)->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("u"), (*type_arg_iter)->ident());
+          CPPUNIT_ASSERT(nullptr == type_synonym_fun->body());
+        }
+      }
+
+      void ParserTests::test_parser_parses_type_synonym_function_definition_without_body_with_modifier_and_instance_type_parameters()
+      {
+        istringstream iss("\
+template(t, u)\n\
+private type T(t, u)\n\
 ");
         vector<Source> sources;
         sources.push_back(Source("test.lesfl", iss));
@@ -5826,31 +5946,7 @@ private type T(t, u) = U(t, u)\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*type_arg_iter)->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(19), (*type_arg_iter)->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("u"), (*type_arg_iter)->ident());
-          TypeApplication *type_app1 = dynamic_cast<TypeApplication *>(type_synonym_fun->body());
-          CPPUNIT_ASSERT(nullptr != type_app1);
-          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_app1->pos().source().file_name());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_app1->pos().line());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(24), type_app1->pos().column());
-          RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_app1->fun_ident());
-          CPPUNIT_ASSERT(nullptr != type_rel_ident1);
-          list<string> expected_type_idents1 { "U" };
-          CPPUNIT_ASSERT_EQUAL(expected_type_idents1.size(), type_rel_ident1->idents().size());
-          CPPUNIT_ASSERT(equal(expected_type_idents1.begin(), expected_type_idents1.end(), type_rel_ident1->idents().begin()));
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_app1->args().size());
-          auto type_arg_iter1 = type_app1->args().begin();
-          TypeParameterExpression *type_param_expr2 = dynamic_cast<TypeParameterExpression *>(type_arg_iter1->get());
-          CPPUNIT_ASSERT(nullptr != type_param_expr2);
-          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_param_expr2->pos().source().file_name());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_param_expr2->pos().line());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(26), type_param_expr2->pos().column());
-          CPPUNIT_ASSERT_EQUAL(string("t"), type_param_expr2->ident());
-          type_arg_iter1++;
-          TypeParameterExpression *type_param_expr3 = dynamic_cast<TypeParameterExpression *>(type_arg_iter1->get());
-          CPPUNIT_ASSERT(nullptr != type_param_expr3);
-          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_param_expr3->pos().source().file_name());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_param_expr3->pos().line());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(29), type_param_expr3->pos().column());
-          CPPUNIT_ASSERT_EQUAL(string("u"), type_param_expr3->ident());
+          CPPUNIT_ASSERT(nullptr == type_synonym_fun->body());
         }
       }
       
