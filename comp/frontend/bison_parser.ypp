@@ -753,7 +753,7 @@ one_or_more_annotations:
 annotation:     '@' ident                       { $$ = new Annotation(*$2, P(@2)); delete $2; }
 ;
 
-expr:           "if" '(' expr ')' expr "else" expr { $$ = make_if($3, $5, $7, P(@1)); } 
+expr:           "if" '(' expr ')' onl expr "else" expr { $$ = make_if($3, $6, $8, P(@1)); } 
 |               "let" onl one_or_more_binds onl "in" expr { $$ = new Let($3, $6, P(@1)); }
 |               expr2 "match" '{' onl one_or_more_cases onl '}' { $$ = new Match($1, $5, P(@1)); }
 |               "throw" expr2                   { $$ = new Throw($2, P(@1)); }
