@@ -8064,16 +8064,16 @@ native -(x: Int8): Int = somefun\n\
           list<string> expected_type_idents1 { "Int8" };
           CPPUNIT_ASSERT_EQUAL(expected_type_idents1.size(), type_rel_ident1->idents().size());
           CPPUNIT_ASSERT(equal(expected_type_idents1.begin(), expected_type_idents1.end(), type_rel_ident1->idents().begin()));
-          TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(native_fun->result_type_expr());
-          CPPUNIT_ASSERT(nullptr != type_var_expr3);
-          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr3->pos().source().file_name());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr3->pos().line());
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(20), type_var_expr3->pos().column());
-          RelativeIdentifier *type_rel_ident3 = dynamic_cast<RelativeIdentifier *>(type_var_expr3->ident());
-          CPPUNIT_ASSERT(nullptr != type_rel_ident3);
-          list<string> expected_type_idents3 { "Int" };
-          CPPUNIT_ASSERT_EQUAL(expected_type_idents3.size(), type_rel_ident3->idents().size());
-          CPPUNIT_ASSERT(equal(expected_type_idents3.begin(), expected_type_idents3.end(), type_rel_ident3->idents().begin()));
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(native_fun->result_type_expr());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(20), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
           CPPUNIT_ASSERT_EQUAL(string("somefun"), native_fun->native_fun_ident());
         }
       }
