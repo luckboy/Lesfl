@@ -3843,7 +3843,6 @@ extern f(x: WChar, y: Char): Int = somefun\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*arg_iter)->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), (*arg_iter)->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("x"), (*arg_iter)->ident());
-          CPPUNIT_ASSERT(nullptr != (*arg_iter)->type_expr());
           TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>((*arg_iter)->type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr1);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr1->pos().source().file_name());
@@ -3859,7 +3858,6 @@ extern f(x: WChar, y: Char): Int = somefun\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*arg_iter)->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(20), (*arg_iter)->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("y"), (*arg_iter)->ident());
-          CPPUNIT_ASSERT(nullptr != (*arg_iter)->type_expr());
           TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>((*arg_iter)->type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr2);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
@@ -3870,7 +3868,6 @@ extern f(x: WChar, y: Char): Int = somefun\n\
           list<string> expected_type_idents2 { "Char" };
           CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
           CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
-          CPPUNIT_ASSERT(nullptr != external_fun->result_type_expr());
           TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(external_fun->result_type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr3);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr3->pos().source().file_name());
@@ -3918,7 +3915,6 @@ private primitive extern f(x: WChar, y: Char): Int = somefun\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*arg_iter)->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(28), (*arg_iter)->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("x"), (*arg_iter)->ident());
-          CPPUNIT_ASSERT(nullptr != (*arg_iter)->type_expr());
           TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>((*arg_iter)->type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr1);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr1->pos().source().file_name());
@@ -3934,7 +3930,6 @@ private primitive extern f(x: WChar, y: Char): Int = somefun\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*arg_iter)->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(38), (*arg_iter)->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("y"), (*arg_iter)->ident());
-          CPPUNIT_ASSERT(nullptr != (*arg_iter)->type_expr());
           TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>((*arg_iter)->type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr2);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
@@ -3945,7 +3940,6 @@ private primitive extern f(x: WChar, y: Char): Int = somefun\n\
           list<string> expected_type_idents2 { "Char" };
           CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
           CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
-          CPPUNIT_ASSERT(nullptr != external_fun->result_type_expr());
           TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(external_fun->result_type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr3);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr3->pos().source().file_name());
@@ -3994,7 +3988,6 @@ native f(x: Int8, y: Int16): Int = somefun\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*arg_iter)->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), (*arg_iter)->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("x"), (*arg_iter)->ident());
-          CPPUNIT_ASSERT(nullptr != (*arg_iter)->type_expr());
           TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>((*arg_iter)->type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr1);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr1->pos().source().file_name());
@@ -4010,7 +4003,6 @@ native f(x: Int8, y: Int16): Int = somefun\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*arg_iter)->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(19), (*arg_iter)->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("y"), (*arg_iter)->ident());
-          CPPUNIT_ASSERT(nullptr != (*arg_iter)->type_expr());
           TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>((*arg_iter)->type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr2);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
@@ -4021,7 +4013,6 @@ native f(x: Int8, y: Int16): Int = somefun\n\
           list<string> expected_type_idents2 { "Int16" };
           CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
           CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
-          CPPUNIT_ASSERT(nullptr != native_fun->result_type_expr());
           TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(native_fun->result_type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr3);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr3->pos().source().file_name());
@@ -4081,7 +4072,6 @@ private inline primitive native f(x: Int8, y: Int16): Int = somefun\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*arg_iter)->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(35), (*arg_iter)->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("x"), (*arg_iter)->ident());
-          CPPUNIT_ASSERT(nullptr != (*arg_iter)->type_expr());
           TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>((*arg_iter)->type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr1);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr1->pos().source().file_name());
@@ -4097,7 +4087,6 @@ private inline primitive native f(x: Int8, y: Int16): Int = somefun\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*arg_iter)->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(44), (*arg_iter)->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("y"), (*arg_iter)->ident());
-          CPPUNIT_ASSERT(nullptr != (*arg_iter)->type_expr());
           TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>((*arg_iter)->type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr2);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
@@ -4108,7 +4097,6 @@ private inline primitive native f(x: Int8, y: Int16): Int = somefun\n\
           list<string> expected_type_idents2 { "Int16" };
           CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
           CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
-          CPPUNIT_ASSERT(nullptr != native_fun->result_type_expr());
           TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(native_fun->result_type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr3);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr3->pos().source().file_name());
@@ -4770,7 +4758,6 @@ extern f(x: WChar, y: Char): Int = somefun\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*arg_iter)->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), (*arg_iter)->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("x"), (*arg_iter)->ident());
-          CPPUNIT_ASSERT(nullptr != (*arg_iter)->type_expr());
           TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>((*arg_iter)->type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr1);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr1->pos().source().file_name());
@@ -4786,7 +4773,6 @@ extern f(x: WChar, y: Char): Int = somefun\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*arg_iter)->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(20), (*arg_iter)->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("y"), (*arg_iter)->ident());
-          CPPUNIT_ASSERT(nullptr != (*arg_iter)->type_expr());
           TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>((*arg_iter)->type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr2);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
@@ -4797,7 +4783,6 @@ extern f(x: WChar, y: Char): Int = somefun\n\
           list<string> expected_type_idents2 { "Char" };
           CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
           CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
-          CPPUNIT_ASSERT(nullptr != external_fun->result_type_expr());
           TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(external_fun->result_type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr3);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr3->pos().source().file_name());
@@ -4845,7 +4830,6 @@ primitive extern f(x: WChar, y: Char): Int = somefun\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*arg_iter)->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(20), (*arg_iter)->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("x"), (*arg_iter)->ident());
-          CPPUNIT_ASSERT(nullptr != (*arg_iter)->type_expr());
           TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>((*arg_iter)->type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr1);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr1->pos().source().file_name());
@@ -4861,7 +4845,6 @@ primitive extern f(x: WChar, y: Char): Int = somefun\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*arg_iter)->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(30), (*arg_iter)->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("y"), (*arg_iter)->ident());
-          CPPUNIT_ASSERT(nullptr != (*arg_iter)->type_expr());
           TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>((*arg_iter)->type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr2);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
@@ -4872,7 +4855,6 @@ primitive extern f(x: WChar, y: Char): Int = somefun\n\
           list<string> expected_type_idents2 { "Char" };
           CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
           CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
-          CPPUNIT_ASSERT(nullptr != external_fun->result_type_expr());
           TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(external_fun->result_type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr3);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr3->pos().source().file_name());
@@ -4921,7 +4903,6 @@ native f(x: Int8, y: Int16): Int = somefun\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*arg_iter)->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), (*arg_iter)->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("x"), (*arg_iter)->ident());
-          CPPUNIT_ASSERT(nullptr != (*arg_iter)->type_expr());
           TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>((*arg_iter)->type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr1);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr1->pos().source().file_name());
@@ -4937,7 +4918,6 @@ native f(x: Int8, y: Int16): Int = somefun\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*arg_iter)->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(19), (*arg_iter)->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("y"), (*arg_iter)->ident());
-          CPPUNIT_ASSERT(nullptr != (*arg_iter)->type_expr());
           TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>((*arg_iter)->type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr2);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
@@ -4948,7 +4928,6 @@ native f(x: Int8, y: Int16): Int = somefun\n\
           list<string> expected_type_idents2 { "Int16" };
           CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
           CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
-          CPPUNIT_ASSERT(nullptr != native_fun->result_type_expr());
           TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(native_fun->result_type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr3);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr3->pos().source().file_name());
@@ -5008,7 +4987,6 @@ inline primitive native f(x: Int8, y: Int16): Int = somefun\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), (*arg_iter)->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(27), (*arg_iter)->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("x"), (*arg_iter)->ident());
-          CPPUNIT_ASSERT(nullptr != (*arg_iter)->type_expr());
           TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>((*arg_iter)->type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr1);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr1->pos().source().file_name());
@@ -5024,7 +5002,6 @@ inline primitive native f(x: Int8, y: Int16): Int = somefun\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), (*arg_iter)->pos().line());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(36), (*arg_iter)->pos().column());
           CPPUNIT_ASSERT_EQUAL(string("y"), (*arg_iter)->ident());
-          CPPUNIT_ASSERT(nullptr != (*arg_iter)->type_expr());
           TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>((*arg_iter)->type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr2);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
@@ -5035,7 +5012,6 @@ inline primitive native f(x: Int8, y: Int16): Int = somefun\n\
           list<string> expected_type_idents2 { "Int16" };
           CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
           CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
-          CPPUNIT_ASSERT(nullptr != native_fun->result_type_expr());
           TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(native_fun->result_type_expr());
           CPPUNIT_ASSERT(nullptr != type_var_expr3);
           CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr3->pos().source().file_name());
