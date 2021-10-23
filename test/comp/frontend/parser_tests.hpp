@@ -111,6 +111,16 @@ namespace lesfl
         CPPUNIT_TEST(test_parser_parses_unique_datatype_instance_template_definition);
         CPPUNIT_TEST(test_parser_parses_datatype_instance_template_definition_without_constructors);
         CPPUNIT_TEST(test_parser_parses_unique_datatype_instance_template_definition_without_constructors);
+        CPPUNIT_TEST(test_parser_parses_arguments_without_types);
+        CPPUNIT_TEST(test_parser_parses_arguments_with_types);
+        CPPUNIT_TEST(test_parser_parses_typed_arguments);
+        CPPUNIT_TEST(test_parser_parses_arguments_without_types_for_binary_operator);
+        CPPUNIT_TEST(test_parser_parses_arguments_with_types_for_binary_operator);
+        CPPUNIT_TEST(test_parser_parses_typed_arguments_for_binary_operator);
+        CPPUNIT_TEST(test_parser_parses_argument_without_type_for_unary_operator);
+        CPPUNIT_TEST(test_parser_parses_argument_with_type_for_unary_operator);
+        CPPUNIT_TEST(test_parser_parses_typed_argument_for_unary_operator);
+        CPPUNIT_TEST(test_parser_parses_annotations);
         CPPUNIT_TEST_SUITE_END();
 
         Parser *_M_parser;
@@ -208,6 +218,16 @@ namespace lesfl
         void test_parser_parses_unique_datatype_instance_template_definition();
         void test_parser_parses_datatype_instance_template_definition_without_constructors();
         void test_parser_parses_unique_datatype_instance_template_definition_without_constructors();
+        void test_parser_parses_arguments_without_types();
+        void test_parser_parses_arguments_with_types();
+        void test_parser_parses_typed_arguments();
+        void test_parser_parses_arguments_without_types_for_binary_operator();
+        void test_parser_parses_arguments_with_types_for_binary_operator();
+        void test_parser_parses_typed_arguments_for_binary_operator();
+        void test_parser_parses_argument_without_type_for_unary_operator();
+        void test_parser_parses_argument_with_type_for_unary_operator();
+        void test_parser_parses_typed_argument_for_unary_operator();
+        void test_parser_parses_annotations();
       };
     }
   }
