@@ -1303,13 +1303,13 @@ namespace lesfl
 
     class LiteralPattern : public Pattern
     {
-      std::unique_ptr<SimpleLiteralValue> _M_value;
+      std::unique_ptr<SimpleLiteralValue> _M_literal_value;
     public:
-      LiteralPattern(SimpleLiteralValue *value, const Position &pos) : Pattern(pos), _M_value(value) {}
+      LiteralPattern(SimpleLiteralValue *literal_value, const Position &pos) : Pattern(pos), _M_literal_value(literal_value) {}
 
       ~LiteralPattern();
 
-      SimpleLiteralValue *value() const { return _M_value.get(); }
+      SimpleLiteralValue *literal_value() const { return _M_literal_value.get(); }
     };
 
     class VariablePattern : public Pattern, public IdentifiableAndIndexable
