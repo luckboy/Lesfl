@@ -121,6 +121,13 @@ namespace lesfl
         CPPUNIT_TEST(test_parser_parses_argument_with_type_for_unary_operator);
         CPPUNIT_TEST(test_parser_parses_typed_argument_for_unary_operator);
         CPPUNIT_TEST(test_parser_parses_annotations);
+        CPPUNIT_TEST(test_parser_parses_if_expression);
+        CPPUNIT_TEST(test_parser_parses_if_expression_with_nested_if_expressions);
+        CPPUNIT_TEST(test_parser_parses_let_expression);
+        CPPUNIT_TEST(test_parser_parses_let_expression_with_nested_let_expressions);
+        CPPUNIT_TEST(test_parser_parses_match_expression);
+        CPPUNIT_TEST(test_parser_parses_match_expression_with_nested_match_expression);
+        CPPUNIT_TEST(test_parser_parses_throw_expression);
         CPPUNIT_TEST_SUITE_END();
 
         Parser *_M_parser;
@@ -228,6 +235,13 @@ namespace lesfl
         void test_parser_parses_argument_with_type_for_unary_operator();
         void test_parser_parses_typed_argument_for_unary_operator();
         void test_parser_parses_annotations();
+        void test_parser_parses_if_expression();
+        void test_parser_parses_if_expression_with_nested_if_expressions();
+        void test_parser_parses_let_expression();
+        void test_parser_parses_let_expression_with_nested_let_expressions();
+        void test_parser_parses_match_expression();
+        void test_parser_parses_match_expression_with_nested_match_expression();
+        void test_parser_parses_throw_expression();
       };
     }
   }
