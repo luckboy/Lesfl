@@ -366,7 +366,7 @@ input:          onl                             { driver.add_defs(make_unique_pt
 
 builtin_fun:    '#' ident                       {
   BuiltinFunction builtin_fun;
-  if(string_to_builtin_fun(*$2, builtin_fun)) {
+  if(!string_to_builtin_fun(*$2, builtin_fun)) {
     yyparser.error(@2, "incorrect built-in function");
     delete $2;
     YYERROR;
@@ -504,7 +504,8 @@ bin_op8:        '+'                             { $$ = new std::string("+"); }
 ;
 
 bin_op9:        '*'                             { $$ = new std::string("*"); }
-|               '/'                             { $$ = new std::string("-"); }
+|               '/'                             { $$ = new std::string("/"); }
+|               '%'                             { $$ = new std::string("%"); }
 ;
 
 unary_op:       '-'                             { $$ = new std::string("unary_-"); }
