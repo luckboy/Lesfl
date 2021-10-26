@@ -128,6 +128,25 @@ namespace lesfl
         CPPUNIT_TEST(test_parser_parses_match_expression);
         CPPUNIT_TEST(test_parser_parses_match_expression_with_nested_match_expression);
         CPPUNIT_TEST(test_parser_parses_throw_expression);
+        CPPUNIT_TEST(test_parser_parses_typed_expression);
+        CPPUNIT_TEST(test_parser_parses_typed_expression_with_nested_expression);
+        CPPUNIT_TEST(test_parser_parses_cons_expression);
+        CPPUNIT_TEST(test_parser_parses_cons_expression_with_nested_expressions);
+        CPPUNIT_TEST(test_parser_parses_expression);
+        CPPUNIT_TEST(test_parser_parses_expression_with_nested_expressions);
+        CPPUNIT_TEST(test_parser_parses_expression_with_nested_unary_operator_expressions);
+        CPPUNIT_TEST(test_parser_parses_unary_operator_expression);
+        CPPUNIT_TEST(test_parser_parses_unary_operator_expression_with_nested_unary_operator_expression);
+        CPPUNIT_TEST(test_parser_parses_field_expression);
+        CPPUNIT_TEST(test_parser_parses_unique_field_expression);
+        CPPUNIT_TEST(test_parser_parses_set_unique_field_expression);
+        CPPUNIT_TEST(test_parser_parses_named_field_expression);
+        CPPUNIT_TEST(test_parser_parses_unique_named_field_expression);
+        CPPUNIT_TEST(test_parser_parses_set_unique_named_field_expression);
+        CPPUNIT_TEST(test_parser_parses_applications);
+        CPPUNIT_TEST(test_parser_parses_primitive_applications);
+        CPPUNIT_TEST(test_parser_parses_unique_applications);
+        CPPUNIT_TEST(test_parser_parses_builtin_applications);
         CPPUNIT_TEST_SUITE_END();
 
         Parser *_M_parser;
@@ -242,6 +261,25 @@ namespace lesfl
         void test_parser_parses_match_expression();
         void test_parser_parses_match_expression_with_nested_match_expression();
         void test_parser_parses_throw_expression();
+        void test_parser_parses_typed_expression();
+        void test_parser_parses_typed_expression_with_nested_expression();
+        void test_parser_parses_cons_expression();
+        void test_parser_parses_cons_expression_with_nested_expressions();
+        void test_parser_parses_expression();
+        void test_parser_parses_expression_with_nested_expressions();
+        void test_parser_parses_expression_with_nested_unary_operator_expressions();
+        void test_parser_parses_unary_operator_expression();
+        void test_parser_parses_unary_operator_expression_with_nested_unary_operator_expression();
+        void test_parser_parses_field_expression();
+        void test_parser_parses_unique_field_expression();
+        void test_parser_parses_set_unique_field_expression();
+        void test_parser_parses_named_field_expression();
+        void test_parser_parses_unique_named_field_expression();
+        void test_parser_parses_set_unique_named_field_expression();
+        void test_parser_parses_applications();
+        void test_parser_parses_primitive_applications();
+        void test_parser_parses_unique_applications();
+        void test_parser_parses_builtin_applications();
       };
     }
   }
