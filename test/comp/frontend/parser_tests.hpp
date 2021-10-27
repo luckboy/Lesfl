@@ -147,6 +147,15 @@ namespace lesfl
         CPPUNIT_TEST(test_parser_parses_primitive_applications);
         CPPUNIT_TEST(test_parser_parses_unique_applications);
         CPPUNIT_TEST(test_parser_parses_builtin_applications);
+        CPPUNIT_TEST(test_parser_parses_literal);
+        CPPUNIT_TEST(test_parser_parses_variable_expression);
+        CPPUNIT_TEST(test_parser_parses_lists);
+        CPPUNIT_TEST(test_parser_parses_arrays);
+        CPPUNIT_TEST(test_parser_parses_unique_arrays);
+        CPPUNIT_TEST(test_parser_parses_tuples);
+        CPPUNIT_TEST(test_parser_parses_unique_tuples);
+        CPPUNIT_TEST(test_parser_parses_named_field_constructor_applications);
+        CPPUNIT_TEST(test_parser_parses_expressions_in_parentheses);
         CPPUNIT_TEST_SUITE_END();
 
         Parser *_M_parser;
@@ -280,6 +289,15 @@ namespace lesfl
         void test_parser_parses_primitive_applications();
         void test_parser_parses_unique_applications();
         void test_parser_parses_builtin_applications();
+        void test_parser_parses_literal();
+        void test_parser_parses_variable_expression();
+        void test_parser_parses_lists();
+        void test_parser_parses_arrays();
+        void test_parser_parses_unique_arrays();
+        void test_parser_parses_tuples();
+        void test_parser_parses_unique_tuples();
+        void test_parser_parses_named_field_constructor_applications();
+        void test_parser_parses_expressions_in_parentheses();
       };
     }
   }
