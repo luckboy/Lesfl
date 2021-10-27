@@ -248,12 +248,12 @@ UESCAPE         "\\"(("u"[0-9A-Fa-f]{4})|("U"[0-9A-Fa-f]{8}))
 
   "}"                           { if(yy_start_stack_ptr > 0) yy_pop_state(); tmp_state = YY_START; return '}'; }
 
-  "!"|"#"|"%"|"&"|"*"|"+"|","|"-"|"."|"/"|":"|"<"|"="|">"|"@"|"["|"\\"|"]"|"^"|"_"|"|"|"~" {
+  "!"|"#"|"%"|"&"|"*"|"+"|","|"-"|"."|"/"|":"|"<"|"="|">"|"@"|"["|"\\"|"]"|"^"|"|"|"~" {
     BEGIN(AFTER_SYMBOL);
     return yytext[0];
   }
   
-  ";"                           { BEGIN(tmp_state); return ';'; }
+  ";"|"_"                       { BEGIN(tmp_state); return yytext[0]; }
 
   "!="                          { BEGIN(AFTER_SYMBOL); return token::EXEQ; }
 
