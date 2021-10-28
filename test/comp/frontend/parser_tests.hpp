@@ -5,8 +5,8 @@
  *   License v3 or later. See the LICENSE file and the GPL file for         *
  *   the full licensing terms.                                              *
  ****************************************************************************/
-#ifndef _PARSER_TESTS_HPP
-#define _PARSER_TESTS_HPP
+#ifndef _FRONTEND_PARSER_TESTS_HPP
+#define _FRONTEND_PARSER_TESTS_HPP
 
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
