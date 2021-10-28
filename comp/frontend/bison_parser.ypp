@@ -894,7 +894,7 @@ one_or_more_cases: one_or_more_cases semi caze  { add_unique_ptr_list_elem($1, $
 caze:           pattern "->" expr               { $$ = new Case($1, $3); }
 ;
 
-pattern:        pattern ':' type_expr           { $$ = new TypedPattern($1, $3, P(@1)); }
+pattern:        pattern2 ':' type_expr          { $$ = new TypedPattern($1, $3, P(@1)); }
 |               pattern2
 ;
 
@@ -911,11 +911,11 @@ pattern3:       constr_qident                   { $$ = new VariableConstructorPa
 |               '#' '[' patterns ']'            { $$ = new NonUniqueArrayPattern($3, P(@1)); }
 |               "unique" '#' '[' patterns ']'   { $$ = new UniqueArrayPattern($4, P(@1)); }
 |               '(' tuple_patterns ')'          { $$ = new NonUniqueTuplePattern($2, P(@1)); }
-|               "unique" '(' tuple_patterns ')' { $$ = new NonUniqueTuplePattern($3, P(@1)); }
+|               "unique" '(' tuple_patterns ')' { $$ = new UniqueTuplePattern($3, P(@1)); }
 |               simple_literal                  { $$ = new LiteralPattern($1, P(@1)); }
 |               neg_simple_literal              { $$ = new LiteralPattern($1, P(@1)); }
-|               VAR_IDENT %dprec 1              { $$ = new VariablePattern(*$1, P(@1)); delete $1; }
-|               VAR_IDENT '@' pattern3 %dprec 2 { $$ = new AsPattern(*$1, $3, P(@1)); delete $1; }
+|               VAR_IDENT                       { $$ = new VariablePattern(*$1, P(@1)); delete $1; }
+|               VAR_IDENT '@' pattern3          { $$ = new AsPattern(*$1, $3, P(@1)); delete $1; }
 |               '_'                             { $$ = new WildcardPattern(P(@1)); }
 |               '(' pattern ')'                 { $$ = $2; }
 ;
