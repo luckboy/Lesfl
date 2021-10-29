@@ -1128,11 +1128,11 @@ namespace lesfl
               return false;
             },
             [&](FunctionConstructor *constr) -> bool {
-              if(value->field_values().size() < constr->field_count()) {
+              if(value->fields().size() < constr->field_count()) {
                 errors.push_back(Error(value->pos(), "too few fields of constructor " + constr_abs_ident_string_fun() + " isn't function constructor"));
                 return false;
               }
-              if(value->field_values().size() > constr->field_count()) {
+              if(value->fields().size() > constr->field_count()) {
                 errors.push_back(Error(value->pos(), "too many fields of constructor " + constr_abs_ident_string_fun() + " isn't function constructor"));
                 return false;
               }
@@ -1141,7 +1141,7 @@ namespace lesfl
           });
         } else
           is_success = false;
-        for(auto &field_value : value->field_values()) {
+        for(auto &field_value : value->fields()) {
           is_success &= resolve_idents_from_value(context, field_value.get(), errors);
         }
         return is_success;
@@ -1173,11 +1173,11 @@ namespace lesfl
                 index++;
               }
               constr_abs_ident_string_fun_ptr = &constr_abs_ident_string_fun;
-              if(value->field_values().size() < constr->field_count()) {
+              if(value->fields().size() < constr->field_count()) {
                 errors.push_back(Error(value->pos(), "too few fields of constructor " + constr_abs_ident_string_fun() + " isn't function constructor"));
                 return false;
               }
-              if(value->field_values().size() > constr->field_count()) {
+              if(value->fields().size() > constr->field_count()) {
                 errors.push_back(Error(value->pos(), "too many fields of constructor " + constr_abs_ident_string_fun() + " isn't function constructor"));
                 return false;
               }
@@ -1186,7 +1186,7 @@ namespace lesfl
           });
         } else
           is_success = false;
-        is_success &= resolve_idents_from_value_named_field_pairs(context, value->field_values(), indices, constr_abs_ident_string_fun_ptr, errors);
+        is_success &= resolve_idents_from_value_named_field_pairs(context, value->fields(), indices, constr_abs_ident_string_fun_ptr, errors);
         return is_success;
       },
       [&](TypedValue *typed_value) -> bool {

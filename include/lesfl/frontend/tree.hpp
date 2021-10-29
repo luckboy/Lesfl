@@ -1609,26 +1609,26 @@ namespace lesfl
 
     class UnnamedFieldConstructorValue : public FunctionConstructorValue
     {
-      std::unique_ptr<const std::list<std::unique_ptr<Value>>> _M_field_values;
+      std::unique_ptr<const std::list<std::unique_ptr<Value>>> _M_fields;
     public:
-      UnnamedFieldConstructorValue(Identifier *constr_ident, const std::list<std::unique_ptr<Value>> *field_values, const Position &pos) :
-        FunctionConstructorValue(constr_ident, pos), _M_field_values(field_values) {}
+      UnnamedFieldConstructorValue(Identifier *constr_ident, const std::list<std::unique_ptr<Value>> *fields, const Position &pos) :
+        FunctionConstructorValue(constr_ident, pos), _M_fields(fields) {}
 
       ~UnnamedFieldConstructorValue();
 
-      const std::list<std::unique_ptr<Value>> &field_values() const { return *_M_field_values; }
+      const std::list<std::unique_ptr<Value>> &fields() const { return *_M_fields; }
     };
 
     class NamedFieldConstructorValue : public FunctionConstructorValue
     {
-      std::unique_ptr<const std::list<std::unique_ptr<ValueNamedFieldPair>>> _M_field_values;
+      std::unique_ptr<const std::list<std::unique_ptr<ValueNamedFieldPair>>> _M_fields;
     public:
-      NamedFieldConstructorValue(Identifier *constr_ident, const std::list<std::unique_ptr<ValueNamedFieldPair>> *field_values, const Position &pos) :
-        FunctionConstructorValue(constr_ident, pos), _M_field_values(field_values) {}
+      NamedFieldConstructorValue(Identifier *constr_ident, const std::list<std::unique_ptr<ValueNamedFieldPair>> *fields, const Position &pos) :
+        FunctionConstructorValue(constr_ident, pos), _M_fields(fields) {}
 
       ~NamedFieldConstructorValue();
 
-      const std::list<std::unique_ptr<ValueNamedFieldPair>> &field_values() const { return *_M_field_values; }
+      const std::list<std::unique_ptr<ValueNamedFieldPair>> &fields() const { return *_M_fields; }
     };
 
     class TypedValue : public Value
