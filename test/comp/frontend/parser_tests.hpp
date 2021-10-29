@@ -179,6 +179,18 @@ namespace lesfl
         CPPUNIT_TEST(test_parser_parses_as_pattern);
         CPPUNIT_TEST(test_parser_parses_wildcard_pattern);
         CPPUNIT_TEST(test_parser_parses_patterns_in_parentheses);
+        CPPUNIT_TEST(test_parser_parses_typed_value);
+        CPPUNIT_TEST(test_parser_parses_typed_value_with_nested_value);
+        CPPUNIT_TEST(test_parser_parses_value);
+        CPPUNIT_TEST(test_parser_parses_variable_literal_value);
+        CPPUNIT_TEST(test_parser_parses_negative_variable_literal_value);
+        CPPUNIT_TEST(test_parser_parses_list_values);
+        CPPUNIT_TEST(test_parser_parses_array_values);
+        CPPUNIT_TEST(test_parser_parses_tuple_values);
+        CPPUNIT_TEST(test_parser_parses_variable_constructor_value);
+        CPPUNIT_TEST(test_parser_parses_function_constructor_values);
+        CPPUNIT_TEST(test_parser_parses_named_field_constructor_values);
+        CPPUNIT_TEST(test_parser_parses_values_in_parentheses);
         CPPUNIT_TEST_SUITE_END();
 
         Parser *_M_parser;
@@ -344,6 +356,18 @@ namespace lesfl
         void test_parser_parses_as_pattern();
         void test_parser_parses_wildcard_pattern();
         void test_parser_parses_patterns_in_parentheses();
+        void test_parser_parses_typed_value();
+        void test_parser_parses_typed_value_with_nested_value();
+        void test_parser_parses_value();
+        void test_parser_parses_variable_literal_value();
+        void test_parser_parses_negative_variable_literal_value();
+        void test_parser_parses_list_values();
+        void test_parser_parses_array_values();
+        void test_parser_parses_tuple_values();
+        void test_parser_parses_variable_constructor_value();
+        void test_parser_parses_function_constructor_values();
+        void test_parser_parses_named_field_constructor_values();
+        void test_parser_parses_values_in_parentheses();
       };
     }
   }
