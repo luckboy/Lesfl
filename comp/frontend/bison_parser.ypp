@@ -756,68 +756,68 @@ annotation:     '@' ident                       { $$ = new Annotation(*$2, P(@2)
 
 expr:           "if" '(' expr ')' onl expr onl "else" expr { $$ = make_if($3, $6, $9, P(@1)); } 
 |               "let" onl one_or_more_binds onl "in" expr { $$ = new Let($3, $6, P(@1)); }
-|               expr2 "match" '{' onl one_or_more_cases onl '}' { $$ = new Match($1, $5, P(@1)); }
+|               expr2 "match" '{' onl one_or_more_cases onl '}' %dprec 1 { $$ = new Match($1, $5, P(@1)); }
 |               "throw" expr2                   { $$ = new Throw($2, P(@1)); }
-|               expr2
+|               expr2 %dprec 2
 ;
 
-expr2:          expr3 ':' type_expr             { $$ = new TypedExpression($1, $3, P(@1)); }
-|               expr3
+expr2:          expr3 ':' type_expr %dprec 1    { $$ = new TypedExpression($1, $3, P(@1)); }
+|               expr3 %dprec 2
 ;
 
-expr3:          expr3 bin_op1 expr4             { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
-|               expr4
+expr3:          expr3 bin_op1 expr4 %dprec 1    { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
+|               expr4 %dprec 2
 ;
 
-expr4:          expr4 bin_op2 expr5             { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
-|               expr5
+expr4:          expr4 bin_op2 expr5 %dprec 1    { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
+|               expr5 %dprec 2
 ;
 
-expr5:          expr5 bin_op3 expr6             { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
-|               expr6
+expr5:          expr5 bin_op3 expr6 %dprec 1    { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
+|               expr6 %dprec 2
 ;
 
-expr6:          expr6 bin_op4 expr7             { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
-|               expr7
+expr6:          expr6 bin_op4 expr7 %dprec 1    { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
+|               expr7 %dprec 2
 ;
 
-expr7:          expr7 bin_op5 expr8             { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
-|               expr8
+expr7:          expr7 bin_op5 expr8 %dprec 1    { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
+|               expr8 %dprec 2
 ;
 
-expr8:          expr8 bin_op6 expr9             { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
-|               expr9
+expr8:          expr8 bin_op6 expr9 %dprec 1    { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
+|               expr9 %dprec 2
 ;
 
-expr9:          expr10 bin_op7 expr9            { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
-|               expr10
+expr9:          expr10 bin_op7 expr9 %dprec 1   { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
+|               expr10 %dprec 2
 ;
 
-expr10:         expr10 bin_op8 expr11           { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
-|               expr11
+expr10:         expr10 bin_op8 expr11 %dprec 1  { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
+|               expr11 %dprec 2
 ;
 
-expr11:         expr11 bin_op9 expr12           { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
-|               expr12
+expr11:         expr11 bin_op9 expr12 %dprec 1  { $$ = make_binary_op_expr($1, *$2, $3, P(@1), P(@2)); delete $2; }
+|               expr12 %dprec 2
 ;
 
 expr12:         unary_op expr12                 { $$ = make_unary_op_expr(*$1, $2, P(@1)); delete $1; }
 |               expr13
 ;
 
-expr13:         expr13 '.' INT64                { $$ = new Field($1, $3, P(@1)); }
-|               expr13 "unique" '.' INT64       { $$ = new UniqueField($1, $4, P(@1)); }
-|               expr13 "unique" '.' INT64 "<-" expr14 { $$ = new SetUniqueField($1, $4, $6, P(@1)); }
+expr13:         expr13 '.' INT64 %dprec 1       { $$ = new Field($1, $3, P(@1)); }
+|               expr13 "unique" '.' INT64 %dprec 1 { $$ = new UniqueField($1, $4, P(@1)); }
+|               expr13 "unique" '.' INT64 "<-" expr14 %dprec 1 { $$ = new SetUniqueField($1, $4, $6, P(@1)); }
 |               expr13 '.' ident %dprec 1       { $$ = new NamedField($1, *$3, P(@1)); delete $3; }
-|               expr13 "unique" '.' ident       { $$ = new UniqueNamedField($1, *$4, P(@1)); delete $4; }
-|               expr13 "unique" '.' ident "<-" expr14 { $$ = new SetUniqueNamedField($1, *$4, $6, P(@1)); delete $4; }
+|               expr13 "unique" '.' ident %dprec 1 { $$ = new UniqueNamedField($1, *$4, P(@1)); delete $4; }
+|               expr13 "unique" '.' ident "<-" expr14 %dprec 1 { $$ = new SetUniqueNamedField($1, *$4, $6, P(@1)); delete $4; }
 |               expr14 %dprec 2
 ;
 
-expr14:         expr14 fun_modifier '(' exprs ')' { $$ = new NonUniqueApplication($1, $2, $4, P(@1)); }
-|               expr14 "unique" '(' exprs ')'   { $$ = new UniqueApplication($1, $4, P(@1)); }
+expr14:         expr14 fun_modifier '(' exprs ')' %dprec 1 { $$ = new NonUniqueApplication($1, $2, $4, P(@1)); }
+|               expr14 "unique" '(' exprs ')' %dprec 1 { $$ = new UniqueApplication($1, $4, P(@1)); }
 |               builtin_fun '(' exprs ')'       { $$ = new BuiltinApplication($1, $3, P(@1)); }
-|               expr15
+|               expr15 %dprec 2
 ;
 
 expr15:         literal                         { $$ = new Literal($1, P(@1)); }
@@ -998,12 +998,12 @@ unique_literal: inline_modifier "unique" '\\' '(' args ')' opt_typing "->" expr 
 }
 ;
 
-value:          value2 ':' type_expr            { $$ = new TypedValue($1, $3, P(@1)); }
-|               value2
+value:          value2 ':' type_expr %dprec 1   { $$ = new TypedValue($1, $3, P(@1)); }
+|               value2 %dprec 2
 ;
 
-value2:         value3 constr_bin_op value2     { $$ = make_binary_op_value($1, *$2, $3, P(@1)); delete $2; }
-|               value3
+value2:         value3 constr_bin_op value2 %dprec 1 { $$ = make_binary_op_value($1, *$2, $3, P(@1)); delete $2; }
+|               value3 %dprec 2
 ;
 
 value3:         literal                         { $$ = new VariableLiteralValue($1, P(@1)); }
