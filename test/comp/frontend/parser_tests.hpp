@@ -191,6 +191,13 @@ namespace lesfl
         CPPUNIT_TEST(test_parser_parses_function_constructor_values);
         CPPUNIT_TEST(test_parser_parses_named_field_constructor_values);
         CPPUNIT_TEST(test_parser_parses_values_in_parentheses);
+        CPPUNIT_TEST(test_parser_parses_fields_with_newlines_in_brace);
+        CPPUNIT_TEST(test_parser_parses_lambda_value);
+        CPPUNIT_TEST(test_parser_parses_lambda_value_with_modifiers_and_types);
+        CPPUNIT_TEST(test_parser_parses_unique_lambda_value);
+        CPPUNIT_TEST(test_parser_parses_unique_lambda_value_with_modifier_and_types);
+        CPPUNIT_TEST(test_parser_parses_lambda_value_for_value);
+        CPPUNIT_TEST(test_parser_parses_lambda_value_with_modifiers_and_types_for_value);
         CPPUNIT_TEST_SUITE_END();
 
         Parser *_M_parser;
@@ -368,6 +375,13 @@ namespace lesfl
         void test_parser_parses_function_constructor_values();
         void test_parser_parses_named_field_constructor_values();
         void test_parser_parses_values_in_parentheses();
+        void test_parser_parses_fields_with_newlines_in_brace();
+        void test_parser_parses_lambda_value();
+        void test_parser_parses_lambda_value_with_modifiers_and_types();
+        void test_parser_parses_unique_lambda_value();
+        void test_parser_parses_unique_lambda_value_with_modifier_and_types();
+        void test_parser_parses_lambda_value_for_value();
+        void test_parser_parses_lambda_value_with_modifiers_and_types_for_value();
       };
     }
   }
