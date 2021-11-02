@@ -5500,6 +5500,9 @@ datatype T = C(Int, Int8)\n\
           CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr->access_modifier());
           CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr->inline_modifier());
           CPPUNIT_ASSERT_EQUAL(string("C"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), constr->pos().column());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
           auto field_type_iter = constr->field_types().begin();
           TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
@@ -5561,6 +5564,9 @@ private datatype T = C(Int8, Int)\n\
           CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr->access_modifier());
           CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr->inline_modifier());
           CPPUNIT_ASSERT_EQUAL(string("C"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(22), constr->pos().column());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
           auto field_type_iter = constr->field_types().begin();
           TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
@@ -5622,6 +5628,9 @@ unique datatype T = C(Int, WChar)\n\
           CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr->access_modifier());
           CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr->inline_modifier());
           CPPUNIT_ASSERT_EQUAL(string("C"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(21), constr->pos().column());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
           auto field_type_iter = constr->field_types().begin();
           TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
@@ -5683,6 +5692,9 @@ private unique datatype T = C(WChar, Int)\n\
           CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr->access_modifier());
           CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr->inline_modifier());
           CPPUNIT_ASSERT_EQUAL(string("C"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(29), constr->pos().column());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
           auto field_type_iter = constr->field_types().begin();
           TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
@@ -6119,6 +6131,9 @@ datatype T(t, u) = C(U(t, u), Int8)\n\
           CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr->access_modifier());
           CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr->inline_modifier());
           CPPUNIT_ASSERT_EQUAL(string("C"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(20), constr->pos().column());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
           auto field_type_iter = constr->field_types().begin();
           TypeApplication *type_app1 = dynamic_cast<TypeApplication *>(field_type_iter->get());
@@ -6218,6 +6233,9 @@ private datatype T(t, u) = C(Int8, U(t, u))\n\
           CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr->access_modifier());
           CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr->inline_modifier());
           CPPUNIT_ASSERT_EQUAL(string("C"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(28), constr->pos().column());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
           auto field_type_iter = constr->field_types().begin();
           TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
@@ -6307,6 +6325,9 @@ unique datatype T(t, u) = C(U(t, u), WChar)\n\
           CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr->access_modifier());
           CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr->inline_modifier());
           CPPUNIT_ASSERT_EQUAL(string("C"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(27), constr->pos().column());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
           auto field_type_iter = constr->field_types().begin();
           TypeApplication *type_app1 = dynamic_cast<TypeApplication *>(field_type_iter->get());
@@ -6406,6 +6427,9 @@ private unique datatype T(t, u) = C(WChar, U(t, u))\n\
           CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr->access_modifier());
           CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr->inline_modifier());
           CPPUNIT_ASSERT_EQUAL(string("C"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(35), constr->pos().column());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
           auto field_type_iter = constr->field_types().begin();
           TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
@@ -6764,6 +6788,9 @@ datatype T(Int, Int8) = C(Int, Int8)\n\
           CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr->access_modifier());
           CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr->inline_modifier());
           CPPUNIT_ASSERT_EQUAL(string("C"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(25), constr->pos().column());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
           auto field_type_iter = constr->field_types().begin();
           TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
@@ -6849,6 +6876,9 @@ unique datatype T(WChar, Int) = C(WChar, Int)\n\
           CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr->access_modifier());
           CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr->inline_modifier());
           CPPUNIT_ASSERT_EQUAL(string("C"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(33), constr->pos().column());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
           auto field_type_iter = constr->field_types().begin();
           TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
@@ -7149,6 +7179,9 @@ datatype T(U(t, u), Int8) = C(U(t, u), Int8)\n\
           CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr->access_modifier());
           CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr->inline_modifier());
           CPPUNIT_ASSERT_EQUAL(string("C"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(29), constr->pos().column());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
           auto field_type_iter = constr->field_types().begin();
           TypeApplication *type_app5 = dynamic_cast<TypeApplication *>(field_type_iter->get());
@@ -7263,6 +7296,9 @@ unique datatype T(WChar, U(t, u)) = C(WChar, U(t, u))\n\
           CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr->access_modifier());
           CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr->inline_modifier());
           CPPUNIT_ASSERT_EQUAL(string("C"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(37), constr->pos().column());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
           auto field_type_iter = constr->field_types().begin();
           TypeVariableExpression *type_var_expr5 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
@@ -17247,7 +17283,7 @@ v = inline primitive \\(x, y: Char): Int -> g(x, y)\n\
           CPPUNIT_ASSERT_EQUAL(expected_idents6.size(), rel_ident6->idents().size());
           CPPUNIT_ASSERT(equal(expected_idents6.begin(), expected_idents6.end(), rel_ident6->idents().begin()));
         }
-      }      
+      }
     }
   }
 }
