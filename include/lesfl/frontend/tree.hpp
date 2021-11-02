@@ -2057,7 +2057,7 @@ namespace lesfl
       FunctionModifier _M_fun_modifier;
     public:
       NonUniqueFunctionType(const std::list<std::unique_ptr<TypeExpression>> *arg_types, FunctionModifier fun_modifier, TypeExpression *result_type, const Position &pos) :
-        FunctionType(arg_types, result_type, pos) {}
+        FunctionType(arg_types, result_type, pos), _M_fun_modifier(fun_modifier) {}
 
       ~NonUniqueFunctionType();
 

@@ -1068,7 +1068,7 @@ fun_constr:     annotations modifiers4 ident '(' type_exprs ')' {
   delete $3;
 }
 |               annotations modifiers4 ident_and_lbrace one_or_more_type_named_field_pairs '}' {
-  $$ = new NamedFieldConstructor($1, $2->first, $2->second, *$3, $4, P(@2));
+  $$ = new NamedFieldConstructor($1, $2->first, $2->second, *$3, $4, P(@3));
   delete $2;
   delete $3;
 }
@@ -1122,6 +1122,7 @@ type_expr3:     constr_qident                   { $$ = new TypeVariableExpressio
 |               '(' tuple_type_exprs ')'        { $$ = new NonUniqueTupleType($2, P(@1)); }
 |               "unique" '(' tuple_type_exprs ')' { $$ = new UniqueTupleType($3, P(@1)); }
 |               constr_qident '(' one_or_more_type_exprs ')' { $$ = new TypeApplication($1, $3, P(@1)); }
+|               '(' type_expr ')'               { $$ = $2; }
 ;
 
 type_exprs:     /* empty */                     { $$ = make_unique_ptr_list<TypeExpression>(); }
@@ -1139,7 +1140,7 @@ tuple_type_exprs:
 ;
 
 two_or_more_type_exprs:
-                type_exprs ',' type_expr        { add_unique_ptr_list_elem($1, $3); $$ = $1; }
+                two_or_more_type_exprs ',' type_expr { add_unique_ptr_list_elem($1, $3); $$ = $1; }
 |               type_expr ',' type_expr         { $$ = make_unique_ptr_list($1, $3); }
 ;
 
