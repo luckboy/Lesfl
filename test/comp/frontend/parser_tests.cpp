@@ -17284,6 +17284,2481 @@ v = inline primitive \\(x, y: Char): Int -> g(x, y)\n\
           CPPUNIT_ASSERT(equal(expected_idents6.begin(), expected_idents6.end(), rel_ident6->idents().begin()));
         }
       }
+
+      void ParserTests::test_parser_parses_constructors()
+      {
+        istringstream iss("\
+datatype T = C\n\
+           | D()\n\
+           | E(Int)\n\
+           | F(Int, WChar, Char)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), type_var_def->pos().column());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), datatype->constrs().size());
+          auto constr_iter = datatype->constrs().begin();
+          VariableConstructor *constr1 = dynamic_cast<VariableConstructor *>(constr_iter->get());
+          CPPUNIT_ASSERT(nullptr != constr1);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr1->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("C"), constr1->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), constr1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), constr1->pos().column());
+          constr_iter++;
+          UnnamedFieldConstructor *constr2 = dynamic_cast<UnnamedFieldConstructor *>(constr_iter->get());
+          CPPUNIT_ASSERT(nullptr != constr2);
+          CPPUNIT_ASSERT_EQUAL(true, constr2->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr2->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr2->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("D"), constr2->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), constr2->pos().column());
+          CPPUNIT_ASSERT_EQUAL(true, constr2->field_types().empty());
+          constr_iter++;
+          UnnamedFieldConstructor *constr3 = dynamic_cast<UnnamedFieldConstructor *>(constr_iter->get());
+          CPPUNIT_ASSERT(nullptr != constr3);
+          CPPUNIT_ASSERT_EQUAL(true, constr3->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr3->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr3->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("E"), constr3->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), constr3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), constr3->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), constr3->field_types().size());
+          auto field_type_iter3 = constr3->field_types().begin();
+          TypeVariableExpression *type_var_expr4 = dynamic_cast<TypeVariableExpression *>(field_type_iter3->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr4);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr4->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_var_expr4->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(16), type_var_expr4->pos().column());
+          RelativeIdentifier *type_rel_ident4 = dynamic_cast<RelativeIdentifier *>(type_var_expr4->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident4);
+          list<string> expected_type_idents4 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents4.size(), type_rel_ident4->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents4.begin(), expected_type_idents4.end(), type_rel_ident4->idents().begin()));
+          constr_iter++;
+          UnnamedFieldConstructor *constr5 = dynamic_cast<UnnamedFieldConstructor *>(constr_iter->get());
+          CPPUNIT_ASSERT(nullptr != constr5);
+          CPPUNIT_ASSERT_EQUAL(true, constr5->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr5->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr5->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("F"), constr5->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), constr5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), constr5->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), constr5->field_types().size());
+          auto field_type_iter5 = constr5->field_types().begin();
+          TypeVariableExpression *type_var_expr6 = dynamic_cast<TypeVariableExpression *>(field_type_iter5->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr6);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr6->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), type_var_expr6->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(16), type_var_expr6->pos().column());
+          RelativeIdentifier *type_rel_ident6 = dynamic_cast<RelativeIdentifier *>(type_var_expr6->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident6);
+          list<string> expected_type_idents6 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents6.size(), type_rel_ident6->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents6.begin(), expected_type_idents6.end(), type_rel_ident6->idents().begin()));
+          field_type_iter5++;
+          TypeVariableExpression *type_var_expr7 = dynamic_cast<TypeVariableExpression *>(field_type_iter5->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr7);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr7->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), type_var_expr7->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(21), type_var_expr7->pos().column());
+          RelativeIdentifier *type_rel_ident7 = dynamic_cast<RelativeIdentifier *>(type_var_expr7->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident7);
+          list<string> expected_type_idents7 { "WChar" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents7.size(), type_rel_ident7->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents7.begin(), expected_type_idents7.end(), type_rel_ident7->idents().begin()));
+          field_type_iter5++;
+          TypeVariableExpression *type_var_expr8 = dynamic_cast<TypeVariableExpression *>(field_type_iter5->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr8);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr8->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), type_var_expr8->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(28), type_var_expr8->pos().column());
+          RelativeIdentifier *type_rel_ident8 = dynamic_cast<RelativeIdentifier *>(type_var_expr8->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident8);
+          list<string> expected_type_idents8 { "Char" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents8.size(), type_rel_ident8->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents8.begin(), expected_type_idents8.end(), type_rel_ident8->idents().begin()));
+        }
+      }
+      
+      void ParserTests::test_parser_parses_named_field_constructors()
+      {
+        istringstream iss("\
+datatype T = C {\n\
+    field1: Int\n\
+  }\n\
+           | D {\n\
+    field2: Int,\n\
+    field3: WChar,\n\
+    field4: Char\n\
+  }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), type_var_def->pos().column());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), datatype->constrs().size());
+          auto constr_iter = datatype->constrs().begin();
+          NamedFieldConstructor *constr1 = dynamic_cast<NamedFieldConstructor *>(constr_iter->get());
+          CPPUNIT_ASSERT(nullptr != constr1);
+          CPPUNIT_ASSERT_EQUAL(true, constr1->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr1->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr1->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("C"), constr1->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), constr1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), constr1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), constr1->field_types().size());
+          auto field_type_iter1 = constr1->field_types().begin();
+          CPPUNIT_ASSERT_EQUAL(string("field1"), (*field_type_iter1)->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*field_type_iter1)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*field_type_iter1)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), (*field_type_iter1)->pos().column());          
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>((*field_type_iter1)->type_expr());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+          constr_iter++;
+          NamedFieldConstructor *constr3 = dynamic_cast<NamedFieldConstructor *>(constr_iter->get());
+          CPPUNIT_ASSERT(nullptr != constr3);
+          CPPUNIT_ASSERT_EQUAL(true, constr3->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr3->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr3->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("D"), constr3->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), constr3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), constr3->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), constr3->field_types().size());
+          auto field_type_iter3 = constr3->field_types().begin();
+          CPPUNIT_ASSERT_EQUAL(string("field2"), (*field_type_iter3)->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*field_type_iter3)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), (*field_type_iter3)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), (*field_type_iter3)->pos().column());          
+          TypeVariableExpression *type_var_expr4 = dynamic_cast<TypeVariableExpression *>((*field_type_iter3)->type_expr());
+          CPPUNIT_ASSERT(nullptr != type_var_expr4);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr4->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), type_var_expr4->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), type_var_expr4->pos().column());
+          RelativeIdentifier *type_rel_ident4 = dynamic_cast<RelativeIdentifier *>(type_var_expr4->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident4);
+          list<string> expected_type_idents4 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents4.size(), type_rel_ident4->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents4.begin(), expected_type_idents4.end(), type_rel_ident4->idents().begin()));
+          field_type_iter3++;
+          CPPUNIT_ASSERT_EQUAL(string("field3"), (*field_type_iter3)->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*field_type_iter3)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), (*field_type_iter3)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), (*field_type_iter3)->pos().column());          
+          TypeVariableExpression *type_var_expr5 = dynamic_cast<TypeVariableExpression *>((*field_type_iter3)->type_expr());
+          CPPUNIT_ASSERT(nullptr != type_var_expr5);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), type_var_expr5->pos().column());
+          RelativeIdentifier *type_rel_ident5 = dynamic_cast<RelativeIdentifier *>(type_var_expr5->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident5);
+          list<string> expected_type_idents5 { "WChar" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents5.size(), type_rel_ident5->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents5.begin(), expected_type_idents5.end(), type_rel_ident5->idents().begin()));
+          field_type_iter3++;
+          CPPUNIT_ASSERT_EQUAL(string("field4"), (*field_type_iter3)->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*field_type_iter3)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), (*field_type_iter3)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), (*field_type_iter3)->pos().column());          
+          TypeVariableExpression *type_var_expr6 = dynamic_cast<TypeVariableExpression *>((*field_type_iter3)->type_expr());
+          CPPUNIT_ASSERT(nullptr != type_var_expr6);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr6->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), type_var_expr6->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), type_var_expr6->pos().column());
+          RelativeIdentifier *type_rel_ident6 = dynamic_cast<RelativeIdentifier *>(type_var_expr6->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident6);
+          list<string> expected_type_idents6 { "Char" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents6.size(), type_rel_ident6->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents6.begin(), expected_type_idents6.end(), type_rel_ident6->idents().begin()));
+        }
+      }
+      
+      void ParserTests::test_parser_parses_function_constructors_for_unique_datatype()
+      {
+        istringstream iss("\
+unique datatype T = C()\n\
+                  | D(Int)\n\
+                  | E(Int, WChar, Char)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(17), type_var_def->pos().column());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          UniqueDatatype *datatype = dynamic_cast<UniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), datatype->constrs().size());
+          auto constr_iter = datatype->constrs().begin();
+          UnnamedFieldConstructor *constr1 = dynamic_cast<UnnamedFieldConstructor *>(constr_iter->get());
+          CPPUNIT_ASSERT(nullptr != constr1);
+          CPPUNIT_ASSERT_EQUAL(true, constr1->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr1->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr1->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("C"), constr1->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), constr1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(21), constr1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(true, constr1->field_types().empty());
+          constr_iter++;
+          UnnamedFieldConstructor *constr2 = dynamic_cast<UnnamedFieldConstructor *>(constr_iter->get());
+          CPPUNIT_ASSERT(nullptr != constr2);
+          CPPUNIT_ASSERT_EQUAL(true, constr2->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr2->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr2->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("D"), constr2->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(21), constr2->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), constr2->field_types().size());
+          auto field_type_iter2 = constr2->field_types().begin();
+          TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(field_type_iter2->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_var_expr3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(23), type_var_expr3->pos().column());
+          RelativeIdentifier *type_rel_ident3 = dynamic_cast<RelativeIdentifier *>(type_var_expr3->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident3);
+          list<string> expected_type_idents3 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents3.size(), type_rel_ident3->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents3.begin(), expected_type_idents3.end(), type_rel_ident3->idents().begin()));
+          constr_iter++;
+          UnnamedFieldConstructor *constr4 = dynamic_cast<UnnamedFieldConstructor *>(constr_iter->get());
+          CPPUNIT_ASSERT(nullptr != constr4);
+          CPPUNIT_ASSERT_EQUAL(true, constr4->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr4->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr4->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("E"), constr4->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr4->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), constr4->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(21), constr4->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), constr4->field_types().size());
+          auto field_type_iter4 = constr4->field_types().begin();
+          TypeVariableExpression *type_var_expr5 = dynamic_cast<TypeVariableExpression *>(field_type_iter4->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr5);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_var_expr5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(23), type_var_expr5->pos().column());
+          RelativeIdentifier *type_rel_ident5 = dynamic_cast<RelativeIdentifier *>(type_var_expr5->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident5);
+          list<string> expected_type_idents5 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents5.size(), type_rel_ident5->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents5.begin(), expected_type_idents5.end(), type_rel_ident5->idents().begin()));
+          field_type_iter4++;
+          TypeVariableExpression *type_var_expr6 = dynamic_cast<TypeVariableExpression *>(field_type_iter4->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr6);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr6->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_var_expr6->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(28), type_var_expr6->pos().column());
+          RelativeIdentifier *type_rel_ident6 = dynamic_cast<RelativeIdentifier *>(type_var_expr6->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident6);
+          list<string> expected_type_idents6 { "WChar" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents6.size(), type_rel_ident6->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents6.begin(), expected_type_idents6.end(), type_rel_ident6->idents().begin()));
+          field_type_iter4++;
+          TypeVariableExpression *type_var_expr7 = dynamic_cast<TypeVariableExpression *>(field_type_iter4->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr7);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr7->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_var_expr7->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(35), type_var_expr7->pos().column());
+          RelativeIdentifier *type_rel_ident7 = dynamic_cast<RelativeIdentifier *>(type_var_expr7->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident7);
+          list<string> expected_type_idents7 { "Char" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents7.size(), type_rel_ident7->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents7.begin(), expected_type_idents7.end(), type_rel_ident7->idents().begin()));
+        }
+      }
+      
+      void ParserTests::test_parser_parses_named_field_constructors_for_unique_datatype()
+      {
+        istringstream iss("\
+unique datatype T = C {\n\
+    field1: Int\n\
+  }\n\
+                  | D {\n\
+    field2: Int,\n\
+    field3: WChar,\n\
+    field4: Char\n\
+  }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(17), type_var_def->pos().column());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          UniqueDatatype *datatype = dynamic_cast<UniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), datatype->constrs().size());
+          auto constr_iter = datatype->constrs().begin();
+          NamedFieldConstructor *constr1 = dynamic_cast<NamedFieldConstructor *>(constr_iter->get());
+          CPPUNIT_ASSERT(nullptr != constr1);
+          CPPUNIT_ASSERT_EQUAL(true, constr1->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr1->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr1->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("C"), constr1->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), constr1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(21), constr1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), constr1->field_types().size());
+          auto field_type_iter1 = constr1->field_types().begin();
+          CPPUNIT_ASSERT_EQUAL(string("field1"), (*field_type_iter1)->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*field_type_iter1)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*field_type_iter1)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), (*field_type_iter1)->pos().column());          
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>((*field_type_iter1)->type_expr());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+          constr_iter++;
+          NamedFieldConstructor *constr3 = dynamic_cast<NamedFieldConstructor *>(constr_iter->get());
+          CPPUNIT_ASSERT(nullptr != constr3);
+          CPPUNIT_ASSERT_EQUAL(true, constr3->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr3->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr3->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("D"), constr3->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), constr3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(21), constr3->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), constr3->field_types().size());
+          auto field_type_iter3 = constr3->field_types().begin();
+          CPPUNIT_ASSERT_EQUAL(string("field2"), (*field_type_iter3)->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*field_type_iter3)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), (*field_type_iter3)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), (*field_type_iter3)->pos().column());          
+          TypeVariableExpression *type_var_expr4 = dynamic_cast<TypeVariableExpression *>((*field_type_iter3)->type_expr());
+          CPPUNIT_ASSERT(nullptr != type_var_expr4);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr4->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), type_var_expr4->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), type_var_expr4->pos().column());
+          RelativeIdentifier *type_rel_ident4 = dynamic_cast<RelativeIdentifier *>(type_var_expr4->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident4);
+          list<string> expected_type_idents4 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents4.size(), type_rel_ident4->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents4.begin(), expected_type_idents4.end(), type_rel_ident4->idents().begin()));
+          field_type_iter3++;
+          CPPUNIT_ASSERT_EQUAL(string("field3"), (*field_type_iter3)->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*field_type_iter3)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), (*field_type_iter3)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), (*field_type_iter3)->pos().column());          
+          TypeVariableExpression *type_var_expr5 = dynamic_cast<TypeVariableExpression *>((*field_type_iter3)->type_expr());
+          CPPUNIT_ASSERT(nullptr != type_var_expr5);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), type_var_expr5->pos().column());
+          RelativeIdentifier *type_rel_ident5 = dynamic_cast<RelativeIdentifier *>(type_var_expr5->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident5);
+          list<string> expected_type_idents5 { "WChar" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents5.size(), type_rel_ident5->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents5.begin(), expected_type_idents5.end(), type_rel_ident5->idents().begin()));
+          field_type_iter3++;
+          CPPUNIT_ASSERT_EQUAL(string("field4"), (*field_type_iter3)->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*field_type_iter3)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), (*field_type_iter3)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), (*field_type_iter3)->pos().column());          
+          TypeVariableExpression *type_var_expr6 = dynamic_cast<TypeVariableExpression *>((*field_type_iter3)->type_expr());
+          CPPUNIT_ASSERT(nullptr != type_var_expr6);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr6->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), type_var_expr6->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), type_var_expr6->pos().column());
+          RelativeIdentifier *type_rel_ident6 = dynamic_cast<RelativeIdentifier *>(type_var_expr6->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident6);
+          list<string> expected_type_idents6 { "Char" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents6.size(), type_rel_ident6->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents6.begin(), expected_type_idents6.end(), type_rel_ident6->idents().begin()));
+        }
+      }
+      
+      void ParserTests::test_parser_parses_variable_constructor()
+      {
+        istringstream iss("\
+datatype T = C\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), type_var_def->pos().column());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+          auto constr_iter = datatype->constrs().begin();
+          VariableConstructor *constr = dynamic_cast<VariableConstructor *>(constr_iter->get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("C"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), constr->pos().column());
+        }
+      }
+      
+      void ParserTests::test_parser_parses_variable_constructor_with_modifier()
+      {
+        istringstream iss("\
+datatype T = private C\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), type_var_def->pos().column());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+          auto constr_iter = datatype->constrs().begin();
+          VariableConstructor *constr = dynamic_cast<VariableConstructor *>(constr_iter->get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::PRIVATE, constr->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("C"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(22), constr->pos().column());
+        }
+      }
+
+      void ParserTests::test_parser_parses_function_constructor()
+      {
+        istringstream iss("\
+datatype T = C(Int, Int8)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), type_var_def->pos().column());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+          auto constr_iter = datatype->constrs().begin();
+          UnnamedFieldConstructor *constr = dynamic_cast<UnnamedFieldConstructor *>(constr_iter->get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(true, constr->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("C"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), constr->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
+          auto field_type_iter = constr->field_types().begin();
+          TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(16), type_var_expr1->pos().column());
+          RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr1->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+          list<string> expected_type_idents1 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents1.size(), type_rel_ident1->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents1.begin(), expected_type_idents1.end(), type_rel_ident1->idents().begin()));
+          field_type_iter++;
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(21), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+        }
+      }
+      
+      void ParserTests::test_parser_parses_function_constructor_with_annotations_and_modifiers()
+      {
+        istringstream iss("\
+datatype T = @lazy @memoized\n\
+             private inline C(Int8, Int)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), type_var_def->pos().column());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+          auto constr_iter = datatype->constrs().begin();
+          UnnamedFieldConstructor *constr = dynamic_cast<UnnamedFieldConstructor *>(constr_iter->get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->annotations().size());
+          auto annotation_iter = constr->annotations().begin();
+          CPPUNIT_ASSERT_EQUAL(string("lazy"), (*annotation_iter)->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*annotation_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*annotation_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(15), (*annotation_iter)->pos().column());
+          annotation_iter++;
+          CPPUNIT_ASSERT_EQUAL(string("memoized"), (*annotation_iter)->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*annotation_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*annotation_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(21), (*annotation_iter)->pos().column());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::PRIVATE, constr->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::INLINE, constr->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("C"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(29), constr->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
+          auto field_type_iter = constr->field_types().begin();
+          TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_var_expr1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(31), type_var_expr1->pos().column());
+          RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr1->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+          list<string> expected_type_idents1 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents1.size(), type_rel_ident1->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents1.begin(), expected_type_idents1.end(), type_rel_ident1->idents().begin()));
+          field_type_iter++;
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(37), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+        }
+      }
+
+      void ParserTests::test_parser_parses_named_field_constructor()
+      {
+        istringstream iss("\
+datatype T = C { field1: Int, field2: Int8 }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), type_var_def->pos().column());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+          auto constr_iter = datatype->constrs().begin();
+          NamedFieldConstructor *constr = dynamic_cast<NamedFieldConstructor *>(constr_iter->get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(true, constr->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("C"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), constr->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
+          auto field_type_iter = constr->field_types().begin();
+          CPPUNIT_ASSERT_EQUAL(string("field1"), (*field_type_iter)->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*field_type_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*field_type_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(18), (*field_type_iter)->pos().column());          
+          TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>((*field_type_iter)->type_expr());
+          CPPUNIT_ASSERT(nullptr != type_var_expr1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(26), type_var_expr1->pos().column());
+          RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr1->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+          list<string> expected_type_idents1 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents1.size(), type_rel_ident1->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents1.begin(), expected_type_idents1.end(), type_rel_ident1->idents().begin()));
+          field_type_iter++;
+          CPPUNIT_ASSERT_EQUAL(string("field2"), (*field_type_iter)->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*field_type_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*field_type_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(31), (*field_type_iter)->pos().column());          
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>((*field_type_iter)->type_expr());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(39), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+        }
+      }
+      
+      void ParserTests::test_parser_parses_named_field_constructor_with_annotations_and_modifiers()
+      {
+        istringstream iss("\
+datatype T = @memoized @lazy\n\
+             private inline C { field1: Int8, field2: Int }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), type_var_def->pos().column());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+          auto constr_iter = datatype->constrs().begin();
+          NamedFieldConstructor *constr = dynamic_cast<NamedFieldConstructor *>(constr_iter->get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->annotations().size());
+          auto annotation_iter = constr->annotations().begin();
+          CPPUNIT_ASSERT_EQUAL(string("memoized"), (*annotation_iter)->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*annotation_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*annotation_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(15), (*annotation_iter)->pos().column());
+          annotation_iter++;
+          CPPUNIT_ASSERT_EQUAL(string("lazy"), (*annotation_iter)->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*annotation_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*annotation_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(25), (*annotation_iter)->pos().column());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::PRIVATE, constr->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::INLINE, constr->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("C"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(29), constr->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
+          auto field_type_iter = constr->field_types().begin();
+          CPPUNIT_ASSERT_EQUAL(string("field1"), (*field_type_iter)->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*field_type_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*field_type_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(33), (*field_type_iter)->pos().column());          
+          TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>((*field_type_iter)->type_expr());
+          CPPUNIT_ASSERT(nullptr != type_var_expr1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_var_expr1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(41), type_var_expr1->pos().column());
+          RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr1->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+          list<string> expected_type_idents1 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents1.size(), type_rel_ident1->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents1.begin(), expected_type_idents1.end(), type_rel_ident1->idents().begin()));
+          field_type_iter++;
+          CPPUNIT_ASSERT_EQUAL(string("field2"), (*field_type_iter)->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*field_type_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*field_type_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(47), (*field_type_iter)->pos().column());          
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>((*field_type_iter)->type_expr());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(55), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+        }
+      }
+      
+      void ParserTests::test_parser_parses_binary_operator_constructor()
+      {
+        istringstream iss("\
+datatype T = Int :: Int8\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), type_var_def->pos().column());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+          auto constr_iter = datatype->constrs().begin();
+          UnnamedFieldConstructor *constr = dynamic_cast<UnnamedFieldConstructor *>(constr_iter->get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(true, constr->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, constr->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, constr->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("::"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(18), constr->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
+          auto field_type_iter = constr->field_types().begin();
+          TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), type_var_expr1->pos().column());
+          RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr1->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+          list<string> expected_type_idents1 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents1.size(), type_rel_ident1->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents1.begin(), expected_type_idents1.end(), type_rel_ident1->idents().begin()));
+          field_type_iter++;
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(21), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+        }
+      }
+
+      void ParserTests::test_parser_parses_binary_operator_constructor_with_annotations_and_modifiers()
+      {
+        istringstream iss("\
+datatype T = @lazy @memoized\n\
+             private inline Int8 :: Int\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), type_var_def->pos().column());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+          auto constr_iter = datatype->constrs().begin();
+          UnnamedFieldConstructor *constr = dynamic_cast<UnnamedFieldConstructor *>(constr_iter->get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->annotations().size());
+          auto annotation_iter = constr->annotations().begin();
+          CPPUNIT_ASSERT_EQUAL(string("lazy"), (*annotation_iter)->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*annotation_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*annotation_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(15), (*annotation_iter)->pos().column());
+          annotation_iter++;
+          CPPUNIT_ASSERT_EQUAL(string("memoized"), (*annotation_iter)->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*annotation_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*annotation_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(21), (*annotation_iter)->pos().column());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::PRIVATE, constr->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::INLINE, constr->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("::"), constr->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), constr->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(34), constr->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
+          auto field_type_iter = constr->field_types().begin();
+          TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_var_expr1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(29), type_var_expr1->pos().column());
+          RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr1->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+          list<string> expected_type_idents1 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents1.size(), type_rel_ident1->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents1.begin(), expected_type_idents1.end(), type_rel_ident1->idents().begin()));
+          field_type_iter++;
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(37), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+        }
+      }
+    
+      void ParserTests::test_parser_parses_with_type_expression()
+      {
+        istringstream iss("\
+type T = Int with Int64 with U\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_def->pos().column());
+          TypeSynonymVariable *type_synonym_var = dynamic_cast<TypeSynonymVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_var);
+          With *with1 = dynamic_cast<With *>(type_synonym_var->expr());
+          CPPUNIT_ASSERT(nullptr != with1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), with1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), with1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), with1->pos().column());
+          With *with2 = dynamic_cast<With *>(with1->type1());
+          CPPUNIT_ASSERT(nullptr != with2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), with2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), with2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), with2->pos().column());
+          TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(with2->type1());
+          CPPUNIT_ASSERT(nullptr != type_var_expr3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), type_var_expr3->pos().column());
+          RelativeIdentifier *type_rel_ident3 = dynamic_cast<RelativeIdentifier *>(type_var_expr3->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident3);
+          list<string> expected_type_idents3 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents3.size(), type_rel_ident3->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents3.begin(), expected_type_idents3.end(), type_rel_ident3->idents().begin()));
+          TypeVariableExpression *type_var_expr4 = dynamic_cast<TypeVariableExpression *>(with2->type2());
+          CPPUNIT_ASSERT(nullptr != type_var_expr4);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr4->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr4->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(19), type_var_expr4->pos().column());
+          RelativeIdentifier *type_rel_ident4 = dynamic_cast<RelativeIdentifier *>(type_var_expr4->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident4);
+          list<string> expected_type_idents4 { "Int64" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents4.size(), type_rel_ident4->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents4.begin(), expected_type_idents4.end(), type_rel_ident4->idents().begin()));
+          TypeVariableExpression *type_var_expr5 = dynamic_cast<TypeVariableExpression *>(with1->type2());
+          CPPUNIT_ASSERT(nullptr != type_var_expr5);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(30), type_var_expr5->pos().column());
+          RelativeIdentifier *type_rel_ident5 = dynamic_cast<RelativeIdentifier *>(type_var_expr5->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident5);
+          list<string> expected_type_idents5 { "U" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents5.size(), type_rel_ident5->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents5.begin(), expected_type_idents5.end(), type_rel_ident5->idents().begin()));
+        }
+      }
+      
+      void ParserTests::test_parser_parses_with_type_expression_with_nested_type_expression()
+      {
+        istringstream iss("\
+template\n\
+type T(t, u) = (t) -> Int with (u) -> Int64\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeFunctionDefinition *type_fun_def = dynamic_cast<TypeFunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_fun_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_fun_def->pos().column());
+          TypeSynonymFunction *type_synonym_fun = dynamic_cast<TypeSynonymFunction *>(type_fun_def->fun().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun);
+          CPPUNIT_ASSERT_EQUAL(true, type_synonym_fun->inst_type_params().empty());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_synonym_fun->args().size());
+          auto type_arg_iter = type_synonym_fun->args().begin();
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*type_arg_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*type_arg_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), (*type_arg_iter)->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), (*type_arg_iter)->ident());
+          type_arg_iter++;
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*type_arg_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*type_arg_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), (*type_arg_iter)->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("u"), (*type_arg_iter)->ident());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun->body());
+          With *with1 = dynamic_cast<With *>(type_synonym_fun->body());
+          CPPUNIT_ASSERT(nullptr != with1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), with1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), with1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(16), with1->pos().column());
+          NonUniqueFunctionType *fun_type2 = dynamic_cast<NonUniqueFunctionType *>(with1->type1());
+          CPPUNIT_ASSERT(nullptr != fun_type2);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, fun_type2->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_type2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), fun_type2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(16), fun_type2->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_type2->arg_types().size());
+          auto arg_type_iter2 = fun_type2->arg_types().begin();
+          TypeParameterExpression *type_param_expr3 = dynamic_cast<TypeParameterExpression *>(arg_type_iter2->get());
+          CPPUNIT_ASSERT(nullptr != type_param_expr3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_param_expr3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_param_expr3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(17), type_param_expr3->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), type_param_expr3->ident());
+          TypeVariableExpression *type_var_expr4 = dynamic_cast<TypeVariableExpression *>(fun_type2->result_type());
+          CPPUNIT_ASSERT(nullptr != type_var_expr4);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr4->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_var_expr4->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(23), type_var_expr4->pos().column());
+          RelativeIdentifier *type_rel_ident4 = dynamic_cast<RelativeIdentifier *>(type_var_expr4->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident4);
+          list<string> expected_type_idents4 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents4.size(), type_rel_ident4->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents4.begin(), expected_type_idents4.end(), type_rel_ident4->idents().begin()));
+          NonUniqueFunctionType *fun_type5 = dynamic_cast<NonUniqueFunctionType *>(with1->type2());
+          CPPUNIT_ASSERT(nullptr != fun_type5);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, fun_type5->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_type5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), fun_type5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(32), fun_type5->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_type5->arg_types().size());
+          auto arg_type_iter5 = fun_type5->arg_types().begin();
+          TypeParameterExpression *type_param_expr6 = dynamic_cast<TypeParameterExpression *>(arg_type_iter5->get());
+          CPPUNIT_ASSERT(nullptr != type_param_expr6);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_param_expr6->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_param_expr6->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(33), type_param_expr6->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("u"), type_param_expr6->ident());
+          TypeVariableExpression *type_var_expr7 = dynamic_cast<TypeVariableExpression *>(fun_type5->result_type());
+          CPPUNIT_ASSERT(nullptr != type_var_expr7);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr7->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_var_expr7->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(39), type_var_expr7->pos().column());
+          RelativeIdentifier *type_rel_ident7 = dynamic_cast<RelativeIdentifier *>(type_var_expr7->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident7);
+          list<string> expected_type_idents7 { "Int64" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents7.size(), type_rel_ident7->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents7.begin(), expected_type_idents7.end(), type_rel_ident7->idents().begin()));
+        }
+      }
+      
+      void ParserTests::test_parser_parses_function_types()
+      {
+        istringstream iss("\
+type T = () -> Int\n\
+\n\
+type U = (Int8) -> Int\n\
+\n\
+template\n\
+type V(t) = (Int8, Char with t, Int) -> Int16\n\
+\n\
+type W = (Char, WChar) -> (Int, Int16) -> Int8\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_def->pos().column());
+          TypeSynonymVariable *type_synonym_var = dynamic_cast<TypeSynonymVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_var);
+          NonUniqueFunctionType *fun_type1 = dynamic_cast<NonUniqueFunctionType *>(type_synonym_var->expr());
+          CPPUNIT_ASSERT(nullptr != fun_type1);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, fun_type1->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_type1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_type1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), fun_type1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(true, fun_type1->arg_types().empty());
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(fun_type1->result_type());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(16), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+        }
+        def_iter++;
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("U"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_def->pos().column());
+          TypeSynonymVariable *type_synonym_var = dynamic_cast<TypeSynonymVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_var);
+          NonUniqueFunctionType *fun_type1 = dynamic_cast<NonUniqueFunctionType *>(type_synonym_var->expr());
+          CPPUNIT_ASSERT(nullptr != fun_type1);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, fun_type1->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_type1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), fun_type1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), fun_type1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_type1->arg_types().size());
+          auto arg_type_iter1 = fun_type1->arg_types().begin();
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(arg_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+          TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(fun_type1->result_type());
+          CPPUNIT_ASSERT(nullptr != type_var_expr3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_var_expr3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(20), type_var_expr3->pos().column());
+          RelativeIdentifier *type_rel_ident3 = dynamic_cast<RelativeIdentifier *>(type_var_expr3->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident3);
+          list<string> expected_type_idents3 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents3.size(), type_rel_ident3->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents3.begin(), expected_type_idents3.end(), type_rel_ident3->idents().begin()));
+        }
+        def_iter++;
+        {
+          TypeFunctionDefinition *type_fun_def = dynamic_cast<TypeFunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_fun_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("V"), type_fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_fun_def->pos().column());
+          TypeSynonymFunction *type_synonym_fun = dynamic_cast<TypeSynonymFunction *>(type_fun_def->fun().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun);
+          CPPUNIT_ASSERT_EQUAL(true, type_synonym_fun->inst_type_params().empty());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_synonym_fun->args().size());
+          auto type_arg_iter = type_synonym_fun->args().begin();
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*type_arg_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), (*type_arg_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), (*type_arg_iter)->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), (*type_arg_iter)->ident());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun->body());
+          NonUniqueFunctionType *fun_type1 = dynamic_cast<NonUniqueFunctionType *>(type_synonym_fun->body());
+          CPPUNIT_ASSERT(nullptr != fun_type1);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, fun_type1->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_type1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), fun_type1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), fun_type1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), fun_type1->arg_types().size());
+          auto arg_type_iter1 = fun_type1->arg_types().begin();
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(arg_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+          arg_type_iter1++;
+          With *with3 = dynamic_cast<With *>(arg_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != with3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), with3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), with3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(20), with3->pos().column());
+          TypeVariableExpression *type_var_expr4 = dynamic_cast<TypeVariableExpression *>(with3->type1());
+          CPPUNIT_ASSERT(nullptr != type_var_expr4);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr4->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr4->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(20), type_var_expr4->pos().column());
+          RelativeIdentifier *type_rel_ident4 = dynamic_cast<RelativeIdentifier *>(type_var_expr4->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident4);
+          list<string> expected_type_idents4 { "Char" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents4.size(), type_rel_ident4->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents4.begin(), expected_type_idents4.end(), type_rel_ident4->idents().begin()));
+          TypeParameterExpression *type_param_expr5 = dynamic_cast<TypeParameterExpression *>(with3->type2());
+          CPPUNIT_ASSERT(nullptr != type_param_expr5);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_param_expr5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_param_expr5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(30), type_param_expr5->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), type_param_expr5->ident());
+          arg_type_iter1++;
+          TypeVariableExpression *type_var_expr6 = dynamic_cast<TypeVariableExpression *>(arg_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr6);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr6->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr6->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(33), type_var_expr6->pos().column());
+          RelativeIdentifier *type_rel_ident6 = dynamic_cast<RelativeIdentifier *>(type_var_expr6->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident6);
+          list<string> expected_type_idents6 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents6.size(), type_rel_ident6->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents6.begin(), expected_type_idents6.end(), type_rel_ident6->idents().begin()));
+          TypeVariableExpression *type_var_expr7 = dynamic_cast<TypeVariableExpression *>(fun_type1->result_type());
+          CPPUNIT_ASSERT(nullptr != type_var_expr7);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr7->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr7->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(41), type_var_expr7->pos().column());
+          RelativeIdentifier *type_rel_ident7 = dynamic_cast<RelativeIdentifier *>(type_var_expr7->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident7);
+          list<string> expected_type_idents7 { "Int16" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents7.size(), type_rel_ident7->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents7.begin(), expected_type_idents7.end(), type_rel_ident7->idents().begin()));
+        }
+        def_iter++;
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("W"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_def->pos().column());
+          TypeSynonymVariable *type_synonym_var = dynamic_cast<TypeSynonymVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_var);
+          NonUniqueFunctionType *fun_type1 = dynamic_cast<NonUniqueFunctionType *>(type_synonym_var->expr());
+          CPPUNIT_ASSERT(nullptr != fun_type1);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, fun_type1->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_type1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), fun_type1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), fun_type1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), fun_type1->arg_types().size());
+          auto arg_type_iter1 = fun_type1->arg_types().begin();
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(arg_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Char" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+          arg_type_iter1++;
+          TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(arg_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), type_var_expr3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(17), type_var_expr3->pos().column());
+          RelativeIdentifier *type_rel_ident3 = dynamic_cast<RelativeIdentifier *>(type_var_expr3->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident3);
+          list<string> expected_type_idents3 { "WChar" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents3.size(), type_rel_ident3->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents3.begin(), expected_type_idents3.end(), type_rel_ident3->idents().begin()));
+          NonUniqueFunctionType *fun_type4 = dynamic_cast<NonUniqueFunctionType *>(fun_type1->result_type());
+          CPPUNIT_ASSERT(nullptr != fun_type4);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, fun_type4->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_type4->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), fun_type4->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(27), fun_type4->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), fun_type4->arg_types().size());
+          auto arg_type_iter4 = fun_type4->arg_types().begin();
+          TypeVariableExpression *type_var_expr5 = dynamic_cast<TypeVariableExpression *>(arg_type_iter4->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr5);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), type_var_expr5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(28), type_var_expr5->pos().column());
+          RelativeIdentifier *type_rel_ident5 = dynamic_cast<RelativeIdentifier *>(type_var_expr5->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident5);
+          list<string> expected_type_idents5 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents5.size(), type_rel_ident5->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents5.begin(), expected_type_idents5.end(), type_rel_ident5->idents().begin()));
+          arg_type_iter4++;
+          TypeVariableExpression *type_var_expr6 = dynamic_cast<TypeVariableExpression *>(arg_type_iter4->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr6);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr6->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), type_var_expr6->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(33), type_var_expr6->pos().column());
+          RelativeIdentifier *type_rel_ident6 = dynamic_cast<RelativeIdentifier *>(type_var_expr6->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident6);
+          list<string> expected_type_idents6 { "Int16" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents6.size(), type_rel_ident6->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents6.begin(), expected_type_idents6.end(), type_rel_ident6->idents().begin()));
+          TypeVariableExpression *type_var_expr7 = dynamic_cast<TypeVariableExpression *>(fun_type4->result_type());
+          CPPUNIT_ASSERT(nullptr != type_var_expr7);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr7->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), type_var_expr7->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(43), type_var_expr7->pos().column());
+          RelativeIdentifier *type_rel_ident7 = dynamic_cast<RelativeIdentifier *>(type_var_expr7->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident7);
+          list<string> expected_type_idents7 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents7.size(), type_rel_ident7->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents7.begin(), expected_type_idents7.end(), type_rel_ident7->idents().begin()));
+        }
+      }
+      
+      void ParserTests::test_parser_parses_primitive_function_types()
+      {
+        istringstream iss("\
+type T = () primitive -> Int\n\
+\n\
+type U = (Int8) primitive -> Int\n\
+\n\
+template\n\
+type V(t) = (Int, Char with t, Int8) primitive -> Int16\n\
+\n\
+type W = (WChar, Char) primitive -> (Int16, Int) primitive-> Int8\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_def->pos().column());
+          TypeSynonymVariable *type_synonym_var = dynamic_cast<TypeSynonymVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_var);
+          NonUniqueFunctionType *fun_type1 = dynamic_cast<NonUniqueFunctionType *>(type_synonym_var->expr());
+          CPPUNIT_ASSERT(nullptr != fun_type1);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::PRIMITIVE, fun_type1->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_type1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_type1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), fun_type1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(true, fun_type1->arg_types().empty());
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(fun_type1->result_type());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(26), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+        }
+        def_iter++;
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("U"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_def->pos().column());
+          TypeSynonymVariable *type_synonym_var = dynamic_cast<TypeSynonymVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_var);
+          NonUniqueFunctionType *fun_type1 = dynamic_cast<NonUniqueFunctionType *>(type_synonym_var->expr());
+          CPPUNIT_ASSERT(nullptr != fun_type1);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::PRIMITIVE, fun_type1->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_type1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), fun_type1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), fun_type1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_type1->arg_types().size());
+          auto arg_type_iter1 = fun_type1->arg_types().begin();
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(arg_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+          TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(fun_type1->result_type());
+          CPPUNIT_ASSERT(nullptr != type_var_expr3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_var_expr3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(30), type_var_expr3->pos().column());
+          RelativeIdentifier *type_rel_ident3 = dynamic_cast<RelativeIdentifier *>(type_var_expr3->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident3);
+          list<string> expected_type_idents3 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents3.size(), type_rel_ident3->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents3.begin(), expected_type_idents3.end(), type_rel_ident3->idents().begin()));
+        }
+        def_iter++;
+        {
+          TypeFunctionDefinition *type_fun_def = dynamic_cast<TypeFunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_fun_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("V"), type_fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_fun_def->pos().column());
+          TypeSynonymFunction *type_synonym_fun = dynamic_cast<TypeSynonymFunction *>(type_fun_def->fun().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun);
+          CPPUNIT_ASSERT_EQUAL(true, type_synonym_fun->inst_type_params().empty());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_synonym_fun->args().size());
+          auto type_arg_iter = type_synonym_fun->args().begin();
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*type_arg_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), (*type_arg_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), (*type_arg_iter)->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), (*type_arg_iter)->ident());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun->body());
+          NonUniqueFunctionType *fun_type1 = dynamic_cast<NonUniqueFunctionType *>(type_synonym_fun->body());
+          CPPUNIT_ASSERT(nullptr != fun_type1);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::PRIMITIVE, fun_type1->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_type1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), fun_type1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), fun_type1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), fun_type1->arg_types().size());
+          auto arg_type_iter1 = fun_type1->arg_types().begin();
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(arg_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+          arg_type_iter1++;
+          With *with3 = dynamic_cast<With *>(arg_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != with3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), with3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), with3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(19), with3->pos().column());
+          TypeVariableExpression *type_var_expr4 = dynamic_cast<TypeVariableExpression *>(with3->type1());
+          CPPUNIT_ASSERT(nullptr != type_var_expr4);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr4->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr4->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(19), type_var_expr4->pos().column());
+          RelativeIdentifier *type_rel_ident4 = dynamic_cast<RelativeIdentifier *>(type_var_expr4->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident4);
+          list<string> expected_type_idents4 { "Char" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents4.size(), type_rel_ident4->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents4.begin(), expected_type_idents4.end(), type_rel_ident4->idents().begin()));
+          TypeParameterExpression *type_param_expr5 = dynamic_cast<TypeParameterExpression *>(with3->type2());
+          CPPUNIT_ASSERT(nullptr != type_param_expr5);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_param_expr5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_param_expr5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(29), type_param_expr5->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), type_param_expr5->ident());
+          arg_type_iter1++;
+          TypeVariableExpression *type_var_expr6 = dynamic_cast<TypeVariableExpression *>(arg_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr6);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr6->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr6->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(32), type_var_expr6->pos().column());
+          RelativeIdentifier *type_rel_ident6 = dynamic_cast<RelativeIdentifier *>(type_var_expr6->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident6);
+          list<string> expected_type_idents6 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents6.size(), type_rel_ident6->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents6.begin(), expected_type_idents6.end(), type_rel_ident6->idents().begin()));
+          TypeVariableExpression *type_var_expr7 = dynamic_cast<TypeVariableExpression *>(fun_type1->result_type());
+          CPPUNIT_ASSERT(nullptr != type_var_expr7);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr7->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr7->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(51), type_var_expr7->pos().column());
+          RelativeIdentifier *type_rel_ident7 = dynamic_cast<RelativeIdentifier *>(type_var_expr7->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident7);
+          list<string> expected_type_idents7 { "Int16" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents7.size(), type_rel_ident7->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents7.begin(), expected_type_idents7.end(), type_rel_ident7->idents().begin()));
+        }
+        def_iter++;
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("W"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_def->pos().column());
+          TypeSynonymVariable *type_synonym_var = dynamic_cast<TypeSynonymVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_var);
+          NonUniqueFunctionType *fun_type1 = dynamic_cast<NonUniqueFunctionType *>(type_synonym_var->expr());
+          CPPUNIT_ASSERT(nullptr != fun_type1);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::PRIMITIVE, fun_type1->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_type1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), fun_type1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), fun_type1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), fun_type1->arg_types().size());
+          auto arg_type_iter1 = fun_type1->arg_types().begin();
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(arg_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "WChar" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+          arg_type_iter1++;
+          TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(arg_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), type_var_expr3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(18), type_var_expr3->pos().column());
+          RelativeIdentifier *type_rel_ident3 = dynamic_cast<RelativeIdentifier *>(type_var_expr3->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident3);
+          list<string> expected_type_idents3 { "Char" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents3.size(), type_rel_ident3->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents3.begin(), expected_type_idents3.end(), type_rel_ident3->idents().begin()));
+          NonUniqueFunctionType *fun_type4 = dynamic_cast<NonUniqueFunctionType *>(fun_type1->result_type());
+          CPPUNIT_ASSERT(nullptr != fun_type4);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::PRIMITIVE, fun_type4->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_type4->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), fun_type4->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(37), fun_type4->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), fun_type4->arg_types().size());
+          auto arg_type_iter4 = fun_type4->arg_types().begin();
+          TypeVariableExpression *type_var_expr5 = dynamic_cast<TypeVariableExpression *>(arg_type_iter4->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr5);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), type_var_expr5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(38), type_var_expr5->pos().column());
+          RelativeIdentifier *type_rel_ident5 = dynamic_cast<RelativeIdentifier *>(type_var_expr5->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident5);
+          list<string> expected_type_idents5 { "Int16" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents5.size(), type_rel_ident5->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents5.begin(), expected_type_idents5.end(), type_rel_ident5->idents().begin()));
+          arg_type_iter4++;
+          TypeVariableExpression *type_var_expr6 = dynamic_cast<TypeVariableExpression *>(arg_type_iter4->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr6);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr6->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), type_var_expr6->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(45), type_var_expr6->pos().column());
+          RelativeIdentifier *type_rel_ident6 = dynamic_cast<RelativeIdentifier *>(type_var_expr6->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident6);
+          list<string> expected_type_idents6 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents6.size(), type_rel_ident6->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents6.begin(), expected_type_idents6.end(), type_rel_ident6->idents().begin()));
+          TypeVariableExpression *type_var_expr7 = dynamic_cast<TypeVariableExpression *>(fun_type4->result_type());
+          CPPUNIT_ASSERT(nullptr != type_var_expr7);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr7->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), type_var_expr7->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(62), type_var_expr7->pos().column());
+          RelativeIdentifier *type_rel_ident7 = dynamic_cast<RelativeIdentifier *>(type_var_expr7->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident7);
+          list<string> expected_type_idents7 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents7.size(), type_rel_ident7->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents7.begin(), expected_type_idents7.end(), type_rel_ident7->idents().begin()));
+        }
+      }
+      
+      void ParserTests::test_parser_parses_unique_function_types()
+      {
+        istringstream iss("\
+type T = () unique -> Int\n\
+\n\
+type U = (Int8) unique -> Int\n\
+\n\
+template\n\
+type V(t) = (Int8, WChar with t, Int) unique -> Int16\n\
+\n\
+type W = (Int, Int16) unique -> (Char, WChar) unique -> Int8\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_def->pos().column());
+          TypeSynonymVariable *type_synonym_var = dynamic_cast<TypeSynonymVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_var);
+          UniqueFunctionType *unique_fun_type1 = dynamic_cast<UniqueFunctionType *>(type_synonym_var->expr());
+          CPPUNIT_ASSERT(nullptr != unique_fun_type1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), unique_fun_type1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), unique_fun_type1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), unique_fun_type1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(true, unique_fun_type1->arg_types().empty());
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(unique_fun_type1->result_type());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(23), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+        }
+        def_iter++;
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("U"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_def->pos().column());
+          TypeSynonymVariable *type_synonym_var = dynamic_cast<TypeSynonymVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_var);
+          UniqueFunctionType *unique_fun_type1 = dynamic_cast<UniqueFunctionType *>(type_synonym_var->expr());
+          CPPUNIT_ASSERT(nullptr != unique_fun_type1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), unique_fun_type1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), unique_fun_type1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), unique_fun_type1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), unique_fun_type1->arg_types().size());
+          auto arg_type_iter1 = unique_fun_type1->arg_types().begin();
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(arg_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+          TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(unique_fun_type1->result_type());
+          CPPUNIT_ASSERT(nullptr != type_var_expr3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_var_expr3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(27), type_var_expr3->pos().column());
+          RelativeIdentifier *type_rel_ident3 = dynamic_cast<RelativeIdentifier *>(type_var_expr3->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident3);
+          list<string> expected_type_idents3 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents3.size(), type_rel_ident3->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents3.begin(), expected_type_idents3.end(), type_rel_ident3->idents().begin()));
+        }
+        def_iter++;
+        {
+          TypeFunctionDefinition *type_fun_def = dynamic_cast<TypeFunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_fun_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("V"), type_fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_fun_def->pos().column());
+          TypeSynonymFunction *type_synonym_fun = dynamic_cast<TypeSynonymFunction *>(type_fun_def->fun().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun);
+          CPPUNIT_ASSERT_EQUAL(true, type_synonym_fun->inst_type_params().empty());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_synonym_fun->args().size());
+          auto type_arg_iter = type_synonym_fun->args().begin();
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*type_arg_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), (*type_arg_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), (*type_arg_iter)->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), (*type_arg_iter)->ident());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun->body());
+          UniqueFunctionType *unique_fun_type1 = dynamic_cast<UniqueFunctionType *>(type_synonym_fun->body());
+          CPPUNIT_ASSERT(nullptr != unique_fun_type1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), unique_fun_type1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), unique_fun_type1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), unique_fun_type1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), unique_fun_type1->arg_types().size());
+          auto arg_type_iter1 = unique_fun_type1->arg_types().begin();
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(arg_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+          arg_type_iter1++;
+          With *with3 = dynamic_cast<With *>(arg_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != with3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), with3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), with3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(20), with3->pos().column());
+          TypeVariableExpression *type_var_expr4 = dynamic_cast<TypeVariableExpression *>(with3->type1());
+          CPPUNIT_ASSERT(nullptr != type_var_expr4);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr4->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr4->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(20), type_var_expr4->pos().column());
+          RelativeIdentifier *type_rel_ident4 = dynamic_cast<RelativeIdentifier *>(type_var_expr4->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident4);
+          list<string> expected_type_idents4 { "WChar" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents4.size(), type_rel_ident4->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents4.begin(), expected_type_idents4.end(), type_rel_ident4->idents().begin()));
+          TypeParameterExpression *type_param_expr5 = dynamic_cast<TypeParameterExpression *>(with3->type2());
+          CPPUNIT_ASSERT(nullptr != type_param_expr5);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_param_expr5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_param_expr5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(31), type_param_expr5->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), type_param_expr5->ident());
+          arg_type_iter1++;
+          TypeVariableExpression *type_var_expr6 = dynamic_cast<TypeVariableExpression *>(arg_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr6);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr6->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr6->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(34), type_var_expr6->pos().column());
+          RelativeIdentifier *type_rel_ident6 = dynamic_cast<RelativeIdentifier *>(type_var_expr6->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident6);
+          list<string> expected_type_idents6 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents6.size(), type_rel_ident6->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents6.begin(), expected_type_idents6.end(), type_rel_ident6->idents().begin()));
+          TypeVariableExpression *type_var_expr7 = dynamic_cast<TypeVariableExpression *>(unique_fun_type1->result_type());
+          CPPUNIT_ASSERT(nullptr != type_var_expr7);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr7->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr7->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(49), type_var_expr7->pos().column());
+          RelativeIdentifier *type_rel_ident7 = dynamic_cast<RelativeIdentifier *>(type_var_expr7->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident7);
+          list<string> expected_type_idents7 { "Int16" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents7.size(), type_rel_ident7->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents7.begin(), expected_type_idents7.end(), type_rel_ident7->idents().begin()));
+        }
+        def_iter++;
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("W"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_def->pos().column());
+          TypeSynonymVariable *type_synonym_var = dynamic_cast<TypeSynonymVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_var);
+          UniqueFunctionType *unique_fun_type1 = dynamic_cast<UniqueFunctionType *>(type_synonym_var->expr());
+          CPPUNIT_ASSERT(nullptr != unique_fun_type1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), unique_fun_type1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), unique_fun_type1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), unique_fun_type1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), unique_fun_type1->arg_types().size());
+          auto arg_type_iter1 = unique_fun_type1->arg_types().begin();
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(arg_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+          arg_type_iter1++;
+          TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(arg_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), type_var_expr3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(16), type_var_expr3->pos().column());
+          RelativeIdentifier *type_rel_ident3 = dynamic_cast<RelativeIdentifier *>(type_var_expr3->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident3);
+          list<string> expected_type_idents3 { "Int16" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents3.size(), type_rel_ident3->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents3.begin(), expected_type_idents3.end(), type_rel_ident3->idents().begin()));
+          UniqueFunctionType *unique_fun_type4 = dynamic_cast<UniqueFunctionType *>(unique_fun_type1->result_type());
+          CPPUNIT_ASSERT(nullptr != unique_fun_type4);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), unique_fun_type4->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), unique_fun_type4->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(33), unique_fun_type4->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), unique_fun_type4->arg_types().size());
+          auto arg_type_iter4 = unique_fun_type4->arg_types().begin();
+          TypeVariableExpression *type_var_expr5 = dynamic_cast<TypeVariableExpression *>(arg_type_iter4->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr5);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), type_var_expr5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(34), type_var_expr5->pos().column());
+          RelativeIdentifier *type_rel_ident5 = dynamic_cast<RelativeIdentifier *>(type_var_expr5->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident5);
+          list<string> expected_type_idents5 { "Char" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents5.size(), type_rel_ident5->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents5.begin(), expected_type_idents5.end(), type_rel_ident5->idents().begin()));
+          arg_type_iter4++;
+          TypeVariableExpression *type_var_expr6 = dynamic_cast<TypeVariableExpression *>(arg_type_iter4->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr6);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr6->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), type_var_expr6->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(40), type_var_expr6->pos().column());
+          RelativeIdentifier *type_rel_ident6 = dynamic_cast<RelativeIdentifier *>(type_var_expr6->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident6);
+          list<string> expected_type_idents6 { "WChar" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents6.size(), type_rel_ident6->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents6.begin(), expected_type_idents6.end(), type_rel_ident6->idents().begin()));
+          TypeVariableExpression *type_var_expr7 = dynamic_cast<TypeVariableExpression *>(unique_fun_type4->result_type());
+          CPPUNIT_ASSERT(nullptr != type_var_expr7);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr7->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), type_var_expr7->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(57), type_var_expr7->pos().column());
+          RelativeIdentifier *type_rel_ident7 = dynamic_cast<RelativeIdentifier *>(type_var_expr7->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident7);
+          list<string> expected_type_idents7 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents7.size(), type_rel_ident7->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents7.begin(), expected_type_idents7.end(), type_rel_ident7->idents().begin()));
+        }
+      }
+      
+      void ParserTests::test_parser_parses_type_variable_expression()
+      {
+        istringstream iss("\
+type T = U\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_def->pos().column());
+          TypeSynonymVariable *type_synonym_var = dynamic_cast<TypeSynonymVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_var);
+          TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>(type_synonym_var->expr());
+          CPPUNIT_ASSERT(nullptr != type_var_expr1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), type_var_expr1->pos().column());
+          RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr1->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+          list<string> expected_type_idents1 { "U" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents1.size(), type_rel_ident1->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents1.begin(), expected_type_idents1.end(), type_rel_ident1->idents().begin()));
+        }
+      }
+      
+      void ParserTests::test_parser_parses_type_parameter_expression()
+      {
+        istringstream iss("\
+template\n\
+type T(t) = t\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeFunctionDefinition *type_fun_def = dynamic_cast<TypeFunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_fun_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_fun_def->pos().column());
+          TypeSynonymFunction *type_synonym_fun = dynamic_cast<TypeSynonymFunction *>(type_fun_def->fun().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun);
+          CPPUNIT_ASSERT_EQUAL(true, type_synonym_fun->inst_type_params().empty());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_synonym_fun->args().size());
+          auto type_arg_iter = type_synonym_fun->args().begin();
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*type_arg_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*type_arg_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), (*type_arg_iter)->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), (*type_arg_iter)->ident());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun->body());
+          TypeParameterExpression *type_param_expr5 = dynamic_cast<TypeParameterExpression *>(type_synonym_fun->body());
+          CPPUNIT_ASSERT(nullptr != type_param_expr5);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_param_expr5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), type_param_expr5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), type_param_expr5->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), type_param_expr5->ident());
+        }
+      }
+      
+      void ParserTests::test_parser_parses_tuple_types()
+      {
+        istringstream iss("\
+type T = ()\n\
+\n\
+type U = (Int, Int8)\n\
+\n\
+template\n\
+type V(t) = (Int, Char with t, Int8)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_def->pos().column());
+          TypeSynonymVariable *type_synonym_var = dynamic_cast<TypeSynonymVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_var);
+          NonUniqueTupleType *tuple_type1 = dynamic_cast<NonUniqueTupleType *>(type_synonym_var->expr());
+          CPPUNIT_ASSERT(nullptr != tuple_type1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), tuple_type1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tuple_type1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), tuple_type1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(true, tuple_type1->field_types().empty());
+        }
+        def_iter++;
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("U"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_def->pos().column());
+          TypeSynonymVariable *type_synonym_var = dynamic_cast<TypeSynonymVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_var);
+          NonUniqueTupleType *tuple_type1 = dynamic_cast<NonUniqueTupleType *>(type_synonym_var->expr());
+          CPPUNIT_ASSERT(nullptr != tuple_type1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), tuple_type1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), tuple_type1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), tuple_type1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), tuple_type1->field_types().size());
+          auto field_type_iter1 = tuple_type1->field_types().begin();
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(field_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+          field_type_iter1++;
+          TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(field_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_var_expr3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(16), type_var_expr3->pos().column());
+          RelativeIdentifier *type_rel_ident3 = dynamic_cast<RelativeIdentifier *>(type_var_expr3->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident3);
+          list<string> expected_type_idents3 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents3.size(), type_rel_ident3->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents3.begin(), expected_type_idents3.end(), type_rel_ident3->idents().begin()));
+        }
+        def_iter++;
+        {
+          TypeFunctionDefinition *type_fun_def = dynamic_cast<TypeFunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_fun_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("V"), type_fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_fun_def->pos().column());
+          TypeSynonymFunction *type_synonym_fun = dynamic_cast<TypeSynonymFunction *>(type_fun_def->fun().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun);
+          CPPUNIT_ASSERT_EQUAL(true, type_synonym_fun->inst_type_params().empty());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_synonym_fun->args().size());
+          auto type_arg_iter = type_synonym_fun->args().begin();
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*type_arg_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), (*type_arg_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), (*type_arg_iter)->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), (*type_arg_iter)->ident());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun->body());
+          NonUniqueTupleType *tuple_type1 = dynamic_cast<NonUniqueTupleType *>(type_synonym_fun->body());
+          CPPUNIT_ASSERT(nullptr != tuple_type1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), tuple_type1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), tuple_type1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), tuple_type1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), tuple_type1->field_types().size());
+          auto field_type_iter1 = tuple_type1->field_types().begin();
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(field_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+          field_type_iter1++;
+          With *with3 = dynamic_cast<With *>(field_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != with3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), with3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), with3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(19), with3->pos().column());
+          TypeVariableExpression *type_var_expr4 = dynamic_cast<TypeVariableExpression *>(with3->type1());
+          CPPUNIT_ASSERT(nullptr != type_var_expr4);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr4->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr4->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(19), type_var_expr4->pos().column());
+          RelativeIdentifier *type_rel_ident4 = dynamic_cast<RelativeIdentifier *>(type_var_expr4->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident4);
+          list<string> expected_type_idents4 { "Char" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents4.size(), type_rel_ident4->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents4.begin(), expected_type_idents4.end(), type_rel_ident4->idents().begin()));
+          TypeParameterExpression *type_param_expr5 = dynamic_cast<TypeParameterExpression *>(with3->type2());
+          CPPUNIT_ASSERT(nullptr != type_param_expr5);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_param_expr5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_param_expr5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(29), type_param_expr5->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), type_param_expr5->ident());
+          field_type_iter1++;
+          TypeVariableExpression *type_var_expr6 = dynamic_cast<TypeVariableExpression *>(field_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr6);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr6->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr6->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(32), type_var_expr6->pos().column());
+          RelativeIdentifier *type_rel_ident6 = dynamic_cast<RelativeIdentifier *>(type_var_expr6->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident6);
+          list<string> expected_type_idents6 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents6.size(), type_rel_ident6->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents6.begin(), expected_type_idents6.end(), type_rel_ident6->idents().begin()));
+        }
+      }
+      
+      void ParserTests::test_parser_parses_unique_tuple_types()
+      {
+        istringstream iss("\
+type T = unique ()\n\
+\n\
+type U = unique (Int8, Int)\n\
+\n\
+template\n\
+type V(t) = unique (Int8, Char with t, Int)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_def->pos().column());
+          TypeSynonymVariable *type_synonym_var = dynamic_cast<TypeSynonymVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_var);
+          UniqueTupleType *unique_tuple_type1 = dynamic_cast<UniqueTupleType *>(type_synonym_var->expr());
+          CPPUNIT_ASSERT(nullptr != unique_tuple_type1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), unique_tuple_type1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), unique_tuple_type1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), unique_tuple_type1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(true, unique_tuple_type1->field_types().empty());
+        }
+        def_iter++;
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("U"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_def->pos().column());
+          TypeSynonymVariable *type_synonym_var = dynamic_cast<TypeSynonymVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_var);
+          UniqueTupleType *unique_tuple_type1 = dynamic_cast<UniqueTupleType *>(type_synonym_var->expr());
+          CPPUNIT_ASSERT(nullptr != unique_tuple_type1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), unique_tuple_type1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), unique_tuple_type1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), unique_tuple_type1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), unique_tuple_type1->field_types().size());
+          auto field_type_iter1 = unique_tuple_type1->field_types().begin();
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(field_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(18), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+          field_type_iter1++;
+          TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(field_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_var_expr3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(24), type_var_expr3->pos().column());
+          RelativeIdentifier *type_rel_ident3 = dynamic_cast<RelativeIdentifier *>(type_var_expr3->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident3);
+          list<string> expected_type_idents3 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents3.size(), type_rel_ident3->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents3.begin(), expected_type_idents3.end(), type_rel_ident3->idents().begin()));
+        }
+        def_iter++;
+        {
+          TypeFunctionDefinition *type_fun_def = dynamic_cast<TypeFunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_fun_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("V"), type_fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_fun_def->pos().column());
+          TypeSynonymFunction *type_synonym_fun = dynamic_cast<TypeSynonymFunction *>(type_fun_def->fun().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun);
+          CPPUNIT_ASSERT_EQUAL(true, type_synonym_fun->inst_type_params().empty());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_synonym_fun->args().size());
+          auto type_arg_iter = type_synonym_fun->args().begin();
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*type_arg_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), (*type_arg_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), (*type_arg_iter)->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), (*type_arg_iter)->ident());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun->body());
+          UniqueTupleType *unique_tuple_type1 = dynamic_cast<UniqueTupleType *>(type_synonym_fun->body());
+          CPPUNIT_ASSERT(nullptr != unique_tuple_type1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), unique_tuple_type1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), unique_tuple_type1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), unique_tuple_type1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), unique_tuple_type1->field_types().size());
+          auto field_type_iter1 = unique_tuple_type1->field_types().begin();
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(field_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(21), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+          field_type_iter1++;
+          With *with3 = dynamic_cast<With *>(field_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != with3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), with3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), with3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(27), with3->pos().column());
+          TypeVariableExpression *type_var_expr4 = dynamic_cast<TypeVariableExpression *>(with3->type1());
+          CPPUNIT_ASSERT(nullptr != type_var_expr4);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr4->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr4->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(27), type_var_expr4->pos().column());
+          RelativeIdentifier *type_rel_ident4 = dynamic_cast<RelativeIdentifier *>(type_var_expr4->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident4);
+          list<string> expected_type_idents4 { "Char" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents4.size(), type_rel_ident4->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents4.begin(), expected_type_idents4.end(), type_rel_ident4->idents().begin()));
+          TypeParameterExpression *type_param_expr5 = dynamic_cast<TypeParameterExpression *>(with3->type2());
+          CPPUNIT_ASSERT(nullptr != type_param_expr5);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_param_expr5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_param_expr5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(37), type_param_expr5->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), type_param_expr5->ident());
+          field_type_iter1++;
+          TypeVariableExpression *type_var_expr6 = dynamic_cast<TypeVariableExpression *>(field_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr6);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr6->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_expr6->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(40), type_var_expr6->pos().column());
+          RelativeIdentifier *type_rel_ident6 = dynamic_cast<RelativeIdentifier *>(type_var_expr6->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident6);
+          list<string> expected_type_idents6 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents6.size(), type_rel_ident6->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents6.begin(), expected_type_idents6.end(), type_rel_ident6->idents().begin()));
+        }
+      }
+      
+      void ParserTests::test_parser_parses_type_applications()
+      {
+        istringstream iss("\
+type T = T2(Int)\n\
+\n\
+template\n\
+type U(t) = U2(Int8, Char with t, Int)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_def->pos().column());
+          TypeSynonymVariable *type_synonym_var = dynamic_cast<TypeSynonymVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_var);
+          TypeApplication *type_app1 = dynamic_cast<TypeApplication *>(type_synonym_var->expr());
+          CPPUNIT_ASSERT(nullptr != type_app1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_app1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_app1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), type_app1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_app1->args().size());
+          RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_app1->fun_ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+          list<string> expected_type_idents1 { "T2" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents1.size(), type_rel_ident1->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents1.begin(), expected_type_idents1.end(), type_rel_ident1->idents().begin()));
+          auto type_arg_iter1 = type_app1->args().begin();
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(type_arg_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+        }
+        def_iter++;
+        {
+          TypeFunctionDefinition *type_fun_def = dynamic_cast<TypeFunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_fun_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("U"), type_fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), type_fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_fun_def->pos().column());
+          TypeSynonymFunction *type_synonym_fun = dynamic_cast<TypeSynonymFunction *>(type_fun_def->fun().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun);
+          CPPUNIT_ASSERT_EQUAL(true, type_synonym_fun->inst_type_params().empty());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_synonym_fun->args().size());
+          auto type_arg_iter = type_synonym_fun->args().begin();
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), (*type_arg_iter)->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), (*type_arg_iter)->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), (*type_arg_iter)->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), (*type_arg_iter)->ident());
+          CPPUNIT_ASSERT(nullptr != type_synonym_fun->body());
+          TypeApplication *type_app1 = dynamic_cast<TypeApplication *>(type_synonym_fun->body());
+          CPPUNIT_ASSERT(nullptr != type_app1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_app1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), type_app1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), type_app1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), type_app1->args().size());
+          RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_app1->fun_ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+          list<string> expected_type_idents1 { "U2" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents1.size(), type_rel_ident1->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents1.begin(), expected_type_idents1.end(), type_rel_ident1->idents().begin()));
+          auto type_arg_iter1 = type_app1->args().begin();
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(type_arg_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(16), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Int8" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+          type_arg_iter1++;
+          With *with3 = dynamic_cast<With *>(type_arg_iter1->get());
+          CPPUNIT_ASSERT(nullptr != with3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), with3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), with3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(22), with3->pos().column());
+          TypeVariableExpression *type_var_expr4 = dynamic_cast<TypeVariableExpression *>(with3->type1());
+          CPPUNIT_ASSERT(nullptr != type_var_expr4);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr4->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), type_var_expr4->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(22), type_var_expr4->pos().column());
+          RelativeIdentifier *type_rel_ident4 = dynamic_cast<RelativeIdentifier *>(type_var_expr4->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident4);
+          list<string> expected_type_idents4 { "Char" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents4.size(), type_rel_ident4->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents4.begin(), expected_type_idents4.end(), type_rel_ident4->idents().begin()));
+          TypeParameterExpression *type_param_expr5 = dynamic_cast<TypeParameterExpression *>(with3->type2());
+          CPPUNIT_ASSERT(nullptr != type_param_expr5);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_param_expr5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), type_param_expr5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(32), type_param_expr5->pos().column());
+          CPPUNIT_ASSERT_EQUAL(string("t"), type_param_expr5->ident());
+          type_arg_iter1++;
+          TypeVariableExpression *type_var_expr6 = dynamic_cast<TypeVariableExpression *>(type_arg_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr6);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr6->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), type_var_expr6->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(35), type_var_expr6->pos().column());
+          RelativeIdentifier *type_rel_ident6 = dynamic_cast<RelativeIdentifier *>(type_var_expr6->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident6);
+          list<string> expected_type_idents6 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents6.size(), type_rel_ident6->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents6.begin(), expected_type_idents6.end(), type_rel_ident6->idents().begin()));
+        }
+      }
+      
+      void ParserTests::test_parser_parses_type_expression_in_parenthesis()
+      {
+        istringstream iss("\
+type T = (Char) -> (Int with Int64)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          TypeVariableDefinition *type_var_def = dynamic_cast<TypeVariableDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_def->access_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("T"), type_var_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), type_var_def->pos().column());
+          TypeSynonymVariable *type_synonym_var = dynamic_cast<TypeSynonymVariable *>(type_var_def->var().get());
+          CPPUNIT_ASSERT(nullptr != type_synonym_var);
+          NonUniqueFunctionType *fun_type1 = dynamic_cast<NonUniqueFunctionType *>(type_synonym_var->expr());
+          CPPUNIT_ASSERT(nullptr != fun_type1);
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, fun_type1->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_type1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_type1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), fun_type1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_type1->arg_types().size());
+          auto arg_type_iter1 = fun_type1->arg_types().begin();
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(arg_type_iter1->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), type_var_expr2->pos().column());
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          list<string> expected_type_idents2 { "Char" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents2.size(), type_rel_ident2->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents2.begin(), expected_type_idents2.end(), type_rel_ident2->idents().begin()));
+          With *with3 = dynamic_cast<With *>(fun_type1->result_type());
+          CPPUNIT_ASSERT(nullptr != with3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), with3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), with3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(21), with3->pos().column());
+          TypeVariableExpression *type_var_expr4 = dynamic_cast<TypeVariableExpression *>(with3->type1());
+          CPPUNIT_ASSERT(nullptr != type_var_expr4);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr4->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr4->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(21), type_var_expr4->pos().column());
+          RelativeIdentifier *type_rel_ident4 = dynamic_cast<RelativeIdentifier *>(type_var_expr4->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident4);
+          list<string> expected_type_idents4 { "Int" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents4.size(), type_rel_ident4->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents4.begin(), expected_type_idents4.end(), type_rel_ident4->idents().begin()));
+          TypeVariableExpression *type_var_expr5 = dynamic_cast<TypeVariableExpression *>(with3->type2());
+          CPPUNIT_ASSERT(nullptr != type_var_expr5);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), type_var_expr5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_var_expr5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(30), type_var_expr5->pos().column());
+          RelativeIdentifier *type_rel_ident5 = dynamic_cast<RelativeIdentifier *>(type_var_expr5->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident5);
+          list<string> expected_type_idents5 { "Int64" };
+          CPPUNIT_ASSERT_EQUAL(expected_type_idents5.size(), type_rel_ident5->idents().size());
+          CPPUNIT_ASSERT(equal(expected_type_idents5.begin(), expected_type_idents5.end(), type_rel_ident5->idents().begin()));
+        }
+      }
     }
   }
 }
