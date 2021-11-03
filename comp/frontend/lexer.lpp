@@ -68,6 +68,7 @@ UESCAPE         "\\"(("u"[0-9A-Fa-f]{4})|("U"[0-9A-Fa-f]{8}))
   "/*"                          { yy_push_state(IN_COMMENT); }
   "*/"                          { yy_pop_state(); loc->step();}
   .
+  <<EOF>>                       { throw syntax_error(*loc, "unclosed comment"); }
 }
 
 <IN_CHAR,IN_WCHAR>{
@@ -111,6 +112,13 @@ UESCAPE         "\\"(("u"[0-9A-Fa-f]{4})|("U"[0-9A-Fa-f]{8}))
       throw syntax_error(*loc, "unclosed character literal");
     }
   }
+  <<EOF>>                       {
+    if(YY_START == IN_WCHAR) {
+      throw syntax_error(*loc, "unclosed wide character literal");
+    } else {
+      throw syntax_error(*loc, "unclosed character literal");
+    }
+  }
 }
 
 <IN_WCHAR>{
@@ -146,6 +154,12 @@ UESCAPE         "\\"(("u"[0-9A-Fa-f]{4})|("U"[0-9A-Fa-f]{8}))
       buffer += escape_to_char(yytext);
   }
   "\n"                          {
+    if(YY_START == IN_WSTRING)
+      throw syntax_error(*loc, "unclosed wide string literal");
+    else
+      throw syntax_error(*loc, "unclosed string literal");
+  }
+  <<EOF>>                       {
     if(YY_START == IN_WSTRING)
       throw syntax_error(*loc, "unclosed wide string literal");
     else

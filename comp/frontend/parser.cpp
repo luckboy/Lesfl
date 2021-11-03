@@ -1,5 +1,5 @@
 /****************************************************************************
- *   Copyright (C) 2016 Łukasz Szpakowski.                                  *
+ *   Copyright (C) 2016, 2021 Łukasz Szpakowski.                            *
  *                                                                          *
  *   This software is licensed under the GNU Lesser General Public          *
  *   License v3 or later. See the LICENSE file and the GPL file for         *
@@ -29,7 +29,12 @@ namespace lesfl
           Driver driver(source, tree, errors);
           Lexer lexer(&(ss.istream()));
           BisonParser parser(driver, lexer);
-          is_success &= (parser.parse() == 0);
+          try {
+            is_success &= (parser.parse() == 0);
+          } catch(BisonParser::syntax_error &e) {
+            driver.add_error(Error(Position(driver.source(), e.location.begin.line, e.location.begin.column), e.what()));
+            is_success = false;
+          }
         } else {
           errors.push_back(Error(Position(source, 1, 1), "can't open file"));
           is_success = false;
