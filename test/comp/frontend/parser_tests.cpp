@@ -19759,6 +19759,871 @@ type T = (Char) -> (Int with Int64)\n\
           CPPUNIT_ASSERT(equal(expected_type_idents5.begin(), expected_type_idents5.end(), type_rel_ident5->idents().begin()));
         }
       }
+      
+      void ParserTests::test_parser_parses_semicolons()
+      {
+        istringstream iss("\
+f() = 1; g() = 2;\n\
+\n\
+h() = 3\n\
+\n\
+i() = 4\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          FunctionDefinition *fun_def = dynamic_cast<FunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, fun_def->access_modifier());          
+          CPPUNIT_ASSERT_EQUAL(string("f"), fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_def->pos().column());
+          UserDefinedFunction *user_defined_fun = dynamic_cast<UserDefinedFunction *>(fun_def->fun().get());
+          CPPUNIT_ASSERT_EQUAL(false, user_defined_fun->is_template());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, user_defined_fun->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, user_defined_fun->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->args().empty());
+          CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
+          Literal *literal = dynamic_cast<Literal *>(user_defined_fun->body());
+          CPPUNIT_ASSERT(nullptr != literal);          
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), literal->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), literal->pos().column());
+          IntValue *int_value = dynamic_cast<IntValue *>(literal->literal_value());
+          CPPUNIT_ASSERT(nullptr != int_value);
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(1), int_value->i());
+        }
+        def_iter++;
+        {
+          FunctionDefinition *fun_def = dynamic_cast<FunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, fun_def->access_modifier());          
+          CPPUNIT_ASSERT_EQUAL(string("g"), fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), fun_def->pos().column());
+          UserDefinedFunction *user_defined_fun = dynamic_cast<UserDefinedFunction *>(fun_def->fun().get());
+          CPPUNIT_ASSERT_EQUAL(false, user_defined_fun->is_template());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, user_defined_fun->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, user_defined_fun->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->args().empty());
+          CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
+          Literal *literal = dynamic_cast<Literal *>(user_defined_fun->body());
+          CPPUNIT_ASSERT(nullptr != literal);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), literal->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(16), literal->pos().column());
+          IntValue *int_value = dynamic_cast<IntValue *>(literal->literal_value());
+          CPPUNIT_ASSERT(nullptr != int_value);
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(2), int_value->i());
+        }
+        def_iter++;
+        {
+          FunctionDefinition *fun_def = dynamic_cast<FunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, fun_def->access_modifier());          
+          CPPUNIT_ASSERT_EQUAL(string("h"), fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_def->pos().column());
+          UserDefinedFunction *user_defined_fun = dynamic_cast<UserDefinedFunction *>(fun_def->fun().get());
+          CPPUNIT_ASSERT_EQUAL(false, user_defined_fun->is_template());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, user_defined_fun->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, user_defined_fun->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->args().empty());
+          CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
+          Literal *literal = dynamic_cast<Literal *>(user_defined_fun->body());
+          CPPUNIT_ASSERT(nullptr != literal);          
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), literal->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), literal->pos().column());
+          IntValue *int_value = dynamic_cast<IntValue *>(literal->literal_value());
+          CPPUNIT_ASSERT(nullptr != int_value);
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(3), int_value->i());
+        }
+        def_iter++;
+        {
+          FunctionDefinition *fun_def = dynamic_cast<FunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, fun_def->access_modifier());          
+          CPPUNIT_ASSERT_EQUAL(string("i"), fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_def->pos().column());
+          UserDefinedFunction *user_defined_fun = dynamic_cast<UserDefinedFunction *>(fun_def->fun().get());
+          CPPUNIT_ASSERT_EQUAL(false, user_defined_fun->is_template());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, user_defined_fun->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, user_defined_fun->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->args().empty());
+          CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
+          Literal *literal = dynamic_cast<Literal *>(user_defined_fun->body());
+          CPPUNIT_ASSERT(nullptr != literal);          
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), literal->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), literal->pos().column());
+          IntValue *int_value = dynamic_cast<IntValue *>(literal->literal_value());
+          CPPUNIT_ASSERT(nullptr != int_value);
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(4), int_value->i());
+        }
+      }
+      
+      void ParserTests::test_parser_parses_semicolons_in_module_definition()
+      {
+        istringstream iss("\
+module somemodule {\n\
+  f() = 1; g() = 2;\n\
+\n\
+  h() = 3\n\
+\n\
+  i() = 4\n\
+}\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          ModuleDefinition *module_def = dynamic_cast<ModuleDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != module_def);
+          RelativeIdentifier *rel_ident = dynamic_cast<RelativeIdentifier *>(module_def->ident());
+          CPPUNIT_ASSERT(nullptr != rel_ident);
+          list<string> expected_idents { "somemodule" };
+          CPPUNIT_ASSERT_EQUAL(expected_idents.size(), rel_ident->idents().size());
+          CPPUNIT_ASSERT(equal(expected_idents.begin(), expected_idents.end(), rel_ident->idents().begin())); 
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), module_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), module_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), module_def->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), module_def->defs().size());
+          auto module_def_iter = module_def->defs().begin();
+          {
+            FunctionDefinition *fun_def = dynamic_cast<FunctionDefinition *>(module_def_iter->get());
+            CPPUNIT_ASSERT(nullptr != fun_def);
+            CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, fun_def->access_modifier());          
+            CPPUNIT_ASSERT_EQUAL(string("f"), fun_def->ident());
+            CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_def->pos().source().file_name());
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), fun_def->pos().line());
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), fun_def->pos().column());
+            UserDefinedFunction *user_defined_fun = dynamic_cast<UserDefinedFunction *>(fun_def->fun().get());
+            CPPUNIT_ASSERT_EQUAL(false, user_defined_fun->is_template());
+            CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->annotations().empty());
+            CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, user_defined_fun->inline_modifier());
+            CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, user_defined_fun->fun_modifier());
+            CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->args().empty());
+            CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
+            Literal *literal = dynamic_cast<Literal *>(user_defined_fun->body());
+            CPPUNIT_ASSERT(nullptr != literal);
+            CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal->pos().source().file_name());
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), literal->pos().line());
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), literal->pos().column());
+            IntValue *int_value = dynamic_cast<IntValue *>(literal->literal_value());
+            CPPUNIT_ASSERT(nullptr != int_value);
+            CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value->int_type());
+            CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(1), int_value->i());
+          }
+          module_def_iter++;
+          {
+            FunctionDefinition *fun_def = dynamic_cast<FunctionDefinition *>(module_def_iter->get());
+            CPPUNIT_ASSERT(nullptr != fun_def);
+            CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, fun_def->access_modifier());          
+            CPPUNIT_ASSERT_EQUAL(string("g"), fun_def->ident());
+            CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_def->pos().source().file_name());
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), fun_def->pos().line());
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(12), fun_def->pos().column());
+            UserDefinedFunction *user_defined_fun = dynamic_cast<UserDefinedFunction *>(fun_def->fun().get());
+            CPPUNIT_ASSERT_EQUAL(false, user_defined_fun->is_template());
+            CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->annotations().empty());
+            CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, user_defined_fun->inline_modifier());
+            CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, user_defined_fun->fun_modifier());
+            CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->args().empty());
+            CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
+            Literal *literal = dynamic_cast<Literal *>(user_defined_fun->body());
+            CPPUNIT_ASSERT(nullptr != literal);
+            CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal->pos().source().file_name());
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), literal->pos().line());
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(18), literal->pos().column());
+            IntValue *int_value = dynamic_cast<IntValue *>(literal->literal_value());
+            CPPUNIT_ASSERT(nullptr != int_value);
+            CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value->int_type());
+            CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(2), int_value->i());
+          }
+          module_def_iter++;
+          {
+            FunctionDefinition *fun_def = dynamic_cast<FunctionDefinition *>(module_def_iter->get());
+            CPPUNIT_ASSERT(nullptr != fun_def);
+            CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, fun_def->access_modifier());          
+            CPPUNIT_ASSERT_EQUAL(string("h"), fun_def->ident());
+            CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_def->pos().source().file_name());
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), fun_def->pos().line());
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), fun_def->pos().column());
+            UserDefinedFunction *user_defined_fun = dynamic_cast<UserDefinedFunction *>(fun_def->fun().get());
+            CPPUNIT_ASSERT_EQUAL(false, user_defined_fun->is_template());
+            CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->annotations().empty());
+            CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, user_defined_fun->inline_modifier());
+            CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, user_defined_fun->fun_modifier());
+            CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->args().empty());
+            CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
+            Literal *literal = dynamic_cast<Literal *>(user_defined_fun->body());
+            CPPUNIT_ASSERT(nullptr != literal);
+            CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal->pos().source().file_name());
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), literal->pos().line());
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), literal->pos().column());
+            IntValue *int_value = dynamic_cast<IntValue *>(literal->literal_value());
+            CPPUNIT_ASSERT(nullptr != int_value);
+            CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value->int_type());
+            CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(3), int_value->i());
+          }
+          module_def_iter++;
+          {
+            FunctionDefinition *fun_def = dynamic_cast<FunctionDefinition *>(module_def_iter->get());
+            CPPUNIT_ASSERT(nullptr != fun_def);
+            CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, fun_def->access_modifier());          
+            CPPUNIT_ASSERT_EQUAL(string("i"), fun_def->ident());
+            CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_def->pos().source().file_name());
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), fun_def->pos().line());
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), fun_def->pos().column());
+            UserDefinedFunction *user_defined_fun = dynamic_cast<UserDefinedFunction *>(fun_def->fun().get());
+            CPPUNIT_ASSERT_EQUAL(false, user_defined_fun->is_template());
+            CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->annotations().empty());
+            CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, user_defined_fun->inline_modifier());
+            CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, user_defined_fun->fun_modifier());
+            CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->args().empty());
+            CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
+            Literal *literal = dynamic_cast<Literal *>(user_defined_fun->body());
+            CPPUNIT_ASSERT(nullptr != literal);
+            CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal->pos().source().file_name());
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), literal->pos().line());
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), literal->pos().column());
+            IntValue *int_value = dynamic_cast<IntValue *>(literal->literal_value());
+            CPPUNIT_ASSERT(nullptr != int_value);
+            CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value->int_type());
+            CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(4), int_value->i());
+          }
+        }
+      }
+      
+      void ParserTests::test_parser_parses_semicolons_in_let_expression()
+      {
+        istringstream iss("\
+f() =\n\
+  let x = 1; y = 2;\n\
+      z = 3\n\
+      a = 4\n\
+  in  1\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          FunctionDefinition *fun_def = dynamic_cast<FunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, fun_def->access_modifier());          
+          CPPUNIT_ASSERT_EQUAL(string("f"), fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_def->pos().column());
+          UserDefinedFunction *user_defined_fun = dynamic_cast<UserDefinedFunction *>(fun_def->fun().get());
+          CPPUNIT_ASSERT_EQUAL(false, user_defined_fun->is_template());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, user_defined_fun->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, user_defined_fun->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->args().empty());
+          CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
+          Let *let1 = dynamic_cast<Let *>(user_defined_fun->body());
+          CPPUNIT_ASSERT(nullptr != let1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), let1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), let1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), let1->pos().column());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), let1->binds().size());
+          auto bind_iter1 = let1->binds().begin();
+          VariableBinding *var_bind2 = dynamic_cast<VariableBinding *>(bind_iter1->get());
+          CPPUNIT_ASSERT(nullptr != var_bind2);
+          CPPUNIT_ASSERT_EQUAL(string("x"), var_bind2->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), var_bind2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), var_bind2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), var_bind2->pos().column());
+          Literal *literal2 = dynamic_cast<Literal *>(var_bind2->expr());
+          CPPUNIT_ASSERT(nullptr != literal2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), literal2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), literal2->pos().column());
+          IntValue *int_value2 = dynamic_cast<IntValue *>(literal2->literal_value());
+          CPPUNIT_ASSERT(nullptr != int_value2);
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value2->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(1), int_value2->i());          
+          bind_iter1++;
+          VariableBinding *var_bind3 = dynamic_cast<VariableBinding *>(bind_iter1->get());
+          CPPUNIT_ASSERT(nullptr != var_bind3);
+          CPPUNIT_ASSERT_EQUAL(string("y"), var_bind3->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), var_bind3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), var_bind3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), var_bind3->pos().column());
+          Literal *literal3 = dynamic_cast<Literal *>(var_bind3->expr());
+          CPPUNIT_ASSERT(nullptr != literal3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), literal3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(18), literal3->pos().column());
+          IntValue *int_value3 = dynamic_cast<IntValue *>(literal3->literal_value());
+          CPPUNIT_ASSERT(nullptr != int_value3);
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value3->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(2), int_value3->i());
+          bind_iter1++;
+          VariableBinding *var_bind4 = dynamic_cast<VariableBinding *>(bind_iter1->get());
+          CPPUNIT_ASSERT(nullptr != var_bind4);
+          CPPUNIT_ASSERT_EQUAL(string("z"), var_bind4->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), var_bind4->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), var_bind4->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), var_bind4->pos().column());
+          Literal *literal4 = dynamic_cast<Literal *>(var_bind4->expr());
+          CPPUNIT_ASSERT(nullptr != literal4);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal4->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), literal4->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), literal4->pos().column());
+          IntValue *int_value4 = dynamic_cast<IntValue *>(literal4->literal_value());
+          CPPUNIT_ASSERT(nullptr != int_value4);
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value4->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(3), int_value4->i());
+          bind_iter1++;
+          VariableBinding *var_bind5 = dynamic_cast<VariableBinding *>(bind_iter1->get());
+          CPPUNIT_ASSERT(nullptr != var_bind5);
+          CPPUNIT_ASSERT_EQUAL(string("a"), var_bind5->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), var_bind5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), var_bind5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), var_bind5->pos().column());
+          Literal *literal5 = dynamic_cast<Literal *>(var_bind5->expr());
+          CPPUNIT_ASSERT(nullptr != literal5);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), literal5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), literal5->pos().column());
+          IntValue *int_value5 = dynamic_cast<IntValue *>(literal5->literal_value());
+          CPPUNIT_ASSERT(nullptr != int_value5);
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value5->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(4), int_value5->i());
+          Literal *literal6 = dynamic_cast<Literal *>(let1->expr());
+          CPPUNIT_ASSERT(nullptr != literal6);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal6->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), literal6->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), literal6->pos().column());
+          IntValue *int_value6 = dynamic_cast<IntValue *>(literal6->literal_value());
+          CPPUNIT_ASSERT(nullptr != int_value6);
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value6->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(1), int_value6->i());
+        }
+      }
+      
+      void ParserTests::test_parser_parses_semicolons_in_match_expression()
+      {
+        istringstream iss("\
+f() =\n\
+  1 match {\n\
+    1 -> 2; 3 -> 4;\n\
+    5 -> 6\n\
+    _ -> 7\n\
+  }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.defs().size());
+        auto def_list_iter = tree.defs().begin();
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*def_list_iter)->size());
+        auto def_iter = (*def_list_iter)->begin();
+        {
+          FunctionDefinition *fun_def = dynamic_cast<FunctionDefinition *>(def_iter->get());
+          CPPUNIT_ASSERT(nullptr != fun_def);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, fun_def->access_modifier());          
+          CPPUNIT_ASSERT_EQUAL(string("f"), fun_def->ident());
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), fun_def->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_def->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), fun_def->pos().column());
+          UserDefinedFunction *user_defined_fun = dynamic_cast<UserDefinedFunction *>(fun_def->fun().get());
+          CPPUNIT_ASSERT_EQUAL(false, user_defined_fun->is_template());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->annotations().empty());
+          CPPUNIT_ASSERT_EQUAL(InlineModifier::NONE, user_defined_fun->inline_modifier());
+          CPPUNIT_ASSERT_EQUAL(FunctionModifier::NONE, user_defined_fun->fun_modifier());
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->args().empty());
+          CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
+          Match *match1 = dynamic_cast<Match *>(user_defined_fun->body());
+          CPPUNIT_ASSERT(nullptr != match1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), match1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), match1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), match1->pos().column());
+          Literal *literal1 = dynamic_cast<Literal *>(match1->expr());
+          CPPUNIT_ASSERT(nullptr != literal1);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal1->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), literal1->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), literal1->pos().column());
+          IntValue *int_value1 = dynamic_cast<IntValue *>(literal1->literal_value());
+          CPPUNIT_ASSERT(nullptr != int_value1);
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value1->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(1), int_value1->i());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), match1->cases().size());
+          auto case_iter1 = match1->cases().begin();
+          LiteralPattern *literal_pattern2 = dynamic_cast<LiteralPattern *>((*case_iter1)->pattern());
+          CPPUNIT_ASSERT(nullptr != literal_pattern2);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal_pattern2->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), literal_pattern2->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), literal_pattern2->pos().column());
+          IntValue *int_value2 = dynamic_cast<IntValue *>(literal_pattern2->literal_value());
+          CPPUNIT_ASSERT(nullptr != int_value2);
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value2->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(1), int_value2->i());
+          Literal *literal3 = dynamic_cast<Literal *>((*case_iter1)->expr());
+          CPPUNIT_ASSERT(nullptr != literal3);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal3->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), literal3->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), literal3->pos().column());
+          IntValue *int_value3 = dynamic_cast<IntValue *>(literal3->literal_value());
+          CPPUNIT_ASSERT(nullptr != int_value3);
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value3->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(2), int_value3->i());
+          case_iter1++;
+          LiteralPattern *literal_pattern4 = dynamic_cast<LiteralPattern *>((*case_iter1)->pattern());
+          CPPUNIT_ASSERT(nullptr != literal_pattern4);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal_pattern4->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), literal_pattern4->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(13), literal_pattern4->pos().column());
+          IntValue *int_value4 = dynamic_cast<IntValue *>(literal_pattern4->literal_value());
+          CPPUNIT_ASSERT(nullptr != int_value4);
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value4->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(3), int_value4->i());
+          Literal *literal5 = dynamic_cast<Literal *>((*case_iter1)->expr());
+          CPPUNIT_ASSERT(nullptr != literal5);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal5->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), literal5->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(18), literal5->pos().column());
+          IntValue *int_value5 = dynamic_cast<IntValue *>(literal5->literal_value());
+          CPPUNIT_ASSERT(nullptr != int_value5);
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value5->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(4), int_value5->i());
+          case_iter1++;
+          LiteralPattern *literal_pattern6 = dynamic_cast<LiteralPattern *>((*case_iter1)->pattern());
+          CPPUNIT_ASSERT(nullptr != literal_pattern6);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal_pattern6->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), literal_pattern6->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), literal_pattern6->pos().column());
+          IntValue *int_value6 = dynamic_cast<IntValue *>(literal_pattern6->literal_value());
+          CPPUNIT_ASSERT(nullptr != int_value6);
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value6->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(5), int_value6->i());
+          Literal *literal7 = dynamic_cast<Literal *>((*case_iter1)->expr());
+          CPPUNIT_ASSERT(nullptr != literal7);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal7->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), literal7->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), literal7->pos().column());
+          IntValue *int_value7 = dynamic_cast<IntValue *>(literal7->literal_value());
+          CPPUNIT_ASSERT(nullptr != int_value7);
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value7->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(6), int_value7->i());
+          case_iter1++;
+          WildcardPattern *wildcard_pattern8 = dynamic_cast<WildcardPattern *>((*case_iter1)->pattern());
+          CPPUNIT_ASSERT(nullptr != wildcard_pattern8);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), wildcard_pattern8->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), wildcard_pattern8->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), wildcard_pattern8->pos().column());
+          Literal *literal9 = dynamic_cast<Literal *>((*case_iter1)->expr());
+          CPPUNIT_ASSERT(nullptr != literal9);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), literal9->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), literal9->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), literal9->pos().column());
+          IntValue *int_value9 = dynamic_cast<IntValue *>(literal9->literal_value());
+          CPPUNIT_ASSERT(nullptr != int_value9);
+          CPPUNIT_ASSERT_EQUAL(IntType::INT64, int_value9->int_type());
+          CPPUNIT_ASSERT_EQUAL(static_cast<int64_t>(7), int_value9->i());
+        }
+      }
+      
+      void ParserTests::test_parser_complains_on_syntax_error()
+      {
+        istringstream iss("\
+v = 1 + 2\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("syntax error"), error_iter->msg());
+      }
+      
+      void ParserTests::test_parser_complains_on_unclosed_comment()
+      {
+        istringstream iss("\
+/* some comment\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("unclosed comment"), error_iter->msg());
+      }
+      
+      void ParserTests::test_parser_complains_on_empty_character_literal()
+      {
+        istringstream iss("\
+f() = ''\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("empty character literal"), error_iter->msg());
+      }
+      
+      void ParserTests::test_parser_complains_on_unclosed_character_literal()
+      {
+        istringstream iss("\
+f() = 'a\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("unclosed character literal"), error_iter->msg());
+      }
+
+      void ParserTests::test_parser_complains_on_unclosed_character_literal_for_end_of_file()
+      {
+        istringstream iss("\
+f() = 'a\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("unclosed character literal"), error_iter->msg());
+      }
+      
+      void ParserTests::test_parser_complains_on_unclosed_character_literal_for_too_many_characters()
+      {
+        istringstream iss("\
+f() = 'ab'\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("unclosed character literal"), error_iter->msg());
+      }
+
+      void ParserTests::test_parser_complains_on_empty_wide_character_literal()
+      {
+        istringstream iss("\
+f() = w''\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("empty wide character literal"), error_iter->msg());
+      }
+      
+      void ParserTests::test_parser_complains_on_unclosed_wide_character_literal()
+      {
+        istringstream iss("\
+f() = w'a\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("unclosed wide character literal"), error_iter->msg());
+      }
+      
+      void ParserTests::test_parser_complains_on_unclosed_wide_character_literal_for_end_of_file()
+      {
+        istringstream iss("\
+f() = w'a\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("unclosed wide character literal"), error_iter->msg());
+      }
+      
+      void ParserTests::test_parser_complains_on_unclosed_wide_character_literal_for_too_many_characters()
+      {
+        istringstream iss("\
+f() = w'ab'\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("unclosed wide character literal"), error_iter->msg());
+      }
+      
+      void ParserTests::test_parser_complains_on_integer_number_too_large_for_decimal_system()
+      {
+        istringstream iss("\
+f() = 128i8\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("integer number is too large"), error_iter->msg());
+      }
+      
+      void ParserTests::test_parser_complains_on_integer_number_too_large_for_hexdecimal_system()
+      {
+        istringstream iss("\
+f() = 0x100i8\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("integer number is too large"), error_iter->msg());
+      }
+      
+      void ParserTests::test_parser_complains_on_integer_number_too_large_for_octal_system()
+      {
+        istringstream iss("\
+f() = 0400i8\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("integer number is too large"), error_iter->msg());
+      }
+      
+      void ParserTests::test_parser_complains_on_floating_point_number_too_large()
+      {
+        istringstream iss("\
+f() = 1.0e100f\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("floating-point number is too large"), error_iter->msg());
+      }
+      
+      void ParserTests::test_parser_complains_on_unclosed_string_literal()
+      {
+        istringstream iss("\
+f() = \"abc\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("unclosed string literal"), error_iter->msg());
+      }
+      
+      void ParserTests::test_parser_complains_on_unclosed_string_literal_for_end_of_file()
+      {
+        istringstream iss("\
+f() = \"abc\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("unclosed string literal"), error_iter->msg());
+      }
+      
+      void ParserTests::test_parser_complains_on_unclosed_wide_string_literal()
+      {
+        istringstream iss("\
+f() = w\"abc\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("unclosed wide string literal"), error_iter->msg());
+      }
+      
+      void ParserTests::test_parser_complains_on_unclosed_wide_string_literal_for_end_of_file()
+      {
+        istringstream iss("\
+f() = w\"abc\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("unclosed wide string literal"), error_iter->msg());
+      }
+      
+      void ParserTests::test_parser_complains_on_incorrect_character()
+      {
+        istringstream iss("\
+f() = $\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("incorrect character"), error_iter->msg());
+      }
+      
+      void ParserTests::test_parser_complains_on_incorrect_built_in_function()
+      {
+        istringstream iss("\
+f() = #xxx(x)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(false, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("incorrect built-in function"), error_iter->msg());
+      }
     }
   }
 }
