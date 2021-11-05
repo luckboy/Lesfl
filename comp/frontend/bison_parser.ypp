@@ -1265,9 +1265,11 @@ static bool string_to_builtin_fun(const std::string &str, BuiltinFunction &built
     { "anth",   BuiltinFunction::ANTH },
     { "alen",   BuiltinFunction::ALEN },
     { "acat",   BuiltinFunction::ACAT },
+    { "uafill", BuiltinFunction::UAFILL },
     { "uanth",  BuiltinFunction::UANTH },
     { "uasnth", BuiltinFunction::UASNTH },
     { "ualen",  BuiltinFunction::UALEN },
+    { "uatoa",  BuiltinFunction::UATOA },
     { "ctoi",   BuiltinFunction::CTOI },
     { "itoc",   BuiltinFunction::ITOC },
     { "wctoi",  BuiltinFunction::WCTOI },
@@ -1282,7 +1284,12 @@ static bool string_to_builtin_fun(const std::string &str, BuiltinFunction &built
     { "itoi16", BuiltinFunction::ITOI16 },
     { "itoi32", BuiltinFunction::ITOI32 },
     { "sftof",  BuiltinFunction::SFTOF },
-    { "ftosf",  BuiltinFunction::FTOSF }
+    { "ftosf",  BuiltinFunction::FTOSF },
+    { "afill",  BuiltinFunction::AFILL },
+    { "atoua",  BuiltinFunction::ATOUA },
+    { "amap",   BuiltinFunction::AMAP },
+    { "uacat",  BuiltinFunction::UACAT },
+    { "uamap",  BuiltinFunction::UAMAP } 
   };
   auto iter = builtin_funs.find(str);
   if(iter == builtin_funs.end()) return false;

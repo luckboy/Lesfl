@@ -73,9 +73,11 @@ namespace lesfl
       ANTH,
       ALEN,
       ACAT,
+      UAFILL,
       UANTH,
       UASNTH,
       UALEN,
+      UATOA,
       CTOI,
       ITOC,
       WCTOI,
@@ -90,7 +92,12 @@ namespace lesfl
       ITOI16,
       ITOI32,
       SFTOF,
-      FTOSF
+      FTOSF,
+      AFILL,
+      ATOUA,
+      AMAP,
+      UACAT,
+      UAMAP
     };
 
     enum class BuiltinType
