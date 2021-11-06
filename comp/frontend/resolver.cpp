@@ -425,16 +425,26 @@ namespace lesfl
       return is_success;
     }
 
-    static shared_ptr<Variable> non_alias_var(ResolverContext &context, const Identifier &ident)
+    static bool get_non_alias_var(ResolverContext &context, const Identifier &ident, shared_ptr<Variable> &var, const Position &pos, list<Error> &errors)
     {
-      shared_ptr<Variable> var = context.tree.var(ident);
+      unordered_set<KeyIdentifier> marked_key_idents;
+      KeyIdentifier key_ident = ident.key_ident();
+      var = context.tree.var(ident);
+      marked_key_idents.insert(key_ident);
       while(var.get() != nullptr) {
         AliasVariable *alias_var = dynamic_cast<AliasVariable *>(var.get());
         if(alias_var == nullptr) break;
         if(alias_var->is_template() && !alias_var->inst_type_params().empty()) break;
+        key_ident = alias_var->ident()->key_ident();
+        if(marked_key_idents.find(key_ident) != marked_key_idents.end()) {
+          errors.push_back(Error(pos, "variable " + ident.to_abs_ident_string(*(context.tree.ident_table())) + " refers to alias cycle"));
+          var.reset();
+          return false;
+        }
         var = context.tree.var(*(alias_var->ident()));
+        marked_key_idents.insert(key_ident);
       }
-      return var;
+      return true;
     }
 
     static bool set_key_ident(ResolverContext &context, AbsoluteIdentifier &ident, function<bool (const AbsoluteIdentifier &, AccessModifier &, bool &)> get_access_modifier_fun, function<void (const AbsoluteIdentifier &)> *add_private_error_fun = nullptr, function<void ()> *add_undefined_error_fun = nullptr)
@@ -747,7 +757,8 @@ namespace lesfl
       },
       [&](NamedFieldConstructorApplication *app) -> bool {
         bool is_success = resolve_var_ident(context, app->constr_ident(), app->pos(), errors);
-        shared_ptr<Variable> constr_var = non_alias_var(context, *(app->constr_ident()));
+        shared_ptr<Variable> constr_var;
+        if(is_success) is_success &= get_non_alias_var(context, *(app->constr_ident()), constr_var, app->pos(), errors);
         unordered_map<string, size_t> indices;
         function<string ()> constr_abs_ident_string_fun = [&context, app]() {
           return app->constr_ident()->to_abs_ident_string(*(context.tree.ident_table()));
@@ -883,7 +894,8 @@ namespace lesfl
       },
       [&](VariableConstructorPattern *pattern) -> bool {
         bool is_success = resolve_var_ident(context, pattern->constr_ident(), pattern->pos(), errors);
-        shared_ptr<Variable> constr_var = non_alias_var(context, *(pattern->constr_ident()));
+        shared_ptr<Variable> constr_var;
+        if(is_success) is_success &= get_non_alias_var(context, *(pattern->constr_ident()), constr_var, pattern->pos(), errors);
         unordered_set<KeyIdentifier> key_idents;
         function<string ()> constr_abs_ident_string_fun = [&context, pattern]() {
           return pattern->constr_ident()->to_abs_ident_string(*(context.tree.ident_table()));
@@ -910,7 +922,8 @@ namespace lesfl
       },
       [&](UnnamedFieldConstructorPattern *pattern) -> bool {
         bool is_success = resolve_var_ident(context, pattern->constr_ident(), pattern->pos(), errors);
-        shared_ptr<Variable> constr_var = non_alias_var(context, *(pattern->constr_ident()));
+        shared_ptr<Variable> constr_var;
+        if(is_success) is_success &= get_non_alias_var(context, *(pattern->constr_ident()), constr_var, pattern->pos(), errors);
         function<string ()> constr_abs_ident_string_fun = [&context, pattern]() {
           return pattern->constr_ident()->to_abs_ident_string(*(context.tree.ident_table()));
         };
@@ -947,7 +960,8 @@ namespace lesfl
       },
       [&](NamedFieldConstructorPattern *pattern) -> bool {
         bool is_success = resolve_var_ident(context, pattern->constr_ident(), pattern->pos(), errors);
-        shared_ptr<Variable> constr_var = non_alias_var(context, *(pattern->constr_ident()));
+        shared_ptr<Variable> constr_var;
+        if(is_success) is_success &= get_non_alias_var(context, *(pattern->constr_ident()), constr_var, pattern->pos(), errors);
         unordered_map<string, size_t> indices;
         function<string ()> constr_abs_ident_string_fun = [&context, pattern]() {
           return pattern->constr_ident()->to_abs_ident_string(*(context.tree.ident_table()));
@@ -1085,7 +1099,8 @@ namespace lesfl
       },
       [&](VariableConstructorValue *value) -> bool {
         bool is_success = resolve_var_ident(context, value->constr_ident(), value->pos(), errors);
-        shared_ptr<Variable> constr_var = non_alias_var(context, *(value->constr_ident()));
+        shared_ptr<Variable> constr_var;
+        if(is_success) is_success &= get_non_alias_var(context, *(value->constr_ident()), constr_var, value->pos(), errors);
         function<string ()> constr_abs_ident_string_fun = [&context, value]() {
           return value->constr_ident()->to_abs_ident_string(*(context.tree.ident_table()));
         };
@@ -1111,7 +1126,8 @@ namespace lesfl
       },
       [&](UnnamedFieldConstructorValue *value) -> bool {
         bool is_success = resolve_var_ident(context, value->constr_ident(), value->pos(), errors);
-        shared_ptr<Variable> constr_var = non_alias_var(context, *(value->constr_ident()));
+        shared_ptr<Variable> constr_var;
+        if(is_success) is_success &= get_non_alias_var(context, *(value->constr_ident()), constr_var, value->pos(), errors);
         function<string ()> constr_abs_ident_string_fun = [&context, value]() {
           return value->constr_ident()->to_abs_ident_string(*(context.tree.ident_table()));
         };
@@ -1148,7 +1164,8 @@ namespace lesfl
       },
       [&](NamedFieldConstructorValue *value) -> bool {
         bool is_success = resolve_var_ident(context, value->constr_ident(), value->pos(), errors);
-        shared_ptr<Variable> constr_var = non_alias_var(context, *(value->constr_ident()));
+        shared_ptr<Variable> constr_var;
+        if(is_success) is_success &= get_non_alias_var(context, *(value->constr_ident()), constr_var, value->pos(), errors);
         unordered_map<string, size_t> indices;
         function<string ()> constr_abs_ident_string_fun = [&context, value]() {
           return value->constr_ident()->to_abs_ident_string(*(context.tree.ident_table()));
