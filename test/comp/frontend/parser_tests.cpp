@@ -3115,6 +3115,9 @@ v = a\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), var_def->pos().column());
           AliasVariable *alias_var = dynamic_cast<AliasVariable *>(var_def->var().get());
           CPPUNIT_ASSERT(nullptr != alias_var);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), alias_var->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), alias_var->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), alias_var->pos().column());
           CPPUNIT_ASSERT_EQUAL(false, alias_var->is_template());
           CPPUNIT_ASSERT(nullptr == alias_var->type_expr());
           RelativeIdentifier *rel_ident = dynamic_cast<RelativeIdentifier *>(alias_var->ident());
@@ -3150,6 +3153,9 @@ private v: T = C\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), var_def->pos().column());
           AliasVariable *alias_var = dynamic_cast<AliasVariable *>(var_def->var().get());
           CPPUNIT_ASSERT(nullptr != alias_var);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), alias_var->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), alias_var->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(16), alias_var->pos().column());
           CPPUNIT_ASSERT_EQUAL(false, alias_var->is_template());
           CPPUNIT_ASSERT(nullptr != alias_var->type_expr());
           TypeVariableExpression *type_var_expr = dynamic_cast<TypeVariableExpression *>(alias_var->type_expr());
@@ -3436,6 +3442,9 @@ v = a\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), var_def->pos().column());
           AliasVariable *alias_var = dynamic_cast<AliasVariable *>(var_def->var().get());
           CPPUNIT_ASSERT(nullptr != alias_var);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), alias_var->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), alias_var->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), alias_var->pos().column());
           CPPUNIT_ASSERT_EQUAL(true, alias_var->is_template());
           CPPUNIT_ASSERT_EQUAL(true, alias_var->inst_type_params().empty());
           CPPUNIT_ASSERT(nullptr == alias_var->type_expr());
@@ -3473,6 +3482,9 @@ private v: T(t, u) = C\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), var_def->pos().column());
           AliasVariable *alias_var = dynamic_cast<AliasVariable *>(var_def->var().get());
           CPPUNIT_ASSERT(nullptr != alias_var);
+          CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), alias_var->pos().source().file_name());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), alias_var->pos().line());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(22), alias_var->pos().column());
           CPPUNIT_ASSERT_EQUAL(true, alias_var->is_template());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), alias_var->inst_type_params().size());
           auto inst_type_param_iter = alias_var->inst_type_params().begin();

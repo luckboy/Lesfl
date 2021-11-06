@@ -535,7 +535,7 @@ def:            "import" module_qident {
   delete $3; delete $6;
 }
 |               access_modifier ident opt_typing '=' qident %dprec 2 {
-  $$ = new VariableDefinition($1, *$2, new AliasVariable($3, $5), P(@2));
+  $$ = new VariableDefinition($1, *$2, new AliasVariable($3, $5, P(@5)), P(@2));
   delete $2;
 }
 |               template access_modifier ident opt_typing '=' value %dprec 1 {
@@ -547,7 +547,7 @@ def:            "import" module_qident {
   delete $3;
 }
 |               template access_modifier ident opt_typing '=' qident %dprec 2 {
-  $$ = new VariableDefinition($2, *$3, new AliasVariable($1, $4, $6), P(@3));
+  $$ = new VariableDefinition($2, *$3, new AliasVariable($1, $4, $6, P(@6)), P(@3));
   delete $3;
 }
 |               "instance" ident opt_typing '=' value {

@@ -579,15 +579,15 @@ namespace lesfl
       const std::string &external_var_ident() const { return _M_external_var_ident; }
     };
 
-    class AliasVariable : public DefinableVariable
+    class AliasVariable : public DefinableVariable, public Positional
     {
       std::unique_ptr<Identifier> _M_ident;
     public:
-      AliasVariable(TypeExpression *type_expr, Identifier *ident) :
-        DefinableVariable(type_expr), _M_ident(ident) {}
+      AliasVariable(TypeExpression *type_expr, Identifier *ident, const Position &pos) :
+        DefinableVariable(type_expr), Positional(pos), _M_ident(ident) {}
 
-      AliasVariable(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, TypeExpression *type_expr, Identifier *ident) :
-        DefinableVariable(inst_type_params, type_expr), _M_ident(ident) {}
+      AliasVariable(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, TypeExpression *type_expr, Identifier *ident, const Position &pos) :
+        DefinableVariable(inst_type_params, type_expr), Positional(pos), _M_ident(ident) {}
 
       ~AliasVariable();
 
