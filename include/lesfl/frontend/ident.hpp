@@ -79,7 +79,7 @@ namespace lesfl
       bool _M_has_key_ident;
       KeyIdentifier _M_key_ident;
 
-      Identifier() {}
+      Identifier() : _M_has_key_ident(false) {}
 
       Identifier(const char *ident) :
         _M_idents(std::list<std::string> { ident }), _M_has_key_ident(false) {}
