@@ -431,18 +431,28 @@ namespace lesfl
       KeyIdentifier key_ident = ident.key_ident();
       var = context.tree.var(ident);
       marked_key_idents.insert(key_ident);
-      while(var.get() != nullptr) {
+      while(true) {
+        if(var.get() == nullptr) {
+          errors.push_back(Error(pos, "internal error: variable isn't found"));
+          return false;
+        }
         AliasVariable *alias_var = dynamic_cast<AliasVariable *>(var.get());
         if(alias_var == nullptr) break;
         if(alias_var->is_template() && !alias_var->inst_type_params().empty()) break;
-        key_ident = alias_var->ident()->key_ident();
-        if(marked_key_idents.find(key_ident) != marked_key_idents.end()) {
-          errors.push_back(Error(pos, "variable " + ident.to_abs_ident_string(*(context.tree.ident_table())) + " refers to alias cycle"));
+        if(alias_var->ident()->has_key_ident()) {
+          key_ident = alias_var->ident()->key_ident();
+          if(marked_key_idents.find(key_ident) != marked_key_idents.end()) {
+            errors.push_back(Error(pos, "alias variable " + ident.to_abs_ident_string(*(context.tree.ident_table())) + " refers to alias cycle"));
+            var.reset();
+            return false;
+          }
+          var = context.tree.var(*(alias_var->ident()));
+          marked_key_idents.insert(key_ident);
+        } else {
+          errors.push_back(Error(pos, "alias variable " + ident.to_abs_ident_string(*(context.tree.ident_table())) + " refers to undefined variable"));
           var.reset();
           return false;
         }
-        var = context.tree.var(*(alias_var->ident()));
-        marked_key_idents.insert(key_ident);
       }
       return true;
     }
