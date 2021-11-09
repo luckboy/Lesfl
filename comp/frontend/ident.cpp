@@ -183,7 +183,7 @@ namespace lesfl
 
     bool AbsoluteIdentifierTable::add_ident(AbsoluteIdentifier *ident, KeyIdentifier &key_ident)
     {
-      if(_M_ident_set.find(ident) == _M_ident_set.end()) return false;
+      if(_M_ident_set.find(ident) != _M_ident_set.end()) return false;
       key_ident = KeyIdentifier(_M_ident_set.size());
       auto pair1 = _M_ident_map.insert(make_pair(key_ident, unique_ptr<const AbsoluteIdentifier>(ident)));
       if(!pair1.second) return false;
@@ -204,7 +204,7 @@ namespace lesfl
       }
       is_added = false;
       if(!ident->has_key_ident()) {
-        if(ident->set_key_ident(*this)) return false;
+        if(!ident->set_key_ident(*this)) return false;
       }
       key_ident = ident->key_ident();
       return true;
