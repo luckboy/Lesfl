@@ -38,7 +38,7 @@ namespace lesfl
         AbsoluteIdentifier current_module_ident;
         AbsoluteIdentifier predef_module_ident;
         list<list<AbsoluteIdentifier>> imported_module_ident_stack;
-        list<list<unordered_map<string, LocalVariablePair>::iterator>> local_var_pair_iter_stack;
+        list<list<string>> local_var_ident_stack;
         size_t local_var_count;
         unordered_map<string, LocalVariablePair> local_var_pairs;
         unordered_set<string> top_local_var_idents;
@@ -80,7 +80,7 @@ namespace lesfl
     }
 
     static inline void push_local_var_list(ResolverContext &context)
-    { context.local_var_pair_iter_stack.push_back(list<unordered_map<string, LocalVariablePair>::iterator>()); }
+    { context.local_var_ident_stack.push_back(list<string>()); }
 
     static bool push_local_var(ResolverContext &context, IdentifiableAndIndexable &identifiable)
     {
@@ -88,7 +88,7 @@ namespace lesfl
       auto pair = context.local_var_pairs.insert(make_pair(identifiable.ident(), LocalVariablePair()));
       pair.first->second.ref_count++;
       pair.first->second.indices.push_back(context.local_var_count);
-      context.local_var_pair_iter_stack.back().push_back(pair.first);
+      context.local_var_ident_stack.back().push_back(pair.first->first);
       identifiable.set_index(context.local_var_count);
       context.local_var_count++;
       return true;
@@ -99,28 +99,33 @@ namespace lesfl
 
     static bool pop_local_vars(ResolverContext &context)
     {
-      if(!context.local_var_pair_iter_stack.empty()) {
-        for(auto iter : context.local_var_pair_iter_stack.back()) {
-          LocalVariablePair &pair = iter->second;
-          if(pair.ref_count != 0) pair.ref_count--;
-          pair.indices.pop_back();
-          if(pair.ref_count == 0) context.local_var_pairs.erase(iter);
-          context.local_var_count--;
+      if(!context.local_var_ident_stack.empty()) {
+        for(const string &ident : context.local_var_ident_stack.back()) {
+          auto iter = context.local_var_pairs.find(ident);
+          if(iter != context.local_var_pairs.end()) {
+            LocalVariablePair &pair = iter->second;
+            if(pair.ref_count != 0) {
+              pair.ref_count--;
+              pair.indices.pop_back();
+            }
+            if(pair.ref_count == 0) context.local_var_pairs.erase(ident);
+            context.local_var_count--;
+          }
         }
-        context.local_var_pair_iter_stack.pop_back();
+        context.local_var_ident_stack.pop_back();
         return true;
       } else
         return false;
     }
 
-    static bool check_and_clear_local_var_pair_iter_stack(ResolverContext &context, const Position &pos, list<Error> &errors)
+    static bool check_and_clear_local_var_ident_stack(ResolverContext &context, const Position &pos, list<Error> &errors)
     {
       bool is_success = true;
-      if(!context.local_var_pair_iter_stack.empty()) {
-        errors.push_back(Error(pos, "internal error: local_var_pair_iter_stack isn't empty"));
+      if(!context.local_var_ident_stack.empty()) {
+        errors.push_back(Error(pos, "internal error: local_var_ident_stack isn't empty"));
         is_success = false;
       }
-      context.local_var_pair_iter_stack.clear();
+      context.local_var_ident_stack.clear();
       return is_success;
     }
 
@@ -1088,7 +1093,7 @@ namespace lesfl
         return false;
       },
       [&](VariableLiteralValue *value) -> bool {
-        bool is_success = check_and_clear_local_var_pair_iter_stack(context, value->pos(), errors);
+        bool is_success = check_and_clear_local_var_ident_stack(context, value->pos(), errors);
         is_success &= check_and_clear_closure_limit_stack(context, value->pos(), errors);
         is_success &= resolve_idents_from_literal_value(context, value->literal_value(), value->pos(), errors);
         return is_success;
@@ -1490,7 +1495,7 @@ namespace lesfl
           is_success &= resolve_idents_from_type_params(context, fun->inst_type_params(), errors, true);
         is_success &= check_annotations(fun->annotations(), errors);
         context.template_flag = fun->is_template();
-        is_success &= check_and_clear_local_var_pair_iter_stack(context, pos, errors);
+        is_success &= check_and_clear_local_var_ident_stack(context, pos, errors);
         is_success &= check_and_clear_closure_limit_stack(context, pos, errors);
         is_success &= resolve_idents_from_args(context, fun->args(), errors, true);
         if(fun->result_type_expr() != nullptr)
@@ -1505,7 +1510,7 @@ namespace lesfl
       [&](ExternalFunction *fun) -> bool {
         bool is_success = check_and_clear_type_param_indices(context, pos, errors);
         context.template_flag = false;
-        is_success &= check_and_clear_local_var_pair_iter_stack(context, pos, errors);
+        is_success &= check_and_clear_local_var_ident_stack(context, pos, errors);
         is_success &= resolve_idents_from_args(context, fun->args(), errors, true);
         if(fun->result_type_expr() != nullptr)
           is_success &= resolve_idents_from_type_expr(context, fun->result_type_expr(), errors, true);
@@ -1517,7 +1522,7 @@ namespace lesfl
         bool is_success = check_annotations(fun->annotations(), errors);
         is_success &= check_and_clear_type_param_indices(context, pos, errors);
         context.template_flag = false;
-        is_success &= check_and_clear_local_var_pair_iter_stack(context, pos, errors);
+        is_success &= check_and_clear_local_var_ident_stack(context, pos, errors);
         is_success &= resolve_idents_from_args(context, fun->args(), errors, true);
         if(fun->result_type_expr() != nullptr)
           is_success &= resolve_idents_from_type_expr(context, fun->result_type_expr(), errors, true);
