@@ -328,6 +328,9 @@ namespace lesfl
           errors.push_back(Error(def->pos(), "interal error: unknown definition class"));
           return false;
         },
+        [](Import *import) -> bool {
+          return true;
+        },
         [&](ModuleDefinition *module_def) -> bool {
           unique_ptr<AbsoluteIdentifier> abs_ident;
           KeyIdentifier key_ident;
