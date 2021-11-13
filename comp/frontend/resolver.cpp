@@ -371,6 +371,9 @@ namespace lesfl
           context.tree.uncompiled_var_key_idents().push_back(key_ident);
           return tmp_is_success;
         },
+        [](VariableInstanceDefinition *var_inst_def) -> bool {
+          return true;
+        },
         [&](FunctionDefinition *fun_def) -> bool {
           unique_ptr<AbsoluteIdentifier> abs_ident(new AbsoluteIdentifier(context.current_module_ident, fun_def->ident()));
           bool is_added_abs_ident;
@@ -388,6 +391,9 @@ namespace lesfl
           }
           context.tree.uncompiled_var_key_idents().push_back(key_ident);
           return tmp_is_success;
+        },
+        [](FunctionInstanceDefinition *fun_inst_def) -> bool {
+          return true;
         },
         [&](TypeVariableDefinition *type_var_def) -> bool {
           unique_ptr<AbsoluteIdentifier> abs_ident(new AbsoluteIdentifier(context.current_module_ident, type_var_def->ident()));
