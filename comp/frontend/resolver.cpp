@@ -65,6 +65,9 @@ namespace lesfl
     static inline void pop_imported_modules(ResolverContext &context)
     { context.imported_module_ident_stack.pop_back(); }
 
+    static inline void clear_import_module_ident_stack(ResolverContext &context)
+    { context.imported_module_ident_stack.clear(); }
+    
     static bool set_local_var_index(ResolverContext &context, RelativeIdentifier &ident)
     {
       auto iter = context.local_var_pairs.find(ident.idents().back());
@@ -1663,7 +1666,7 @@ namespace lesfl
         },
         [&](Import *import) -> bool {
           bool tmp_is_success = resolve_module_ident(context, import->module_ident(), import->pos(), errors);
-          push_imported_module(context, *(import->module_ident()->abs_ident(*(context.tree.ident_table()))));
+          if(tmp_is_success) push_imported_module(context, *(import->module_ident()->abs_ident(*(context.tree.ident_table()))));
           return tmp_is_success;
         },
         [&](ModuleDefinition *module_def) -> bool {
@@ -1692,7 +1695,7 @@ namespace lesfl
         },
         [&](Import *import) -> bool {
           bool tmp_is_success = resolve_module_ident(context, import->module_ident(), import->pos(), errors);
-          push_imported_module(context, *(import->module_ident()->abs_ident(*(context.tree.ident_table()))));
+          if(tmp_is_success) push_imported_module(context, *(import->module_ident()->abs_ident(*(context.tree.ident_table()))));
           return tmp_is_success;
         },
         [&](ModuleDefinition *module_def) -> bool {
@@ -1761,9 +1764,13 @@ namespace lesfl
       for(auto &defs : tree.defs()) {
         is_success &= add_defs(context, *defs, errors);
       }
+      clear_import_module_ident_stack(context);
+      push_imported_module_list(context);
       for(auto &defs : tree.defs()) {
         is_success &= resolve_idents_from_alias_defs(context, *defs, errors);
       }
+      clear_import_module_ident_stack(context);
+      push_imported_module_list(context);
       for(auto &defs : tree.defs()) {
         is_success &= resolve_idents_from_defs(context, *defs, errors);
       }
