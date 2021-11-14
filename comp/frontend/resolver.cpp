@@ -1764,14 +1764,14 @@ namespace lesfl
       for(auto &defs : tree.defs()) {
         is_success &= add_defs(context, *defs, errors);
       }
-      clear_imported_module_ident_stack(context);
-      push_imported_module_list(context);
       for(auto &defs : tree.defs()) {
+        clear_imported_module_ident_stack(context);
+        push_imported_module_list(context);
         is_success &= resolve_idents_from_alias_defs(context, *defs, errors);
       }
-      clear_imported_module_ident_stack(context);
-      push_imported_module_list(context);
       for(auto &defs : tree.defs()) {
+        clear_imported_module_ident_stack(context);
+        push_imported_module_list(context);
         is_success &= resolve_idents_from_defs(context, *defs, errors);
       }
       return is_success;
