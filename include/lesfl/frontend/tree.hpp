@@ -607,13 +607,13 @@ namespace lesfl
 
     class ConstructorVariable : public Variable
     {
-      std::shared_ptr<Constructor> _M_fun;
+      std::shared_ptr<Constructor> _M_constr;
     public:
-      ConstructorVariable(const std::shared_ptr<Constructor> &constr) : _M_fun(constr) {}
+      ConstructorVariable(const std::shared_ptr<Constructor> &constr) : _M_constr(constr) {}
 
       ~ConstructorVariable();
 
-      const std::shared_ptr<Constructor> &constr() const { return _M_fun; }
+      const std::shared_ptr<Constructor> &constr() const { return _M_constr; }
     };
 
     class LibraryVariable : public Variable
