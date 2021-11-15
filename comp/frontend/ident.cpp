@@ -31,7 +31,7 @@ namespace lesfl
           char c = ident[0];
           are_special_chars |= (c != '_' && (c < 'A' || c > 'Z') && (c < 'a' || c > 'z'));
           are_special_chars |= any_of(ident.begin() + 1, ident.end(), [](char c) {
-            return c != '_' && (c < 'A' || c > 'Z') && (c > 'a' || c < 'z') && (c < '0' || c > '9');
+            return c != '_' && (c < 'A' || c > 'Z') && (c < 'a' || c > 'z') && (c < '0' || c > '9');
           });
         }
         if(are_special_chars) str += '`';
@@ -67,7 +67,7 @@ namespace lesfl
       Identifier(abs_ident.idents())
     { _M_idents.push_back(string(ident)); }
 
-    AbsoluteIdentifier::AbsoluteIdentifier(const AbsoluteIdentifier &abs_ident, const std::string &ident) :
+    AbsoluteIdentifier::AbsoluteIdentifier(const AbsoluteIdentifier &abs_ident, const string &ident) :
       Identifier(abs_ident.idents())
     { _M_idents.push_back(ident); }
 
@@ -140,9 +140,12 @@ namespace lesfl
     string AbsoluteIdentifier::to_string() const
     {
       string str;
+      bool is_first = true;
+      str += '.';
       for(auto &ident : _M_idents) {
-        str += '.';
+        if(!is_first) str += '.';
         str += priv::ident_to_string(ident);
+        is_first = false;
       }
       return str;
     }

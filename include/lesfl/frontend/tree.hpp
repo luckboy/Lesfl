@@ -250,7 +250,7 @@ namespace lesfl
       { return _M_module_key_idents; }
 
       bool has_module_key_ident(KeyIdentifier key_ident) const
-      { return _M_module_key_idents.find(key_ident) == _M_module_key_idents.end(); }
+      { return _M_module_key_idents.find(key_ident) != _M_module_key_idents.end(); }
 
       bool has_module_key_ident(const Identifier &ident) const
       { return has_module_key_ident(ident.key_ident()); }

@@ -206,7 +206,7 @@ namespace lesfl
         return true;
       },
       [&](const RelativeIdentifier *ident) -> bool {
-        abs_ident  = AbsoluteIdentifier(context.current_module_ident, *ident);
+        abs_ident = AbsoluteIdentifier(context.current_module_ident, *ident);
         return true;
       });
     }
@@ -335,22 +335,25 @@ namespace lesfl
           return true;
         },
         [&](ModuleDefinition *module_def) -> bool {
-          unique_ptr<AbsoluteIdentifier> abs_ident;
+          AbsoluteIdentifier *abs_ident;
+          unique_ptr<AbsoluteIdentifier> tmp_abs_ident;
           KeyIdentifier key_ident;
           {
             AbsoluteIdentifier module_abs_ident;
             bool is_added_abs_ident;
-            if(get_module_abs_ident(context, *(module_def->ident()), module_abs_ident, module_def->pos(), errors)) return false;
+            if(!get_module_abs_ident(context, *(module_def->ident()), module_abs_ident, module_def->pos(), errors)) return false;
             auto iter = module_abs_ident.idents().begin();
             while(true) {
-              abs_ident.reset(new AbsoluteIdentifier());
-              auto inserter = back_inserter(abs_ident->idents());
+              tmp_abs_ident.reset(new AbsoluteIdentifier());
+              auto inserter = back_inserter(tmp_abs_ident->idents());
               copy(module_abs_ident.idents().begin(), iter, inserter);
-              if(!add_ident_or_get_key_ident(context, abs_ident.get(), key_ident, is_added_abs_ident, module_def->pos(), errors)) return false;
-              if(is_added_abs_ident) abs_ident.release();
+              if(!add_ident_or_get_key_ident(context, tmp_abs_ident.get(), key_ident, is_added_abs_ident, module_def->pos(), errors)) return false;
+              abs_ident = tmp_abs_ident.get();
+              if(is_added_abs_ident) tmp_abs_ident.release();
               context.tree.add_module(key_ident);
               if(iter == module_abs_ident.idents().end()) break;
-              abs_ident.release();
+              iter++;
+              tmp_abs_ident.release();
             }
           }
           module_def->ident()->set_key_ident(key_ident);
@@ -476,7 +479,7 @@ namespace lesfl
 
     static bool set_key_ident(ResolverContext &context, AbsoluteIdentifier &ident, function<bool (const AbsoluteIdentifier &, AccessModifier &, bool &)> get_access_modifier_fun, function<void (const AbsoluteIdentifier &)> *add_private_error_fun = nullptr, function<void ()> *add_undefined_error_fun = nullptr)
     {
-      if(ident.set_key_ident(*(context.tree.ident_table()))) {
+      if(!ident.set_key_ident(*(context.tree.ident_table()))) {
         if(add_undefined_error_fun != nullptr) (*add_undefined_error_fun)();
         return false;
       }
@@ -504,7 +507,7 @@ namespace lesfl
     static bool set_key_ident(ResolverContext &context, RelativeIdentifier &ident, const AbsoluteIdentifier &module_ident, function<bool (const AbsoluteIdentifier &, AccessModifier &, bool &)> get_access_modifier_fun, bool *is_private = nullptr, function<void (const AbsoluteIdentifier &)> *add_private_error_fun = nullptr)
     {
       AbsoluteIdentifier abs_ident(module_ident.idents(), ident);
-      if(abs_ident.set_key_ident(*(context.tree.ident_table()))) {
+      if(!abs_ident.set_key_ident(*(context.tree.ident_table()))) {
         if(is_private != nullptr) *is_private = false;
         return false;
       }
@@ -1647,11 +1650,14 @@ namespace lesfl
       },
       [&](AliasVariable *var) -> bool {
         bool is_success = check_and_clear_type_param_indices(context, pos, errors);
-        context.template_flag = false;
+        if(var->is_template())
+          is_success &= resolve_idents_from_type_params(context, var->inst_type_params(), errors, true);
+        context.template_flag = var->is_template();
         if(var->type_expr() != nullptr)
-          is_success &= resolve_idents_from_type_expr(context, var->type_expr(), errors);
+          is_success &= resolve_idents_from_type_expr(context, var->type_expr(), errors, true);
         is_success &= resolve_var_ident(context, var->ident(), pos, errors);
         context.template_flag = false;
+        clear_type_params(context);
         return is_success;
       });
     }

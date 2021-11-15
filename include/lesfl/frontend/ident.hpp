@@ -60,10 +60,9 @@ namespace lesfl
     class Indexable
     {
     protected:
-      bool _M_has_index;
       std::size_t _M_index;
 
-      Indexable() : _M_has_index(false) {}
+      Indexable() {}
     public:
       virtual ~Indexable();
 
