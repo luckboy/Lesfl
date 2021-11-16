@@ -1309,8 +1309,10 @@ namespace lesfl
       for(auto &arg : args) {
         if(!push_local_var(context, *arg)) {
           errors.push_back(Error(arg->pos(), "argument " + arg->to_ident_string() + " is already defined"));
-          is_success &= resolve_idents_from_type_expr(context, arg->type_expr(), errors, can_add_type_params);
+          is_success = false;
         }
+        if(arg->type_expr() != nullptr)
+          is_success &= resolve_idents_from_type_expr(context, arg->type_expr(), errors, can_add_type_params);
       }
       clear_top_local_var_idents(context);
       return is_success;
@@ -1385,7 +1387,7 @@ namespace lesfl
     {
       bool is_success = true;
       for(auto &arg : args) {
-        if(add_type_param(context, *arg)) {
+        if(!add_type_param(context, *arg)) {
           errors.push_back(Error(arg->pos(), "type argument " + arg->to_ident_string() + " is already defined"));
           is_success = false;
         }

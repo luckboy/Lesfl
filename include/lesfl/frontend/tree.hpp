@@ -213,7 +213,7 @@ namespace lesfl
 
       const std::shared_ptr<TypeFunction> &fun() const { return _M_fun; }
 
-      const std::shared_ptr<std::list<std::shared_ptr<TypeFunctionInstance>>> &fun_insts() const { return _M_insts; }
+      const std::shared_ptr<std::list<std::shared_ptr<TypeFunctionInstance>>> &insts() const { return _M_insts; }
       
       void add_inst(const std::shared_ptr<TypeFunctionInstance> &inst)
       { _M_insts->push_back(inst); }
