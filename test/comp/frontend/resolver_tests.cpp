@@ -70,6 +70,8 @@ g(x) = #isub(f(x), v)\n\
           CPPUNIT_ASSERT(nullptr != var_literal_value);
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         {
           VariableInfo *var_info = tree.var_info(f_abs_ident.key_ident());
@@ -99,6 +101,8 @@ g(x) = #isub(f(x), v)\n\
           CPPUNIT_ASSERT(nullptr != literal3);
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         {
           VariableInfo *var_info = tree.var_info(g_abs_ident.key_ident());
@@ -142,6 +146,8 @@ g(x) = #isub(f(x), v)\n\
           CPPUNIT_ASSERT(v_abs_ident.key_ident() == rel_ident4->key_ident());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -215,6 +221,8 @@ module somelib {\n\
           CPPUNIT_ASSERT(nullptr != literal1);
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(somelib_module1_abs_ident.key_ident()));
         CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(somelib_module1_module2_abs_ident.key_ident()));
@@ -232,6 +240,8 @@ module somelib {\n\
           CPPUNIT_ASSERT(nullptr != literal1);
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(somelib2_module3_abs_ident.key_ident()));
         {
@@ -248,6 +258,8 @@ module somelib {\n\
           CPPUNIT_ASSERT(nullptr != literal1);
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         {
           VariableInfo *var_info = tree.var_info(i_abs_ident.key_ident());
@@ -263,6 +275,8 @@ module somelib {\n\
           CPPUNIT_ASSERT(nullptr != literal1);
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(somelib_f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -303,7 +317,9 @@ v = 1\n\
           CPPUNIT_ASSERT(nullptr != var_literal_value);
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
-        }
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+       }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
@@ -350,6 +366,8 @@ private v: Int64 = 1\n\
           CPPUNIT_ASSERT(nullptr != var_literal_value);
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -394,6 +412,8 @@ extern v: Int64 = somevar\n\
           CPPUNIT_ASSERT(stdlib_int64_abs_ident.key_ident() == type_rel_ident->key_ident());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -438,6 +458,8 @@ private extern v: Int64 = somevar\n\
           CPPUNIT_ASSERT(stdlib_int64_abs_ident.key_ident() == type_rel_ident->key_ident());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -481,6 +503,8 @@ a = 1\n\
           CPPUNIT_ASSERT(a_abs_ident.key_ident() == rel_ident->key_ident());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         {
           VariableInfo *var_info = tree.var_info(a_abs_ident.key_ident());
@@ -493,6 +517,8 @@ a = 1\n\
           CPPUNIT_ASSERT(nullptr != var_literal_value);
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -547,6 +573,8 @@ a = 1\n\
           CPPUNIT_ASSERT(a_abs_ident.key_ident() == rel_ident->key_ident());  
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         {
           VariableInfo *var_info = tree.var_info(a_abs_ident.key_ident());
@@ -559,6 +587,8 @@ a = 1\n\
           CPPUNIT_ASSERT(nullptr != var_literal_value);
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -601,6 +631,8 @@ v = #[]\n\
           CPPUNIT_ASSERT_EQUAL(true, array_value->elems().empty());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -659,6 +691,8 @@ private v: Array(t) = #[]\n\
           CPPUNIT_ASSERT_EQUAL(true, array_value->elems().empty());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -711,6 +745,8 @@ v: Array(t)\n\
           CPPUNIT_ASSERT(nullptr == user_defined_var->value());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -765,6 +801,8 @@ private v: Array(t)\n\
           CPPUNIT_ASSERT(nullptr == user_defined_var->value());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -811,6 +849,8 @@ a = #[]\n\
           CPPUNIT_ASSERT(a_abs_ident.key_ident() == rel_ident->key_ident());          
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         {
           VariableInfo *var_info = tree.var_info(a_abs_ident.key_ident());
@@ -826,6 +866,8 @@ a = #[]\n\
           CPPUNIT_ASSERT_EQUAL(true, array_value->elems().empty());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -889,6 +931,8 @@ a = #[]\n\
           CPPUNIT_ASSERT(a_abs_ident.key_ident() == rel_ident->key_ident());          
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         {
           VariableInfo *var_info = tree.var_info(a_abs_ident.key_ident());
@@ -904,6 +948,8 @@ a = #[]\n\
           CPPUNIT_ASSERT_EQUAL(true, array_value->elems().empty());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -970,6 +1016,8 @@ f(x, y) = #itoi8(#iadd(x, y))\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), rel_ident4->index());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -1053,6 +1101,8 @@ private f(x, y: Int64): Int8 = #itoi8(#iadd(x, y))\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), rel_ident4->index());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -1120,6 +1170,8 @@ extern f(x: Int16, y: Int64): Int8 = somefun\n\
           CPPUNIT_ASSERT(stdlib_int8_abs_ident.key_ident() == type_rel_ident3->key_ident());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -1187,6 +1239,8 @@ private extern f(x: Int16, y: Int64): Int8 = somefun\n\
           CPPUNIT_ASSERT(stdlib_int8_abs_ident.key_ident() == type_rel_ident3->key_ident());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -1254,6 +1308,8 @@ native f(x: Int64, y: Int16): Int8 = somefun\n\
           CPPUNIT_ASSERT(stdlib_int8_abs_ident.key_ident() == type_rel_ident3->key_ident());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -1321,6 +1377,8 @@ private native f(x: Int64, y: Int16): Int8 = somefun\n\
           CPPUNIT_ASSERT(stdlib_int8_abs_ident.key_ident() == type_rel_ident3->key_ident());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -1385,6 +1443,8 @@ f(x, y) = #anth(x, y)\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), rel_ident3->index());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -1469,6 +1529,8 @@ private f(x: Array(t), y): t = #anth(x, y)\n\
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), rel_ident3->index());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -1539,6 +1601,8 @@ f(x: Array(t), y: Int64): t\n\
           CPPUNIT_ASSERT(nullptr == user_defined_fun->body());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -1611,6 +1675,8 @@ private f(x: Array(t), y: Int64): t\n\
           CPPUNIT_ASSERT(nullptr == user_defined_fun->body());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -1765,6 +1831,10 @@ datatype T = C(Int64, Int8)\n\
           CPPUNIT_ASSERT(nullptr != type_rel_ident2);
           CPPUNIT_ASSERT_EQUAL(true, type_rel_ident2->has_key_ident());
           CPPUNIT_ASSERT(stdlib_int8_abs_ident.key_ident() == type_rel_ident2->key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -1836,6 +1906,10 @@ private datatype T = C(Int8, Int64)\n\
           CPPUNIT_ASSERT(nullptr != type_rel_ident2);
           CPPUNIT_ASSERT_EQUAL(true, type_rel_ident2->has_key_ident());
           CPPUNIT_ASSERT(stdlib_int64_abs_ident.key_ident() == type_rel_ident2->key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -1907,6 +1981,10 @@ unique datatype T = C(Int64, Int8)\n\
           CPPUNIT_ASSERT(nullptr != type_rel_ident2);
           CPPUNIT_ASSERT_EQUAL(true, type_rel_ident2->has_key_ident());
           CPPUNIT_ASSERT(stdlib_int8_abs_ident.key_ident() == type_rel_ident2->key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -1978,6 +2056,10 @@ private unique datatype T = C(Int8, Int64)\n\
           CPPUNIT_ASSERT(nullptr != type_rel_ident2);
           CPPUNIT_ASSERT_EQUAL(true, type_rel_ident2->has_key_ident());
           CPPUNIT_ASSERT(stdlib_int64_abs_ident.key_ident() == type_rel_ident2->key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -2411,6 +2493,10 @@ datatype T(t) = C(Array(t), Int64)\n\
           CPPUNIT_ASSERT(nullptr != type_rel_ident3);
           CPPUNIT_ASSERT_EQUAL(true, type_rel_ident3->has_key_ident());
           CPPUNIT_ASSERT(stdlib_int64_abs_ident.key_ident() == type_rel_ident3->key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -2496,6 +2582,10 @@ private datatype T(t) = C(Int64, Array(t))\n\
           TypeParameterExpression *type_param_expr3 = dynamic_cast<TypeParameterExpression *>(type_arg_iter2->get());
           CPPUNIT_ASSERT(nullptr != type_param_expr3);
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), type_param_expr3->index());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -2579,6 +2669,10 @@ unique datatype T(t) = C(Array(t), Int64)\n\
           CPPUNIT_ASSERT(nullptr != type_rel_ident3);
           CPPUNIT_ASSERT_EQUAL(true, type_rel_ident3->has_key_ident());
           CPPUNIT_ASSERT(stdlib_int64_abs_ident.key_ident() == type_rel_ident3->key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
@@ -2664,7 +2758,10 @@ private unique datatype T(t) = C(Int64, Array(t))\n\
           TypeParameterExpression *type_param_expr3 = dynamic_cast<TypeParameterExpression *>(type_arg_iter2->get());
           CPPUNIT_ASSERT(nullptr != type_param_expr3);
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), type_param_expr3->index());
-          
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
         }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
