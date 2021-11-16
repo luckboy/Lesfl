@@ -291,6 +291,7 @@ v = 1\n\
         CPPUNIT_ASSERT_EQUAL(true, root_abs_ident.set_key_ident(*(tree.ident_table())));
         AbsoluteIdentifier v_abs_ident(list<string> { "v" });
         CPPUNIT_ASSERT_EQUAL(true, v_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
         {
           VariableInfo *var_info = tree.var_info(v_abs_ident.key_ident());
           CPPUNIT_ASSERT(nullptr != var_info);
@@ -331,6 +332,7 @@ private v: Int64 = 1\n\
         CPPUNIT_ASSERT_EQUAL(true, stdlib_int64_abs_ident.set_key_ident(*(tree.ident_table())));
         AbsoluteIdentifier v_abs_ident(list<string> { "v" });
         CPPUNIT_ASSERT_EQUAL(true, v_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
         {
           VariableInfo *var_info = tree.var_info(v_abs_ident.key_ident());
           CPPUNIT_ASSERT(nullptr != var_info);
@@ -377,6 +379,7 @@ extern v: Int64 = somevar\n\
         CPPUNIT_ASSERT_EQUAL(true, stdlib_int64_abs_ident.set_key_ident(*(tree.ident_table())));
         AbsoluteIdentifier v_abs_ident(list<string> { "v" });
         CPPUNIT_ASSERT_EQUAL(true, v_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
         {
           VariableInfo *var_info = tree.var_info(v_abs_ident.key_ident());
           CPPUNIT_ASSERT(nullptr != var_info);
@@ -420,6 +423,7 @@ private extern v: Int64 = somevar\n\
         CPPUNIT_ASSERT_EQUAL(true, stdlib_int64_abs_ident.set_key_ident(*(tree.ident_table())));
         AbsoluteIdentifier v_abs_ident(list<string> { "v" });
         CPPUNIT_ASSERT_EQUAL(true, v_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
         {
           VariableInfo *var_info = tree.var_info(v_abs_ident.key_ident());
           CPPUNIT_ASSERT(nullptr != var_info);
@@ -463,6 +467,7 @@ a = 1\n\
         CPPUNIT_ASSERT_EQUAL(true, v_abs_ident.set_key_ident(*(tree.ident_table())));
         AbsoluteIdentifier a_abs_ident(list<string> { "a" });
         CPPUNIT_ASSERT_EQUAL(true, a_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
         {
           VariableInfo *var_info = tree.var_info(v_abs_ident.key_ident());
           CPPUNIT_ASSERT(nullptr != var_info);
@@ -522,6 +527,7 @@ a = 1\n\
         CPPUNIT_ASSERT_EQUAL(true, v_abs_ident.set_key_ident(*(tree.ident_table())));
         AbsoluteIdentifier a_abs_ident(list<string> { "a" });
         CPPUNIT_ASSERT_EQUAL(true, a_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
         {
           VariableInfo *var_info = tree.var_info(v_abs_ident.key_ident());
           CPPUNIT_ASSERT(nullptr != var_info);
@@ -580,6 +586,7 @@ v = #[]\n\
         CPPUNIT_ASSERT_EQUAL(true, root_abs_ident.set_key_ident(*(tree.ident_table())));
         AbsoluteIdentifier v_abs_ident(list<string> { "v" });
         CPPUNIT_ASSERT_EQUAL(true, v_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
         {
           VariableInfo *var_info = tree.var_info(v_abs_ident.key_ident());
           CPPUNIT_ASSERT(nullptr != var_info);
@@ -624,6 +631,7 @@ private v: Array(t) = #[]\n\
         CPPUNIT_ASSERT_EQUAL(true, stdlib_array_abs_ident.set_key_ident(*(tree.ident_table())));
         AbsoluteIdentifier v_abs_ident(list<string> { "v" });
         CPPUNIT_ASSERT_EQUAL(true, v_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
         {
           VariableInfo *var_info = tree.var_info(v_abs_ident.key_ident());
           CPPUNIT_ASSERT(nullptr != var_info);
@@ -681,6 +689,7 @@ v: Array(t)\n\
         CPPUNIT_ASSERT_EQUAL(true, stdlib_array_abs_ident.set_key_ident(*(tree.ident_table())));
         AbsoluteIdentifier v_abs_ident(list<string> { "v" });
         CPPUNIT_ASSERT_EQUAL(true, v_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
         {
           VariableInfo *var_info = tree.var_info(v_abs_ident.key_ident());
           CPPUNIT_ASSERT(nullptr != var_info);
@@ -732,6 +741,7 @@ private v: Array(t)\n\
         CPPUNIT_ASSERT_EQUAL(true, stdlib_array_abs_ident.set_key_ident(*(tree.ident_table())));
         AbsoluteIdentifier v_abs_ident(list<string> { "v" });
         CPPUNIT_ASSERT_EQUAL(true, v_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
         {
           VariableInfo *var_info = tree.var_info(v_abs_ident.key_ident());
           CPPUNIT_ASSERT(nullptr != var_info);
@@ -786,6 +796,7 @@ a = #[]\n\
         CPPUNIT_ASSERT_EQUAL(true, v_abs_ident.set_key_ident(*(tree.ident_table())));
         AbsoluteIdentifier a_abs_ident(list<string> { "a" });
         CPPUNIT_ASSERT_EQUAL(true, a_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
         {
           VariableInfo *var_info = tree.var_info(v_abs_ident.key_ident());
           CPPUNIT_ASSERT(nullptr != var_info);
@@ -851,6 +862,7 @@ a = #[]\n\
         CPPUNIT_ASSERT_EQUAL(true, v_abs_ident.set_key_ident(*(tree.ident_table())));
         AbsoluteIdentifier a_abs_ident(list<string> { "a" });
         CPPUNIT_ASSERT_EQUAL(true, a_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
         {
           VariableInfo *var_info = tree.var_info(v_abs_ident.key_ident());
           CPPUNIT_ASSERT(nullptr != var_info);
