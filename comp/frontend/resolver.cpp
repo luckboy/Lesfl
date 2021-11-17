@@ -37,12 +37,12 @@ namespace lesfl
         Tree &tree;
         AbsoluteIdentifier current_module_ident;
         AbsoluteIdentifier predef_module_ident;
-        list<list<AbsoluteIdentifier>> imported_module_ident_stack;
-        list<list<string>> local_var_ident_stack;
+        list<vector<AbsoluteIdentifier>> imported_module_ident_stack;
+        list<vector<string>> local_var_ident_stack;
         size_t local_var_count;
         unordered_map<string, LocalVariablePair> local_var_pairs;
         unordered_set<string> top_local_var_idents;
-        list<size_t> closure_limit_stack;
+        vector<size_t> closure_limit_stack;
         unordered_map<string, size_t> type_param_indices;
         size_t type_param_count;
         bool template_flag;
@@ -56,8 +56,8 @@ namespace lesfl
     // Static inline functions and static functions.
     //
 
-    static inline void push_imported_module_list(ResolverContext &context)
-    { context.imported_module_ident_stack.push_back(list<AbsoluteIdentifier>()); }
+    static inline void push_imported_module_vector(ResolverContext &context)
+    { context.imported_module_ident_stack.push_back(vector<AbsoluteIdentifier>()); }
     
     static void push_imported_module(ResolverContext &context, const AbsoluteIdentifier &ident)
     { context.imported_module_ident_stack.back().push_back(ident); }
@@ -82,8 +82,8 @@ namespace lesfl
         return false;
     }
 
-    static inline void push_local_var_list(ResolverContext &context)
-    { context.local_var_ident_stack.push_back(list<string>()); }
+    static inline void push_local_var_vector(ResolverContext &context)
+    { context.local_var_ident_stack.push_back(vector<string>()); }
 
     static bool push_local_var(ResolverContext &context, IdentifiableAndIndexable &identifiable)
     {
@@ -713,7 +713,7 @@ namespace lesfl
     {
       bool is_success = true;
       unordered_set<KeyIdentifier> used_key_idents;
-      push_local_var_list(context);
+      push_local_var_vector(context);
       for(auto &bind : binds) {
         is_success &= dynamic_match(bind.get(),
         [&](Binding *bind) -> bool {
@@ -877,7 +877,7 @@ namespace lesfl
       [&](Match *match) -> bool {
         bool is_success = resolve_idents_from_expr(context, match->expr(), errors);
         for(auto &caze : match->cases()) {
-          push_local_var_list(context);
+          push_local_var_vector(context);
           is_success &= resolve_idents_from_pattern(context, caze->pattern(), errors);
           clear_top_local_var_idents(context);
           is_success &= resolve_idents_from_expr(context, caze->expr(), errors);
@@ -1305,7 +1305,7 @@ namespace lesfl
     static bool resolve_idents_from_args(ResolverContext &context, const list<unique_ptr<Argument>> &args, list<Error> &errors, bool can_add_type_params)
     {
       bool is_success = true;
-      push_local_var_list(context);
+      push_local_var_vector(context);
       for(auto &arg : args) {
         if(!push_local_var(context, *arg)) {
           errors.push_back(Error(arg->pos(), "argument " + arg->to_ident_string() + " is already defined"));
@@ -1680,7 +1680,7 @@ namespace lesfl
         [&](ModuleDefinition *module_def) -> bool {
           AbsoluteIdentifier saved_current_module = context.current_module_ident;
           context.current_module_ident = *(module_def->ident()->abs_ident(*(context.tree.ident_table())));
-          push_imported_module_list(context);
+          push_imported_module_vector(context);
           bool tmp_is_success = resolve_idents_from_alias_defs(context, module_def->defs(), errors);
           pop_imported_modules(context);
           context.current_module_ident = saved_current_module;
@@ -1709,7 +1709,7 @@ namespace lesfl
         [&](ModuleDefinition *module_def) -> bool {
           AbsoluteIdentifier saved_current_module = context.current_module_ident;
           context.current_module_ident = *(module_def->ident()->abs_ident(*(context.tree.ident_table())));
-          push_imported_module_list(context);
+          push_imported_module_vector(context);
           bool tmp_is_success = resolve_idents_from_defs(context, module_def->defs(), errors);
           pop_imported_modules(context);
           context.current_module_ident = saved_current_module;
@@ -1774,12 +1774,12 @@ namespace lesfl
       }
       for(auto &defs : tree.defs()) {
         clear_imported_module_ident_stack(context);
-        push_imported_module_list(context);
+        push_imported_module_vector(context);
         is_success &= resolve_idents_from_alias_defs(context, *defs, errors);
       }
       for(auto &defs : tree.defs()) {
         clear_imported_module_ident_stack(context);
-        push_imported_module_list(context);
+        push_imported_module_vector(context);
         is_success &= resolve_idents_from_defs(context, *defs, errors);
       }
       return is_success;
