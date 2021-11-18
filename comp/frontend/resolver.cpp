@@ -592,13 +592,16 @@ namespace lesfl
         is_added_var = (info != nullptr);
         if(is_added_var && info->must_update_access_modifier()) {
           AbsoluteIdentifier datatype_abs_ident;
-          abs_ident.get_module_ident(datatype_abs_ident);
+          if(!abs_ident.get_module_ident(datatype_abs_ident)) {
+            is_added_var = false;
+            return false;
+          }
           datatype_abs_ident.idents().push_back(*(info->datatype_ident()));
           if(!datatype_abs_ident.set_key_ident(*(context.tree.ident_table()))) {
             is_added_var = false;
             return false;
           }
-          VariableInfo *datatype_info = context.tree.var_info(datatype_abs_ident);
+          TypeFunctionInfo *datatype_info = context.tree.type_fun_info(datatype_abs_ident);
           if(datatype_info == nullptr) {
             is_added_var = false;
             return false;
@@ -1747,7 +1750,7 @@ namespace lesfl
         },
         [&](TypeFunctionInstanceDefinition *type_fun_inst_def) -> bool {
           AbsoluteIdentifier abs_ident(context.current_module_ident, type_fun_inst_def->ident());
-          bool tmp_is_success = resolve_var_ident(context, &abs_ident, type_fun_inst_def->pos(), errors);
+          bool tmp_is_success = resolve_type_fun_ident(context, &abs_ident, type_fun_inst_def->pos(), errors);
           TypeFunctionInfo *type_fun_info = context.tree.type_fun_info(abs_ident);
           if(type_fun_info != nullptr)
             type_fun_info->add_inst(type_fun_inst_def->fun_inst());
