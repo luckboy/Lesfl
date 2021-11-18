@@ -152,7 +152,6 @@ namespace lesfl
         void test_resolver_adds_private_constructor_in_type_function_instance_for_public_datatype();
         void test_resolver_adds_public_constructor_in_type_function_instance_for_private_datatype();
         void test_resolver_adds_private_constructor_in_type_function_instance_for_private_datatype();
-
       };
     }
   }
