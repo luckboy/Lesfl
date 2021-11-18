@@ -2941,6 +2941,1204 @@ private unique datatype T(t)\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
       }
+      
+      void ResolverTests::test_resolver_adds_constructors()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C\n\
+           | D()\n\
+           | E(Int64, WChar)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(true, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        AbsoluteIdentifier root_abs_ident;
+        CPPUNIT_ASSERT_EQUAL(true, root_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier stdlib_w_char_abs_ident(list<string> { "stdlib", "WChar" });
+        CPPUNIT_ASSERT_EQUAL(true, stdlib_w_char_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier stdlib_int64_abs_ident(list<string> { "stdlib", "Int64" });
+        CPPUNIT_ASSERT_EQUAL(true, stdlib_int64_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier t_abs_ident(list<string> { "T" });
+        CPPUNIT_ASSERT_EQUAL(true, t_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier c_abs_ident(list<string> { "C" });
+        CPPUNIT_ASSERT_EQUAL(true, c_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier d_abs_ident(list<string> { "D" });
+        CPPUNIT_ASSERT_EQUAL(true, d_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier e_abs_ident(list<string> { "E" });
+        CPPUNIT_ASSERT_EQUAL(true, e_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
+        {
+          TypeVariableInfo *type_var_info = tree.type_var_info(t_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != type_var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_info->access_modifier());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), datatype->constrs().size());
+        }
+        {
+          VariableInfo *var_info = tree.var_info(c_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->access_modifier());
+          ConstructorVariable *constr_var = dynamic_cast<ConstructorVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != constr_var);
+          VariableConstructor *constr = dynamic_cast<VariableConstructor *>(constr_var->constr().get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(false, constr->has_datatype_fun());
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == constr->datatype_key_ident());
+          CPPUNIT_ASSERT(nullptr == constr->datatype_fun_inst());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        {
+          VariableInfo *var_info = tree.var_info(d_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->access_modifier());
+          ConstructorVariable *constr_var = dynamic_cast<ConstructorVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != constr_var);
+          UnnamedFieldConstructor *constr = dynamic_cast<UnnamedFieldConstructor *>(constr_var->constr().get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(false, constr->has_datatype_fun());
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == constr->datatype_key_ident());
+          CPPUNIT_ASSERT(nullptr == constr->datatype_fun_inst());
+          CPPUNIT_ASSERT_EQUAL(true, constr->field_types().empty());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        {
+          VariableInfo *var_info = tree.var_info(e_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->access_modifier());
+          ConstructorVariable *constr_var = dynamic_cast<ConstructorVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != constr_var);
+          UnnamedFieldConstructor *constr = dynamic_cast<UnnamedFieldConstructor *>(constr_var->constr().get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(false, constr->has_datatype_fun());
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == constr->datatype_key_ident());
+          CPPUNIT_ASSERT(nullptr == constr->datatype_fun_inst());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
+          auto field_type_iter = constr->field_types().begin();
+          TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr1);
+          RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr1->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+          CPPUNIT_ASSERT_EQUAL(true, type_rel_ident1->has_key_ident());
+          CPPUNIT_ASSERT(stdlib_int64_abs_ident.key_ident() == type_rel_ident1->key_ident());
+          field_type_iter++;
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          CPPUNIT_ASSERT_EQUAL(true, type_rel_ident2->has_key_ident());
+          CPPUNIT_ASSERT(stdlib_w_char_abs_ident.key_ident() == type_rel_ident2->key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), tree.uncompiled_var_key_idents().size());
+        CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
+        CPPUNIT_ASSERT(d_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[1]);
+        CPPUNIT_ASSERT(e_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[2]);
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
+        CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+      }
+      
+      void ResolverTests::test_resolver_adds_function_constructors_for_unique_datatype()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+unique datatype T = C()\n\
+                  | D(Int64, WChar)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(true, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        AbsoluteIdentifier root_abs_ident;
+        CPPUNIT_ASSERT_EQUAL(true, root_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier stdlib_w_char_abs_ident(list<string> { "stdlib", "WChar" });
+        CPPUNIT_ASSERT_EQUAL(true, stdlib_w_char_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier stdlib_int64_abs_ident(list<string> { "stdlib", "Int64" });
+        CPPUNIT_ASSERT_EQUAL(true, stdlib_int64_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier t_abs_ident(list<string> { "T" });
+        CPPUNIT_ASSERT_EQUAL(true, t_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier c_abs_ident(list<string> { "C" });
+        CPPUNIT_ASSERT_EQUAL(true, c_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier d_abs_ident(list<string> { "D" });
+        CPPUNIT_ASSERT_EQUAL(true, d_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
+        {
+          TypeVariableInfo *type_var_info = tree.type_var_info(t_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != type_var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_info->access_modifier());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          UniqueDatatype *unique_datatype = dynamic_cast<UniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != unique_datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), unique_datatype->constrs().size());
+        }
+        {
+          VariableInfo *var_info = tree.var_info(c_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->access_modifier());
+          ConstructorVariable *constr_var = dynamic_cast<ConstructorVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != constr_var);
+          UnnamedFieldConstructor *constr = dynamic_cast<UnnamedFieldConstructor *>(constr_var->constr().get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(false, constr->has_datatype_fun());
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == constr->datatype_key_ident());
+          CPPUNIT_ASSERT(nullptr == constr->datatype_fun_inst());
+          CPPUNIT_ASSERT_EQUAL(true, constr->field_types().empty());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        {
+          VariableInfo *var_info = tree.var_info(d_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->access_modifier());
+          ConstructorVariable *constr_var = dynamic_cast<ConstructorVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != constr_var);
+          UnnamedFieldConstructor *constr = dynamic_cast<UnnamedFieldConstructor *>(constr_var->constr().get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(false, constr->has_datatype_fun());
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == constr->datatype_key_ident());
+          CPPUNIT_ASSERT(nullptr == constr->datatype_fun_inst());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), constr->field_types().size());
+          auto field_type_iter = constr->field_types().begin();
+          TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr1);
+          RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr1->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+          CPPUNIT_ASSERT_EQUAL(true, type_rel_ident1->has_key_ident());
+          CPPUNIT_ASSERT(stdlib_int64_abs_ident.key_ident() == type_rel_ident1->key_ident());
+          field_type_iter++;
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          CPPUNIT_ASSERT_EQUAL(true, type_rel_ident2->has_key_ident());
+          CPPUNIT_ASSERT(stdlib_w_char_abs_ident.key_ident() == type_rel_ident2->key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), tree.uncompiled_var_key_idents().size());
+        CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
+        CPPUNIT_ASSERT(d_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[1]);
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
+        CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+      }
+      
+      void ResolverTests::test_resolver_adds_public_constructor_for_public_datatype()
+      {
+        istringstream iss("\
+datatype T = C\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(true, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        AbsoluteIdentifier root_abs_ident;
+        CPPUNIT_ASSERT_EQUAL(true, root_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier t_abs_ident(list<string> { "T" });
+        CPPUNIT_ASSERT_EQUAL(true, t_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier c_abs_ident(list<string> { "C" });
+        CPPUNIT_ASSERT_EQUAL(true, c_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
+        {
+          TypeVariableInfo *type_var_info = tree.type_var_info(t_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != type_var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_info->access_modifier());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+        }
+        {
+          VariableInfo *var_info = tree.var_info(c_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->access_modifier());
+          ConstructorVariable *constr_var = dynamic_cast<ConstructorVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != constr_var);
+          VariableConstructor *constr = dynamic_cast<VariableConstructor *>(constr_var->constr().get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(false, constr->has_datatype_fun());
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == constr->datatype_key_ident());
+          CPPUNIT_ASSERT(nullptr == constr->datatype_fun_inst());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
+        CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
+        CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+      }
+      
+      void ResolverTests::test_resolver_adds_private_constructor_for_public_datatype()
+      {
+        istringstream iss("\
+datatype T = private C\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(true, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        AbsoluteIdentifier root_abs_ident;
+        CPPUNIT_ASSERT_EQUAL(true, root_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier t_abs_ident(list<string> { "T" });
+        CPPUNIT_ASSERT_EQUAL(true, t_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier c_abs_ident(list<string> { "C" });
+        CPPUNIT_ASSERT_EQUAL(true, c_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
+        {
+          TypeVariableInfo *type_var_info = tree.type_var_info(t_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != type_var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_info->access_modifier());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+        }
+        {
+          VariableInfo *var_info = tree.var_info(c_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::PRIVATE, var_info->access_modifier());
+          ConstructorVariable *constr_var = dynamic_cast<ConstructorVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != constr_var);
+          VariableConstructor *constr = dynamic_cast<VariableConstructor *>(constr_var->constr().get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(false, constr->has_datatype_fun());
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == constr->datatype_key_ident());
+          CPPUNIT_ASSERT(nullptr == constr->datatype_fun_inst());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::PRIVATE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
+        CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
+        CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+      }
+      
+      void ResolverTests::test_resolver_adds_public_constructor_for_private_datatype()
+      {
+        istringstream iss("\
+private datatype T = C\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(true, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        AbsoluteIdentifier root_abs_ident;
+        CPPUNIT_ASSERT_EQUAL(true, root_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier t_abs_ident(list<string> { "T" });
+        CPPUNIT_ASSERT_EQUAL(true, t_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier c_abs_ident(list<string> { "C" });
+        CPPUNIT_ASSERT_EQUAL(true, c_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
+        {
+          TypeVariableInfo *type_var_info = tree.type_var_info(t_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != type_var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::PRIVATE, type_var_info->access_modifier());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+        }
+        {
+          VariableInfo *var_info = tree.var_info(c_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::PRIVATE, var_info->access_modifier());
+          ConstructorVariable *constr_var = dynamic_cast<ConstructorVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != constr_var);
+          VariableConstructor *constr = dynamic_cast<VariableConstructor *>(constr_var->constr().get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(false, constr->has_datatype_fun());
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == constr->datatype_key_ident());
+          CPPUNIT_ASSERT(nullptr == constr->datatype_fun_inst());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
+        CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
+        CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+      }
+
+      void ResolverTests::test_resolver_adds_private_constructor_for_private_datatype()
+      {
+        istringstream iss("\
+private datatype T = private C\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(true, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        AbsoluteIdentifier root_abs_ident;
+        CPPUNIT_ASSERT_EQUAL(true, root_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier t_abs_ident(list<string> { "T" });
+        CPPUNIT_ASSERT_EQUAL(true, t_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier c_abs_ident(list<string> { "C" });
+        CPPUNIT_ASSERT_EQUAL(true, c_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
+        {
+          TypeVariableInfo *type_var_info = tree.type_var_info(t_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != type_var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::PRIVATE, type_var_info->access_modifier());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+        }
+        {
+          VariableInfo *var_info = tree.var_info(c_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::PRIVATE, var_info->access_modifier());
+          ConstructorVariable *constr_var = dynamic_cast<ConstructorVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != constr_var);
+          VariableConstructor *constr = dynamic_cast<VariableConstructor *>(constr_var->constr().get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(false, constr->has_datatype_fun());
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == constr->datatype_key_ident());
+          CPPUNIT_ASSERT(nullptr == constr->datatype_fun_inst());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::PRIVATE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
+        CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
+        CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+      }
+      
+      void ResolverTests::test_resolver_adds_variable_constructor()
+      {
+        istringstream iss("\
+datatype T = C\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(true, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        AbsoluteIdentifier root_abs_ident;
+        CPPUNIT_ASSERT_EQUAL(true, root_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier t_abs_ident(list<string> { "T" });
+        CPPUNIT_ASSERT_EQUAL(true, t_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier c_abs_ident(list<string> { "C" });
+        CPPUNIT_ASSERT_EQUAL(true, c_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
+        {
+          TypeVariableInfo *type_var_info = tree.type_var_info(t_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != type_var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_info->access_modifier());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+        }
+        {
+          VariableInfo *var_info = tree.var_info(c_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->access_modifier());
+          ConstructorVariable *constr_var = dynamic_cast<ConstructorVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != constr_var);
+          VariableConstructor *constr = dynamic_cast<VariableConstructor *>(constr_var->constr().get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(false, constr->has_datatype_fun());
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == constr->datatype_key_ident());
+          CPPUNIT_ASSERT(nullptr == constr->datatype_fun_inst());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
+        CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
+        CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+      }
+      
+      void ResolverTests::test_resolver_adds_function_constructor()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C(Char, WChar, Int64)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(true, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        AbsoluteIdentifier root_abs_ident;
+        CPPUNIT_ASSERT_EQUAL(true, root_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier stdlib_char_abs_ident(list<string> { "stdlib", "Char" });
+        CPPUNIT_ASSERT_EQUAL(true, stdlib_char_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier stdlib_w_char_abs_ident(list<string> { "stdlib", "WChar" });
+        CPPUNIT_ASSERT_EQUAL(true, stdlib_w_char_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier stdlib_int64_abs_ident(list<string> { "stdlib", "Int64" });
+        CPPUNIT_ASSERT_EQUAL(true, stdlib_int64_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier t_abs_ident(list<string> { "T" });
+        CPPUNIT_ASSERT_EQUAL(true, t_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier c_abs_ident(list<string> { "C" });
+        CPPUNIT_ASSERT_EQUAL(true, c_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
+        {
+          TypeVariableInfo *type_var_info = tree.type_var_info(t_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != type_var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_info->access_modifier());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+        }
+        {
+          VariableInfo *var_info = tree.var_info(c_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->access_modifier());
+          ConstructorVariable *constr_var = dynamic_cast<ConstructorVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != constr_var);
+          UnnamedFieldConstructor *constr = dynamic_cast<UnnamedFieldConstructor *>(constr_var->constr().get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(false, constr->has_datatype_fun());
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == constr->datatype_key_ident());
+          CPPUNIT_ASSERT(nullptr == constr->datatype_fun_inst());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), constr->field_types().size());
+          auto field_type_iter = constr->field_types().begin();
+          TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr1);
+          RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr1->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+          CPPUNIT_ASSERT_EQUAL(true, type_rel_ident1->has_key_ident());
+          CPPUNIT_ASSERT(stdlib_char_abs_ident.key_ident() == type_rel_ident1->key_ident());
+          field_type_iter++;
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          CPPUNIT_ASSERT_EQUAL(true, type_rel_ident2->has_key_ident());
+          CPPUNIT_ASSERT(stdlib_w_char_abs_ident.key_ident() == type_rel_ident2->key_ident());
+          field_type_iter++;
+          TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>(field_type_iter->get());
+          CPPUNIT_ASSERT(nullptr != type_var_expr3);
+          RelativeIdentifier *type_rel_ident3 = dynamic_cast<RelativeIdentifier *>(type_var_expr3->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident3);
+          CPPUNIT_ASSERT_EQUAL(true, type_rel_ident3->has_key_ident());
+          CPPUNIT_ASSERT(stdlib_int64_abs_ident.key_ident() == type_rel_ident3->key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
+        CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
+        CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+      }
+      
+      void ResolverTests::test_resolver_adds_named_field_constructor()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C {\n\
+    field1: Int64,\n\
+    field2: WChar,\n\
+    field3: Char\n\
+  }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(true, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        AbsoluteIdentifier root_abs_ident;
+        CPPUNIT_ASSERT_EQUAL(true, root_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier stdlib_char_abs_ident(list<string> { "stdlib", "Char" });
+        CPPUNIT_ASSERT_EQUAL(true, stdlib_char_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier stdlib_w_char_abs_ident(list<string> { "stdlib", "WChar" });
+        CPPUNIT_ASSERT_EQUAL(true, stdlib_w_char_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier stdlib_int64_abs_ident(list<string> { "stdlib", "Int64" });
+        CPPUNIT_ASSERT_EQUAL(true, stdlib_int64_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier t_abs_ident(list<string> { "T" });
+        CPPUNIT_ASSERT_EQUAL(true, t_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier c_abs_ident(list<string> { "C" });
+        CPPUNIT_ASSERT_EQUAL(true, c_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
+        {
+          TypeVariableInfo *type_var_info = tree.type_var_info(t_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != type_var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_var_info->access_modifier());
+          DatatypeVariable *datatype_var = dynamic_cast<DatatypeVariable *>(type_var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != datatype_var);
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_var->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+        }
+        {
+          VariableInfo *var_info = tree.var_info(c_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->access_modifier());
+          ConstructorVariable *constr_var = dynamic_cast<ConstructorVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != constr_var);
+          NamedFieldConstructor *constr = dynamic_cast<NamedFieldConstructor *>(constr_var->constr().get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(false, constr->has_datatype_fun());
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == constr->datatype_key_ident());
+          CPPUNIT_ASSERT(nullptr == constr->datatype_fun_inst());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), constr->field_types().size());
+          auto field_type_iter = constr->field_types().begin();
+          TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>((*field_type_iter)->type_expr());
+          CPPUNIT_ASSERT(nullptr != type_var_expr1);
+          RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr1->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+          CPPUNIT_ASSERT_EQUAL(true, type_rel_ident1->has_key_ident());
+          CPPUNIT_ASSERT(stdlib_int64_abs_ident.key_ident() == type_rel_ident1->key_ident());
+          field_type_iter++;
+          TypeVariableExpression *type_var_expr2 = dynamic_cast<TypeVariableExpression *>((*field_type_iter)->type_expr());
+          CPPUNIT_ASSERT(nullptr != type_var_expr2);
+          RelativeIdentifier *type_rel_ident2 = dynamic_cast<RelativeIdentifier *>(type_var_expr2->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident2);
+          CPPUNIT_ASSERT_EQUAL(true, type_rel_ident2->has_key_ident());
+          CPPUNIT_ASSERT(stdlib_w_char_abs_ident.key_ident() == type_rel_ident2->key_ident());
+          field_type_iter++;
+          TypeVariableExpression *type_var_expr3 = dynamic_cast<TypeVariableExpression *>((*field_type_iter)->type_expr());
+          CPPUNIT_ASSERT(nullptr != type_var_expr3);
+          RelativeIdentifier *type_rel_ident3 = dynamic_cast<RelativeIdentifier *>(type_var_expr3->ident());
+          CPPUNIT_ASSERT(nullptr != type_rel_ident3);
+          CPPUNIT_ASSERT_EQUAL(true, type_rel_ident3->has_key_ident());
+          CPPUNIT_ASSERT(stdlib_char_abs_ident.key_ident() == type_rel_ident3->key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
+        CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
+        CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+      }
+      
+      void ResolverTests::test_resolver_adds_constructor_in_type_function_instance_where_access_modifier_is_not_updated()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+template(t)\n\
+datatype T(t)\n\
+\n\
+instance\n\
+datatype T(Int64) = C\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(true, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        AbsoluteIdentifier root_abs_ident;
+        CPPUNIT_ASSERT_EQUAL(true, root_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier stdlib_int64_abs_ident(list<string> { "stdlib", "Int64" });
+        CPPUNIT_ASSERT_EQUAL(true, stdlib_int64_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier t_abs_ident(list<string> { "T" });
+        CPPUNIT_ASSERT_EQUAL(true, t_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier c_abs_ident(list<string> { "C" });
+        CPPUNIT_ASSERT_EQUAL(true, c_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
+        {
+          TypeFunctionInfo *type_fun_info = tree.type_fun_info(t_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != type_fun_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_fun_info->access_modifier());
+          DatatypeFunction *datatype_fun = dynamic_cast<DatatypeFunction *>(type_fun_info->fun().get());
+          CPPUNIT_ASSERT(nullptr != datatype_fun);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype_fun->inst_type_params().size());
+          auto inst_type_param_iter = datatype_fun->inst_type_params().begin();
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), (*inst_type_param_iter)->index());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype_fun->args().size());
+          auto type_arg_iter = datatype_fun->args().begin();
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), (*type_arg_iter)->index());
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_fun->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(true, datatype->constrs().empty());
+          CPPUNIT_ASSERT(nullptr != type_fun_info->insts());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_fun_info->insts()->size());
+          auto inst_iter = type_fun_info->insts()->begin();
+          {
+            DatatypeFunctionInstance *datatype_fun_inst = dynamic_cast<DatatypeFunctionInstance *>(inst_iter->get());
+            CPPUNIT_ASSERT(nullptr != datatype_fun_inst);
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype_fun_inst->args().size());
+            auto type_arg_iter = datatype_fun_inst->args().begin();
+            TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>(type_arg_iter->get());
+            CPPUNIT_ASSERT(nullptr != type_var_expr1);
+            RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr1->ident());
+            CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+            CPPUNIT_ASSERT_EQUAL(true, type_rel_ident1->has_key_ident());
+            CPPUNIT_ASSERT(stdlib_int64_abs_ident.key_ident() == type_rel_ident1->key_ident());
+            NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_fun_inst->datatype());
+            CPPUNIT_ASSERT(nullptr != datatype);
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+          }
+        }
+        {
+          VariableInfo *var_info = tree.var_info(c_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->access_modifier());
+          ConstructorVariable *constr_var = dynamic_cast<ConstructorVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != constr_var);
+          VariableConstructor *constr = dynamic_cast<VariableConstructor *>(constr_var->constr().get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(true, constr->has_datatype_fun());
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == constr->datatype_key_ident());
+          TypeFunctionInfo *type_fun_info = tree.type_fun_info(t_abs_ident.key_ident());
+          auto inst_iter = type_fun_info->insts()->begin();
+          CPPUNIT_ASSERT(inst_iter->get() == constr->datatype_fun_inst());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr != var_info->datatype_ident());
+        }
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
+        CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
+        CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+      }
+
+      void ResolverTests::test_resolver_adds_public_constructor_in_type_function_instance_for_public_datatype()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+template(t)\n\
+datatype T(t)\n\
+\n\
+instance\n\
+datatype T(Int64) = C\n\
+\n\
+f() = C\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(true, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        AbsoluteIdentifier root_abs_ident;
+        CPPUNIT_ASSERT_EQUAL(true, root_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier stdlib_int64_abs_ident(list<string> { "stdlib", "Int64" });
+        CPPUNIT_ASSERT_EQUAL(true, stdlib_int64_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier t_abs_ident(list<string> { "T" });
+        CPPUNIT_ASSERT_EQUAL(true, t_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier c_abs_ident(list<string> { "C" });
+        CPPUNIT_ASSERT_EQUAL(true, c_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier f_abs_ident(list<string> { "f" });
+        CPPUNIT_ASSERT_EQUAL(true, f_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
+        {
+          TypeFunctionInfo *type_fun_info = tree.type_fun_info(t_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != type_fun_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_fun_info->access_modifier());
+          DatatypeFunction *datatype_fun = dynamic_cast<DatatypeFunction *>(type_fun_info->fun().get());
+          CPPUNIT_ASSERT(nullptr != datatype_fun);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype_fun->inst_type_params().size());
+          auto inst_type_param_iter = datatype_fun->inst_type_params().begin();
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), (*inst_type_param_iter)->index());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype_fun->args().size());
+          auto type_arg_iter = datatype_fun->args().begin();
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), (*type_arg_iter)->index());
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_fun->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(true, datatype->constrs().empty());
+          CPPUNIT_ASSERT(nullptr != type_fun_info->insts());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_fun_info->insts()->size());
+          auto inst_iter = type_fun_info->insts()->begin();
+          {
+            DatatypeFunctionInstance *datatype_fun_inst = dynamic_cast<DatatypeFunctionInstance *>(inst_iter->get());
+            CPPUNIT_ASSERT(nullptr != datatype_fun_inst);
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype_fun_inst->args().size());
+            auto type_arg_iter = datatype_fun_inst->args().begin();
+            TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>(type_arg_iter->get());
+            CPPUNIT_ASSERT(nullptr != type_var_expr1);
+            RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr1->ident());
+            CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+            CPPUNIT_ASSERT_EQUAL(true, type_rel_ident1->has_key_ident());
+            CPPUNIT_ASSERT(stdlib_int64_abs_ident.key_ident() == type_rel_ident1->key_ident());
+            NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_fun_inst->datatype());
+            CPPUNIT_ASSERT(nullptr != datatype);
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+          }
+        }
+        {
+          VariableInfo *var_info = tree.var_info(c_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->access_modifier());
+          ConstructorVariable *constr_var = dynamic_cast<ConstructorVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != constr_var);
+          VariableConstructor *constr = dynamic_cast<VariableConstructor *>(constr_var->constr().get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(true, constr->has_datatype_fun());
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == constr->datatype_key_ident());
+          TypeFunctionInfo *type_fun_info = tree.type_fun_info(t_abs_ident.key_ident());
+          auto inst_iter = type_fun_info->insts()->begin();
+          CPPUNIT_ASSERT(inst_iter->get() == constr->datatype_fun_inst());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        {
+          VariableInfo *var_info = tree.var_info(f_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->access_modifier());
+          FunctionVariable *fun_var = dynamic_cast<FunctionVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != fun_var);
+          UserDefinedFunction *user_defined_fun = dynamic_cast<UserDefinedFunction *>(fun_var->fun().get());
+          CPPUNIT_ASSERT(nullptr != user_defined_fun);
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->args().empty());
+          CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
+          VariableExpression *var_expr1 = dynamic_cast<VariableExpression *>(user_defined_fun->body());
+          CPPUNIT_ASSERT(nullptr != var_expr1);
+          RelativeIdentifier *rel_ident1 = dynamic_cast<RelativeIdentifier *>(var_expr1->ident());
+          CPPUNIT_ASSERT(nullptr != rel_ident1);
+          CPPUNIT_ASSERT_EQUAL(true, rel_ident1->has_key_ident());
+          CPPUNIT_ASSERT(c_abs_ident.key_ident() == rel_ident1->key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), tree.uncompiled_var_key_idents().size());
+        CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
+        CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[1]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
+        CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+      }
+      
+      void ResolverTests::test_resolver_adds_private_constructor_in_type_function_instance_for_public_datatype()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+template(t)\n\
+datatype T(t)\n\
+\n\
+instance\n\
+datatype T(Int64) = private C\n\
+\n\
+f() = C\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(true, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        AbsoluteIdentifier root_abs_ident;
+        CPPUNIT_ASSERT_EQUAL(true, root_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier stdlib_int64_abs_ident(list<string> { "stdlib", "Int64" });
+        CPPUNIT_ASSERT_EQUAL(true, stdlib_int64_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier t_abs_ident(list<string> { "T" });
+        CPPUNIT_ASSERT_EQUAL(true, t_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier c_abs_ident(list<string> { "C" });
+        CPPUNIT_ASSERT_EQUAL(true, c_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier f_abs_ident(list<string> { "f" });
+        CPPUNIT_ASSERT_EQUAL(true, f_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
+        {
+          TypeFunctionInfo *type_fun_info = tree.type_fun_info(t_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != type_fun_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, type_fun_info->access_modifier());
+          DatatypeFunction *datatype_fun = dynamic_cast<DatatypeFunction *>(type_fun_info->fun().get());
+          CPPUNIT_ASSERT(nullptr != datatype_fun);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype_fun->inst_type_params().size());
+          auto inst_type_param_iter = datatype_fun->inst_type_params().begin();
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), (*inst_type_param_iter)->index());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype_fun->args().size());
+          auto type_arg_iter = datatype_fun->args().begin();
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), (*type_arg_iter)->index());
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_fun->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(true, datatype->constrs().empty());
+          CPPUNIT_ASSERT(nullptr != type_fun_info->insts());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_fun_info->insts()->size());
+          auto inst_iter = type_fun_info->insts()->begin();
+          {
+            DatatypeFunctionInstance *datatype_fun_inst = dynamic_cast<DatatypeFunctionInstance *>(inst_iter->get());
+            CPPUNIT_ASSERT(nullptr != datatype_fun_inst);
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype_fun_inst->args().size());
+            auto type_arg_iter = datatype_fun_inst->args().begin();
+            TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>(type_arg_iter->get());
+            CPPUNIT_ASSERT(nullptr != type_var_expr1);
+            RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr1->ident());
+            CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+            CPPUNIT_ASSERT_EQUAL(true, type_rel_ident1->has_key_ident());
+            CPPUNIT_ASSERT(stdlib_int64_abs_ident.key_ident() == type_rel_ident1->key_ident());
+            NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_fun_inst->datatype());
+            CPPUNIT_ASSERT(nullptr != datatype);
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+          }
+        }
+        {
+          VariableInfo *var_info = tree.var_info(c_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::PRIVATE, var_info->access_modifier());
+          ConstructorVariable *constr_var = dynamic_cast<ConstructorVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != constr_var);
+          VariableConstructor *constr = dynamic_cast<VariableConstructor *>(constr_var->constr().get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(true, constr->has_datatype_fun());
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == constr->datatype_key_ident());
+          TypeFunctionInfo *type_fun_info = tree.type_fun_info(t_abs_ident.key_ident());
+          auto inst_iter = type_fun_info->insts()->begin();
+          CPPUNIT_ASSERT(inst_iter->get() == constr->datatype_fun_inst());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::PRIVATE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        {
+          VariableInfo *var_info = tree.var_info(f_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->access_modifier());
+          FunctionVariable *fun_var = dynamic_cast<FunctionVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != fun_var);
+          UserDefinedFunction *user_defined_fun = dynamic_cast<UserDefinedFunction *>(fun_var->fun().get());
+          CPPUNIT_ASSERT(nullptr != user_defined_fun);
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->args().empty());
+          CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
+          VariableExpression *var_expr1 = dynamic_cast<VariableExpression *>(user_defined_fun->body());
+          CPPUNIT_ASSERT(nullptr != var_expr1);
+          RelativeIdentifier *rel_ident1 = dynamic_cast<RelativeIdentifier *>(var_expr1->ident());
+          CPPUNIT_ASSERT(nullptr != rel_ident1);
+          CPPUNIT_ASSERT_EQUAL(true, rel_ident1->has_key_ident());
+          CPPUNIT_ASSERT(c_abs_ident.key_ident() == rel_ident1->key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), tree.uncompiled_var_key_idents().size());
+        CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
+        CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[1]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
+        CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+      }
+      
+      void ResolverTests::test_resolver_adds_public_constructor_in_type_function_instance_for_private_datatype()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+template(t)\n\
+private datatype T(t)\n\
+\n\
+instance\n\
+datatype T(Int64) = C\n\
+\n\
+f() = C\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(true, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        AbsoluteIdentifier root_abs_ident;
+        CPPUNIT_ASSERT_EQUAL(true, root_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier stdlib_int64_abs_ident(list<string> { "stdlib", "Int64" });
+        CPPUNIT_ASSERT_EQUAL(true, stdlib_int64_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier t_abs_ident(list<string> { "T" });
+        CPPUNIT_ASSERT_EQUAL(true, t_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier c_abs_ident(list<string> { "C" });
+        CPPUNIT_ASSERT_EQUAL(true, c_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier f_abs_ident(list<string> { "f" });
+        CPPUNIT_ASSERT_EQUAL(true, f_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
+        {
+          TypeFunctionInfo *type_fun_info = tree.type_fun_info(t_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != type_fun_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::PRIVATE, type_fun_info->access_modifier());
+          DatatypeFunction *datatype_fun = dynamic_cast<DatatypeFunction *>(type_fun_info->fun().get());
+          CPPUNIT_ASSERT(nullptr != datatype_fun);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype_fun->inst_type_params().size());
+          auto inst_type_param_iter = datatype_fun->inst_type_params().begin();
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), (*inst_type_param_iter)->index());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype_fun->args().size());
+          auto type_arg_iter = datatype_fun->args().begin();
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), (*type_arg_iter)->index());
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_fun->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(true, datatype->constrs().empty());
+          CPPUNIT_ASSERT(nullptr != type_fun_info->insts());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_fun_info->insts()->size());
+          auto inst_iter = type_fun_info->insts()->begin();
+          {
+            DatatypeFunctionInstance *datatype_fun_inst = dynamic_cast<DatatypeFunctionInstance *>(inst_iter->get());
+            CPPUNIT_ASSERT(nullptr != datatype_fun_inst);
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype_fun_inst->args().size());
+            auto type_arg_iter = datatype_fun_inst->args().begin();
+            TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>(type_arg_iter->get());
+            CPPUNIT_ASSERT(nullptr != type_var_expr1);
+            RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr1->ident());
+            CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+            CPPUNIT_ASSERT_EQUAL(true, type_rel_ident1->has_key_ident());
+            CPPUNIT_ASSERT(stdlib_int64_abs_ident.key_ident() == type_rel_ident1->key_ident());
+            NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_fun_inst->datatype());
+            CPPUNIT_ASSERT(nullptr != datatype);
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+          }
+        }
+        {
+          VariableInfo *var_info = tree.var_info(c_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::PRIVATE, var_info->access_modifier());
+          ConstructorVariable *constr_var = dynamic_cast<ConstructorVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != constr_var);
+          VariableConstructor *constr = dynamic_cast<VariableConstructor *>(constr_var->constr().get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(true, constr->has_datatype_fun());
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == constr->datatype_key_ident());
+          TypeFunctionInfo *type_fun_info = tree.type_fun_info(t_abs_ident.key_ident());
+          auto inst_iter = type_fun_info->insts()->begin();
+          CPPUNIT_ASSERT(inst_iter->get() == constr->datatype_fun_inst());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        {
+          VariableInfo *var_info = tree.var_info(f_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->access_modifier());
+          FunctionVariable *fun_var = dynamic_cast<FunctionVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != fun_var);
+          UserDefinedFunction *user_defined_fun = dynamic_cast<UserDefinedFunction *>(fun_var->fun().get());
+          CPPUNIT_ASSERT(nullptr != user_defined_fun);
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->args().empty());
+          CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
+          VariableExpression *var_expr1 = dynamic_cast<VariableExpression *>(user_defined_fun->body());
+          CPPUNIT_ASSERT(nullptr != var_expr1);
+          RelativeIdentifier *rel_ident1 = dynamic_cast<RelativeIdentifier *>(var_expr1->ident());
+          CPPUNIT_ASSERT(nullptr != rel_ident1);
+          CPPUNIT_ASSERT_EQUAL(true, rel_ident1->has_key_ident());
+          CPPUNIT_ASSERT(c_abs_ident.key_ident() == rel_ident1->key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), tree.uncompiled_var_key_idents().size());
+        CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
+        CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[1]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
+        CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+      }
+      
+      void ResolverTests::test_resolver_adds_private_constructor_in_type_function_instance_for_private_datatype()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+template(t)\n\
+private datatype T(t)\n\
+\n\
+instance\n\
+datatype T(Int64) = private C\n\
+\n\
+f() = C\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(true, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        AbsoluteIdentifier root_abs_ident;
+        CPPUNIT_ASSERT_EQUAL(true, root_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier stdlib_int64_abs_ident(list<string> { "stdlib", "Int64" });
+        CPPUNIT_ASSERT_EQUAL(true, stdlib_int64_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier t_abs_ident(list<string> { "T" });
+        CPPUNIT_ASSERT_EQUAL(true, t_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier c_abs_ident(list<string> { "C" });
+        CPPUNIT_ASSERT_EQUAL(true, c_abs_ident.set_key_ident(*(tree.ident_table())));
+        AbsoluteIdentifier f_abs_ident(list<string> { "f" });
+        CPPUNIT_ASSERT_EQUAL(true, f_abs_ident.set_key_ident(*(tree.ident_table())));
+        CPPUNIT_ASSERT_EQUAL(true, tree.has_module_key_ident(root_abs_ident.key_ident()));
+        {
+          TypeFunctionInfo *type_fun_info = tree.type_fun_info(t_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != type_fun_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::PRIVATE, type_fun_info->access_modifier());
+          DatatypeFunction *datatype_fun = dynamic_cast<DatatypeFunction *>(type_fun_info->fun().get());
+          CPPUNIT_ASSERT(nullptr != datatype_fun);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype_fun->inst_type_params().size());
+          auto inst_type_param_iter = datatype_fun->inst_type_params().begin();
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), (*inst_type_param_iter)->index());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype_fun->args().size());
+          auto type_arg_iter = datatype_fun->args().begin();
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), (*type_arg_iter)->index());
+          NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_fun->datatype());
+          CPPUNIT_ASSERT(nullptr != datatype);
+          CPPUNIT_ASSERT_EQUAL(true, datatype->constrs().empty());
+          CPPUNIT_ASSERT(nullptr != type_fun_info->insts());
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), type_fun_info->insts()->size());
+          auto inst_iter = type_fun_info->insts()->begin();
+          {
+            DatatypeFunctionInstance *datatype_fun_inst = dynamic_cast<DatatypeFunctionInstance *>(inst_iter->get());
+            CPPUNIT_ASSERT(nullptr != datatype_fun_inst);
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype_fun_inst->args().size());
+            auto type_arg_iter = datatype_fun_inst->args().begin();
+            TypeVariableExpression *type_var_expr1 = dynamic_cast<TypeVariableExpression *>(type_arg_iter->get());
+            CPPUNIT_ASSERT(nullptr != type_var_expr1);
+            RelativeIdentifier *type_rel_ident1 = dynamic_cast<RelativeIdentifier *>(type_var_expr1->ident());
+            CPPUNIT_ASSERT(nullptr != type_rel_ident1);
+            CPPUNIT_ASSERT_EQUAL(true, type_rel_ident1->has_key_ident());
+            CPPUNIT_ASSERT(stdlib_int64_abs_ident.key_ident() == type_rel_ident1->key_ident());
+            NonUniqueDatatype *datatype = dynamic_cast<NonUniqueDatatype *>(datatype_fun_inst->datatype());
+            CPPUNIT_ASSERT(nullptr != datatype);
+            CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), datatype->constrs().size());
+          }
+        }
+        {
+          VariableInfo *var_info = tree.var_info(c_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::PRIVATE, var_info->access_modifier());
+          ConstructorVariable *constr_var = dynamic_cast<ConstructorVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != constr_var);
+          VariableConstructor *constr = dynamic_cast<VariableConstructor *>(constr_var->constr().get());
+          CPPUNIT_ASSERT(nullptr != constr);
+          CPPUNIT_ASSERT_EQUAL(true, constr->has_datatype_fun());
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == constr->datatype_key_ident());
+          TypeFunctionInfo *type_fun_info = tree.type_fun_info(t_abs_ident.key_ident());
+          auto inst_iter = type_fun_info->insts()->begin();
+          CPPUNIT_ASSERT(inst_iter->get() == constr->datatype_fun_inst());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::PRIVATE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        {
+          VariableInfo *var_info = tree.var_info(f_abs_ident.key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info);
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->access_modifier());
+          FunctionVariable *fun_var = dynamic_cast<FunctionVariable *>(var_info->var().get());
+          CPPUNIT_ASSERT(nullptr != fun_var);
+          UserDefinedFunction *user_defined_fun = dynamic_cast<UserDefinedFunction *>(fun_var->fun().get());
+          CPPUNIT_ASSERT(nullptr != user_defined_fun);
+          CPPUNIT_ASSERT_EQUAL(true, user_defined_fun->args().empty());
+          CPPUNIT_ASSERT(nullptr == user_defined_fun->result_type_expr());
+          VariableExpression *var_expr1 = dynamic_cast<VariableExpression *>(user_defined_fun->body());
+          CPPUNIT_ASSERT(nullptr != var_expr1);
+          RelativeIdentifier *rel_ident1 = dynamic_cast<RelativeIdentifier *>(var_expr1->ident());
+          CPPUNIT_ASSERT(nullptr != rel_ident1);
+          CPPUNIT_ASSERT_EQUAL(true, rel_ident1->has_key_ident());
+          CPPUNIT_ASSERT(c_abs_ident.key_ident() == rel_ident1->key_ident());
+          CPPUNIT_ASSERT(nullptr != var_info->insts().get());
+          CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
+          CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
+          CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
+        }
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), tree.uncompiled_var_key_idents().size());
+        CPPUNIT_ASSERT(c_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
+        CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[1]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
+        CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+      }
     }
   }
 }

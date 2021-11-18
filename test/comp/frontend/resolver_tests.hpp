@@ -68,6 +68,20 @@ namespace lesfl
         CPPUNIT_TEST(test_resolver_adds_datatype_function_without_constructors_with_access_modifier_and_instance_type_parameter);
         CPPUNIT_TEST(test_resolver_adds_unique_datatype_function_without_constructors);
         CPPUNIT_TEST(test_resolver_adds_unique_datatype_function_without_constrcutors_with_access_modifier_and_instance_type_parameter);
+        CPPUNIT_TEST(test_resolver_adds_constructors);
+        CPPUNIT_TEST(test_resolver_adds_function_constructors_for_unique_datatype);
+        CPPUNIT_TEST(test_resolver_adds_public_constructor_for_public_datatype);
+        CPPUNIT_TEST(test_resolver_adds_private_constructor_for_public_datatype);
+        CPPUNIT_TEST(test_resolver_adds_public_constructor_for_private_datatype);
+        CPPUNIT_TEST(test_resolver_adds_private_constructor_for_private_datatype);
+        CPPUNIT_TEST(test_resolver_adds_variable_constructor);
+        CPPUNIT_TEST(test_resolver_adds_function_constructor);
+        CPPUNIT_TEST(test_resolver_adds_named_field_constructor);
+        CPPUNIT_TEST(test_resolver_adds_constructor_in_type_function_instance_where_access_modifier_is_not_updated);
+        CPPUNIT_TEST(test_resolver_adds_public_constructor_in_type_function_instance_for_public_datatype);
+        CPPUNIT_TEST(test_resolver_adds_private_constructor_in_type_function_instance_for_public_datatype);
+        CPPUNIT_TEST(test_resolver_adds_public_constructor_in_type_function_instance_for_private_datatype);
+        CPPUNIT_TEST(test_resolver_adds_private_constructor_in_type_function_instance_for_private_datatype);
         CPPUNIT_TEST_SUITE_END();
 
         BuiltinTypeAdder *_M_builtin_type_adder;
@@ -124,6 +138,21 @@ namespace lesfl
         void test_resolver_adds_datatype_function_without_constructors_with_access_modifier_and_instance_type_parameter();
         void test_resolver_adds_unique_datatype_function_without_constructors();
         void test_resolver_adds_unique_datatype_function_without_constrcutors_with_access_modifier_and_instance_type_parameter();
+        void test_resolver_adds_constructors();
+        void test_resolver_adds_function_constructors_for_unique_datatype();
+        void test_resolver_adds_public_constructor_for_public_datatype();
+        void test_resolver_adds_private_constructor_for_public_datatype();
+        void test_resolver_adds_public_constructor_for_private_datatype();
+        void test_resolver_adds_private_constructor_for_private_datatype();
+        void test_resolver_adds_variable_constructor();
+        void test_resolver_adds_function_constructor();
+        void test_resolver_adds_named_field_constructor();
+        void test_resolver_adds_constructor_in_type_function_instance_where_access_modifier_is_not_updated();
+        void test_resolver_adds_public_constructor_in_type_function_instance_for_public_datatype();
+        void test_resolver_adds_private_constructor_in_type_function_instance_for_public_datatype();
+        void test_resolver_adds_public_constructor_in_type_function_instance_for_private_datatype();
+        void test_resolver_adds_private_constructor_in_type_function_instance_for_private_datatype();
+
       };
     }
   }
