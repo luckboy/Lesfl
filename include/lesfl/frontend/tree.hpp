@@ -149,10 +149,10 @@ namespace lesfl
       ~IdentifiableAndIndexable();
     };
 
-    class Instance
+    class Instance : public Positional
     {
     protected:
-      Instance() {}
+      Instance(const Position &pos) : Positional(pos) {}
     public:
       virtual ~Instance();
     };
@@ -628,7 +628,7 @@ namespace lesfl
     {
       std::shared_ptr<Variable> _M_var;
     public:
-      VariableInstance(Variable *var) : _M_var(var) {}
+      VariableInstance(Variable *var, const Position &pos) : Instance(pos), _M_var(var) {}
 
       ~VariableInstance();
 
@@ -737,7 +737,7 @@ namespace lesfl
     {
       std::shared_ptr<Function> _M_fun;
     public:
-      FunctionInstance(Function *fun) : _M_fun(fun) {}
+      FunctionInstance(Function *fun, const Position &pos) : Instance(pos), _M_fun(fun) {}
 
       ~FunctionInstance();
 
@@ -1774,14 +1774,14 @@ namespace lesfl
       BuiltinTypeTemplate builtin_type_template() const { return _M_builtin_type_temlate; }
     };
 
-    class TypeFunctionInstance
+    class TypeFunctionInstance : public Positional
     {
     protected:
       bool _M_is_template;
       std::unique_ptr<const std::list<std::unique_ptr<TypeExpression>>> _M_args;
 
-      TypeFunctionInstance(bool is_template, const std::list<std::unique_ptr<TypeExpression>> *args) :
-        _M_is_template(is_template), _M_args(args) {}
+      TypeFunctionInstance(bool is_template, const std::list<std::unique_ptr<TypeExpression>> *args, const Position &pos) :
+        Positional(pos), _M_is_template(is_template), _M_args(args) {}
     public:
       virtual ~TypeFunctionInstance();
       
@@ -1794,8 +1794,8 @@ namespace lesfl
     {
       std::unique_ptr<TypeExpression> _M_body;
     public:
-      TypeSynonymFunctionInstance(bool is_template, const std::list<std::unique_ptr<TypeExpression>> *args, TypeExpression *body) :
-        TypeFunctionInstance(is_template, args), _M_body(body) {}
+      TypeSynonymFunctionInstance(bool is_template, const std::list<std::unique_ptr<TypeExpression>> *args, TypeExpression *body, const Position &pos) :
+        TypeFunctionInstance(is_template, args, pos), _M_body(body) {}
 
       ~TypeSynonymFunctionInstance();
 
@@ -1806,8 +1806,8 @@ namespace lesfl
     {
       std::unique_ptr<Datatype> _M_datatype;
     public:
-      DatatypeFunctionInstance(bool is_template, const std::list<std::unique_ptr<TypeExpression>> *args, Datatype *datatype) :
-        TypeFunctionInstance(is_template, args), _M_datatype(datatype) {}
+      DatatypeFunctionInstance(bool is_template, const std::list<std::unique_ptr<TypeExpression>> *args, Datatype *datatype, const Position &pos) :
+        TypeFunctionInstance(is_template, args, pos), _M_datatype(datatype) {}
 
       ~DatatypeFunctionInstance();
 

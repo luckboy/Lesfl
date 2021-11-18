@@ -551,15 +551,15 @@ def:            "import" module_qident {
   delete $3;
 }
 |               "instance" ident opt_typing '=' value {
-  $$ = new VariableInstanceDefinition(*$2, new VariableInstance(new UserDefinedVariable($3, $5)), P(@2));
+  $$ = new VariableInstanceDefinition(*$2, new VariableInstance(new UserDefinedVariable($3, $5), P(@2)), P(@2));
   delete $2;
 }
 |               "instance" "extern" ident typing '=' ident {
-  $$ = new VariableInstanceDefinition(*$3, new VariableInstance(new ExternalVariable($4, *$6)), P(@3));
+  $$ = new VariableInstanceDefinition(*$3, new VariableInstance(new ExternalVariable($4, *$6), P(@3)), P(@3));
   delete $3; delete $6;
 }
 |               "template" "instance" ident opt_typing '=' value {
-  $$ = new VariableInstanceDefinition(*$3, new VariableInstance(new UserDefinedVariable(make_unique_ptr_list<TypeParameter>(), $4, $6)), P(@3));
+  $$ = new VariableInstanceDefinition(*$3, new VariableInstance(new UserDefinedVariable(make_unique_ptr_list<TypeParameter>(), $4, $6), P(@3)), P(@3));
   delete $3;
 }
 |               annotations modifiers2 ident_and_args opt_typing '=' expr {
@@ -590,23 +590,23 @@ def:            "import" module_qident {
   delete $3;
 }
 |               "instance" annotations modifiers3 ident_and_args opt_typing '=' expr {
-  $$ = new FunctionInstanceDefinition(std::get<0>(*$4), new FunctionInstance(new UserDefinedFunction($2, $3->first, $3->second, std::get<1>(*$4), $5, $7)), std::get<2>(*$4));
+  $$ = new FunctionInstanceDefinition(std::get<0>(*$4), new FunctionInstance(new UserDefinedFunction($2, $3->first, $3->second, std::get<1>(*$4), $5, $7), std::get<2>(*$4)), std::get<2>(*$4));
   delete $3;
   delete $4;
 }
 |               "instance" fun_modifier "extern" ident_and_typed_args typing '=' ident {
-  $$ = new FunctionInstanceDefinition(std::get<0>(*$4),  new FunctionInstance(new ExternalFunction($2, std::get<1>(*$4), $5, *$7)), std::get<2>(*$4));
+  $$ = new FunctionInstanceDefinition(std::get<0>(*$4),  new FunctionInstance(new ExternalFunction($2, std::get<1>(*$4), $5, *$7),std::get<2>(*$4)), std::get<2>(*$4));
   delete $4;
   delete $7;
 }
 |               "instance" annotations modifiers3 "native" ident_and_typed_args typing '=' ident {
-  $$ = new FunctionInstanceDefinition(std::get<0>(*$5), new FunctionInstance(new NativeFunction($2, $3->first, $3->second, std::get<1>(*$5), $6, *$8)), std::get<2>(*$5));
+  $$ = new FunctionInstanceDefinition(std::get<0>(*$5), new FunctionInstance(new NativeFunction($2, $3->first, $3->second, std::get<1>(*$5), $6, *$8), std::get<2>(*$5)), std::get<2>(*$5));
   delete $3;
   delete $5;
   delete $8;
 }
 |               "template" "instance" annotations modifiers3 ident_and_args opt_typing '=' expr {
-  $$ = new FunctionInstanceDefinition(std::get<0>(*$5),  new FunctionInstance(new UserDefinedFunction(make_unique_ptr_list<TypeParameter>(), $3, $4->first, $4->second, std::get<1>(*$5), $6, $8)), std::get<2>(*$5));
+  $$ = new FunctionInstanceDefinition(std::get<0>(*$5),  new FunctionInstance(new UserDefinedFunction(make_unique_ptr_list<TypeParameter>(), $3, $4->first, $4->second, std::get<1>(*$5), $6, $8), std::get<2>(*$5)), std::get<2>(*$5));
   delete $4;
   delete $5;
 }
@@ -655,43 +655,43 @@ def:            "import" module_qident {
   delete $5;
 }
 |               "instance" "type" ident '(' one_or_more_type_exprs ')' '=' type_expr {
-  $$ = new TypeFunctionInstanceDefinition(*$3, new TypeSynonymFunctionInstance(false, $5, $8), P(@3));
+  $$ = new TypeFunctionInstanceDefinition(*$3, new TypeSynonymFunctionInstance(false, $5, $8,P(@3)), P(@3));
   delete $3;
 }
 |               "instance" "datatype" ident '(' one_or_more_type_exprs ')' '=' one_or_more_constrs {
-  $$ = new TypeFunctionInstanceDefinition(*$3, new DatatypeFunctionInstance(false, $5, new NonUniqueDatatype($8)), P(@3));
+  $$ = new TypeFunctionInstanceDefinition(*$3, new DatatypeFunctionInstance(false, $5, new NonUniqueDatatype($8), P(@3)), P(@3));
   delete $3;
 }
 |               "instance" "unique" "datatype" ident '(' one_or_more_type_exprs ')' '=' one_or_more_fun_constrs {
-  $$ = new TypeFunctionInstanceDefinition(*$4, new DatatypeFunctionInstance(false, $6, new UniqueDatatype($9)), P(@4));
+  $$ = new TypeFunctionInstanceDefinition(*$4, new DatatypeFunctionInstance(false, $6, new UniqueDatatype($9), P(@4)), P(@4));
   delete $4;
 }
 |               "instance" "datatype" ident '(' one_or_more_type_exprs ')' {
-  $$ = new TypeFunctionInstanceDefinition(*$3, new DatatypeFunctionInstance(false, $5, new NonUniqueDatatype(new std::list<std::shared_ptr<Constructor>>())), P(@3));
+  $$ = new TypeFunctionInstanceDefinition(*$3, new DatatypeFunctionInstance(false, $5, new NonUniqueDatatype(new std::list<std::shared_ptr<Constructor>>()), P(@3)), P(@3));
   delete $3;
 }
 |               "instance" "unique" "datatype" ident '(' one_or_more_type_exprs ')' {
-  $$ = new TypeFunctionInstanceDefinition(*$4, new DatatypeFunctionInstance(false, $6, new UniqueDatatype(new std::list<std::shared_ptr<FunctionConstructor>>())), P(@4));
+  $$ = new TypeFunctionInstanceDefinition(*$4, new DatatypeFunctionInstance(false, $6, new UniqueDatatype(new std::list<std::shared_ptr<FunctionConstructor>>()), P(@4)), P(@4));
   delete $4;
 }
 |               "template" "instance" "type" ident '(' one_or_more_type_exprs ')' '=' type_expr {
-  $$ = new TypeFunctionInstanceDefinition(*$4, new TypeSynonymFunctionInstance(true, $6, $9), P(@4));
+  $$ = new TypeFunctionInstanceDefinition(*$4, new TypeSynonymFunctionInstance(true, $6, $9, P(@4)), P(@4));
   delete $4;
 }
 |               "template" "instance" "datatype" ident '(' one_or_more_type_exprs ')' '=' one_or_more_constrs {
-  $$ = new TypeFunctionInstanceDefinition(*$4, new DatatypeFunctionInstance(true, $6, new NonUniqueDatatype($9)), P(@4));
+  $$ = new TypeFunctionInstanceDefinition(*$4, new DatatypeFunctionInstance(true, $6, new NonUniqueDatatype($9), P(@4)), P(@4));
   delete $4;
 }
 |               "template" "instance" "unique" "datatype" ident '(' one_or_more_type_exprs ')' '=' one_or_more_fun_constrs {
-  $$ = new TypeFunctionInstanceDefinition(*$5, new DatatypeFunctionInstance(true, $7, new UniqueDatatype($10)), P(@5));
+  $$ = new TypeFunctionInstanceDefinition(*$5, new DatatypeFunctionInstance(true, $7, new UniqueDatatype($10), P(@5)), P(@5));
   delete $5;
 }
 |               "template" "instance" "datatype" ident '(' one_or_more_type_exprs ')' {
-  $$ = new TypeFunctionInstanceDefinition(*$4, new DatatypeFunctionInstance(true, $6, new NonUniqueDatatype(new std::list<std::shared_ptr<Constructor>>())), P(@4));
+  $$ = new TypeFunctionInstanceDefinition(*$4, new DatatypeFunctionInstance(true, $6, new NonUniqueDatatype(new std::list<std::shared_ptr<Constructor>>()), P(@4)), P(@4));
   delete $4;
 }
 |               "template" "instance" "unique" "datatype" ident '(' one_or_more_type_exprs ')' {
-  $$ = new TypeFunctionInstanceDefinition(*$5, new DatatypeFunctionInstance(true, $7, new UniqueDatatype(new std::list<std::shared_ptr<FunctionConstructor>>())), P(@5));
+  $$ = new TypeFunctionInstanceDefinition(*$5, new DatatypeFunctionInstance(true, $7, new UniqueDatatype(new std::list<std::shared_ptr<FunctionConstructor>>()), P(@5)), P(@5));
   delete $5;
 }
 ;
