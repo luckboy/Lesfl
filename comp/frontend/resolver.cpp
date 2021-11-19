@@ -1724,9 +1724,13 @@ namespace lesfl
         [&](VariableInstanceDefinition *var_inst_def) -> bool {
           AbsoluteIdentifier abs_ident(context.current_module_ident, var_inst_def->ident());
           bool tmp_is_success = resolve_var_ident(context, &abs_ident, var_inst_def->pos(), errors);
-          VariableInfo *var_info = context.tree.var_info(abs_ident);
-          if(var_info != nullptr)
-            var_info->add_inst(var_inst_def->var_inst());
+          if(tmp_is_success) {
+            VariableInfo *var_info = context.tree.var_info(abs_ident);
+            if(var_info != nullptr) {
+              var_info->add_inst(var_inst_def->var_inst());
+              context.tree.uncompiled_inst_pairs().push_back(InstancePair(abs_ident.key_ident(), var_inst_def->var_inst()));
+            }
+          }
           tmp_is_success &= resolve_idents_from_var_inst(context, var_inst_def->var_inst(), var_inst_def->pos(), errors);
           return tmp_is_success;
         },
@@ -1736,9 +1740,13 @@ namespace lesfl
         [&](FunctionInstanceDefinition *fun_inst_def) -> bool {
           AbsoluteIdentifier abs_ident(context.current_module_ident, fun_inst_def->ident());
           bool tmp_is_success = resolve_var_ident(context, &abs_ident, fun_inst_def->pos(), errors);
-          VariableInfo *var_info = context.tree.var_info(abs_ident);
-          if(var_info != nullptr)
-            var_info->add_inst(fun_inst_def->fun_inst());
+          if(tmp_is_success) {
+            VariableInfo *var_info = context.tree.var_info(abs_ident);
+            if(var_info != nullptr) {
+              var_info->add_inst(fun_inst_def->fun_inst());
+              context.tree.uncompiled_inst_pairs().push_back(InstancePair(abs_ident.key_ident(), fun_inst_def->fun_inst()));
+            }
+          }
           tmp_is_success &= resolve_idents_from_fun_inst(context, fun_inst_def->fun_inst(), fun_inst_def->pos(), errors);
           return tmp_is_success;
         },
@@ -1751,9 +1759,13 @@ namespace lesfl
         [&](TypeFunctionInstanceDefinition *type_fun_inst_def) -> bool {
           AbsoluteIdentifier abs_ident(context.current_module_ident, type_fun_inst_def->ident());
           bool tmp_is_success = resolve_type_fun_ident(context, &abs_ident, type_fun_inst_def->pos(), errors);
-          TypeFunctionInfo *type_fun_info = context.tree.type_fun_info(abs_ident);
-          if(type_fun_info != nullptr)
-            type_fun_info->add_inst(type_fun_inst_def->fun_inst());
+          if(tmp_is_success) {
+            TypeFunctionInfo *type_fun_info = context.tree.type_fun_info(abs_ident);
+            if(type_fun_info != nullptr) {
+              type_fun_info->add_inst(type_fun_inst_def->fun_inst());
+              context.tree.uncompiled_type_fun_inst_pairs().push_back(TypeFunctionInstancePair(abs_ident.key_ident(), type_fun_inst_def->fun_inst()));
+            }
+          }
           tmp_is_success &= resolve_idents_from_type_fun_inst(context, type_fun_inst_def->fun_inst(), abs_ident.key_ident(), type_fun_inst_def->pos(), errors);
           return tmp_is_success;
         });

@@ -155,6 +155,8 @@ g(x) = #isub(f(x), v)\n\
         CPPUNIT_ASSERT(g_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[2]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_modules()
@@ -285,6 +287,8 @@ module somelib {\n\
         CPPUNIT_ASSERT(i_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[3]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_user_defined_variable()
@@ -324,6 +328,8 @@ v = 1\n\
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_user_defined_variable_with_access_modifier_and_type()
@@ -373,6 +379,8 @@ private v: Int64 = 1\n\
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_external_variable()
@@ -419,6 +427,8 @@ extern v: Int64 = somevar\n\
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_external_variable_with_access_modifier()
@@ -465,6 +475,8 @@ private extern v: Int64 = somevar\n\
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
 
       void ResolverTests::test_resolver_adds_alias_variable()
@@ -525,6 +537,8 @@ a = 1\n\
         CPPUNIT_ASSERT(a_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[1]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_alias_variable_with_access_modifier_and_type()
@@ -595,6 +609,8 @@ a = 1\n\
         CPPUNIT_ASSERT(a_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[1]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_user_defined_variable_template()
@@ -638,6 +654,8 @@ v = #[]\n\
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
 
       void ResolverTests::test_resolver_adds_user_defined_variable_template_with_access_modifier_and_type_and_instance_type_parameter()
@@ -698,6 +716,8 @@ private v: Array(t) = #[]\n\
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_user_defined_variable_template_without_value()
@@ -752,6 +772,8 @@ v: Array(t)\n\
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_user_defined_variable_template_without_value_with_access_modifier_and_instance_type_parameter()
@@ -808,6 +830,8 @@ private v: Array(t)\n\
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_alias_variable_template()
@@ -874,6 +898,8 @@ a = #[]\n\
         CPPUNIT_ASSERT(a_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[1]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_alias_variable_template_with_access_modifier_and_type_and_instance_type_parameter()
@@ -956,6 +982,8 @@ a = #[]\n\
         CPPUNIT_ASSERT(a_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[1]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_user_defined_function()
@@ -1023,6 +1051,8 @@ f(x, y) = #itoi8(#iadd(x, y))\n\
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_user_defined_function_with_access_modifier_and_types()
@@ -1108,6 +1138,8 @@ private f(x, y: Int64): Int8 = #itoi8(#iadd(x, y))\n\
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
 
       void ResolverTests::test_resolver_adds_external_function()
@@ -1177,6 +1209,8 @@ extern f(x: Int16, y: Int64): Int8 = somefun\n\
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_external_function_with_access_modifier()
@@ -1246,6 +1280,8 @@ private extern f(x: Int16, y: Int64): Int8 = somefun\n\
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_native_function()
@@ -1315,6 +1351,8 @@ native f(x: Int64, y: Int16): Int8 = somefun\n\
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
 
       void ResolverTests::test_resolver_adds_native_function_with_access_modifier()
@@ -1384,6 +1422,8 @@ private native f(x: Int64, y: Int16): Int8 = somefun\n\
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
 
       void ResolverTests::test_resolver_adds_user_defined_function_template()
@@ -1450,6 +1490,8 @@ f(x, y) = #anth(x, y)\n\
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_user_defined_function_template_with_access_modifier_and_types_and_instance_type_parameter()
@@ -1536,6 +1578,8 @@ private f(x: Array(t), y): t = #anth(x, y)\n\
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_user_defined_function_template_without_body()
@@ -1608,6 +1652,8 @@ f(x: Array(t), y: Int64): t\n\
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_user_defined_function_template_without_body_with_access_modifier_and_instance_type_parameter()
@@ -1682,6 +1728,8 @@ private f(x: Array(t), y: Int64): t\n\
         CPPUNIT_ASSERT(f_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
 
       void ResolverTests::test_resolver_adds_type_synonym_variable()
@@ -1724,6 +1772,8 @@ type T = Int64\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_type_synonym_variable_with_access_modifier()
@@ -1766,6 +1816,8 @@ private type T = Int64\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
 
       void ResolverTests::test_resolver_adds_datatype_variable()
@@ -1841,6 +1893,8 @@ datatype T = C(Int64, Int8)\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
 
       void ResolverTests::test_resolver_adds_datatype_variable_with_access_modifier()
@@ -1916,6 +1970,8 @@ private datatype T = C(Int8, Int64)\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
 
       void ResolverTests::test_resolver_adds_unique_datatype_variable()
@@ -1991,6 +2047,8 @@ unique datatype T = C(Int64, Int8)\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_unique_datatype_variable_with_access_modifier()
@@ -2066,6 +2124,8 @@ private unique datatype T = C(Int8, Int64)\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_datatype_variable_without_constructors()
@@ -2105,6 +2165,8 @@ datatype T\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_datatype_variable_without_constructors_with_access_modifier()
@@ -2144,6 +2206,8 @@ private datatype T\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_unique_datatype_variable_without_constructors()
@@ -2183,6 +2247,8 @@ unique datatype T\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_unique_datatype_variable_without_constructors_with_access_modifier()
@@ -2222,6 +2288,8 @@ private unique datatype T\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_type_synonym_function()
@@ -2277,6 +2345,8 @@ type T(t) = Array(t)\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
 
       void ResolverTests::test_resolver_adds_type_synonym_function_with_access_modifier_and_instance_type_parameter()
@@ -2334,6 +2404,8 @@ private type T(t) = Array(t)\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
 
       void ResolverTests::test_resolver_adds_type_synonym_function_without_body()
@@ -2374,6 +2446,8 @@ type T(t)\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
 
       void ResolverTests::test_resolver_adds_type_synonym_function_without_body_with_access_modifier_and_instance_type_parameter()
@@ -2416,6 +2490,8 @@ private type T(t)\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
 
       void ResolverTests::test_resolver_adds_datatype_function()
@@ -2503,6 +2579,8 @@ datatype T(t) = C(Array(t), Int64)\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_datatype_function_with_access_modifier_and_instance_type_parameter()
@@ -2592,6 +2670,8 @@ private datatype T(t) = C(Int64, Array(t))\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_unique_datatype_function()
@@ -2679,6 +2759,8 @@ unique datatype T(t) = C(Array(t), Int64)\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_unique_datatype_function_with_access_modifier_and_instance_type_parameter()
@@ -2768,6 +2850,8 @@ private unique datatype T(t) = C(Int64, Array(t))\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_datatype_function_without_constructors()
@@ -2810,6 +2894,8 @@ datatype T(t)\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_datatype_function_without_constructors_with_access_modifier_and_instance_type_parameter()
@@ -2854,6 +2940,8 @@ private datatype T(t)\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_unique_datatype_function_without_constructors()
@@ -2896,6 +2984,8 @@ unique datatype T(t)\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_unique_datatype_function_without_constrcutors_with_access_modifier_and_instance_type_parameter()
@@ -2940,6 +3030,8 @@ private unique datatype T(t)\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_constructors()
@@ -3056,6 +3148,8 @@ datatype T = C\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_function_constructors_for_unique_datatype()
@@ -3152,6 +3246,8 @@ unique datatype T = C()\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_public_constructor_for_public_datatype()
@@ -3206,6 +3302,8 @@ datatype T = C\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_private_constructor_for_public_datatype()
@@ -3260,6 +3358,8 @@ datatype T = private C\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_public_constructor_for_private_datatype()
@@ -3314,6 +3414,8 @@ private datatype T = C\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
 
       void ResolverTests::test_resolver_adds_private_constructor_for_private_datatype()
@@ -3368,6 +3470,8 @@ private datatype T = private C\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_variable_constructor()
@@ -3422,6 +3526,8 @@ datatype T = C\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_function_constructor()
@@ -3506,6 +3612,8 @@ datatype T = C(Char, WChar, Int64)\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_named_field_constructor()
@@ -3594,6 +3702,8 @@ datatype T = C {\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_var_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_key_idents().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
       void ResolverTests::test_resolver_adds_constructor_in_type_function_instance_where_access_modifier_is_not_updated()
@@ -3682,6 +3792,14 @@ datatype T(Int64) = C\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_inst_pairs().size());
+        {
+          TypeFunctionInfo *type_fun_info = tree.type_fun_info(t_abs_ident.key_ident());
+          auto inst_iter = type_fun_info->insts()->begin();
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_inst_pairs()[0].key_ident);
+          CPPUNIT_ASSERT(inst_iter->get() == tree.uncompiled_type_fun_inst_pairs()[0].inst.get());
+        }
       }
 
       void ResolverTests::test_resolver_adds_public_constructor_in_type_function_instance_for_public_datatype()
@@ -3796,6 +3914,14 @@ f() = C\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_inst_pairs().size());
+        {
+          TypeFunctionInfo *type_fun_info = tree.type_fun_info(t_abs_ident.key_ident());
+          auto inst_iter = type_fun_info->insts()->begin();
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_inst_pairs()[0].key_ident);
+          CPPUNIT_ASSERT(inst_iter->get() == tree.uncompiled_type_fun_inst_pairs()[0].inst.get());
+        }
       }
       
       void ResolverTests::test_resolver_adds_private_constructor_in_type_function_instance_for_public_datatype()
@@ -3910,6 +4036,14 @@ f() = C\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_inst_pairs().size());
+        {
+          TypeFunctionInfo *type_fun_info = tree.type_fun_info(t_abs_ident.key_ident());
+          auto inst_iter = type_fun_info->insts()->begin();
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_inst_pairs()[0].key_ident);
+          CPPUNIT_ASSERT(inst_iter->get() == tree.uncompiled_type_fun_inst_pairs()[0].inst.get());
+        }
       }
       
       void ResolverTests::test_resolver_adds_public_constructor_in_type_function_instance_for_private_datatype()
@@ -4024,6 +4158,14 @@ f() = C\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_inst_pairs().size());
+        {
+          TypeFunctionInfo *type_fun_info = tree.type_fun_info(t_abs_ident.key_ident());
+          auto inst_iter = type_fun_info->insts()->begin();
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_inst_pairs()[0].key_ident);
+          CPPUNIT_ASSERT(inst_iter->get() == tree.uncompiled_type_fun_inst_pairs()[0].inst.get());
+        }
       }
       
       void ResolverTests::test_resolver_adds_private_constructor_in_type_function_instance_for_private_datatype()
@@ -4138,6 +4280,14 @@ f() = C\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_key_idents().size());
         CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_key_idents()[0]);
+        CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_inst_pairs().empty());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_type_fun_inst_pairs().size());
+        {
+          TypeFunctionInfo *type_fun_info = tree.type_fun_info(t_abs_ident.key_ident());
+          auto inst_iter = type_fun_info->insts()->begin();
+          CPPUNIT_ASSERT(t_abs_ident.key_ident() == tree.uncompiled_type_fun_inst_pairs()[0].key_ident);
+          CPPUNIT_ASSERT(inst_iter->get() == tree.uncompiled_type_fun_inst_pairs()[0].inst.get());
+        }
       }
     }
   }

@@ -20,6 +20,7 @@ namespace lesfl
 {
   namespace frontend
   {
+    class Instance;
     class Definition;
     class Variable;
     class DefinableVariable;
@@ -85,6 +86,28 @@ namespace lesfl
       PRIMITIVE
     };
 
+    struct InstancePair
+    {
+      KeyIdentifier key_ident;
+      std::shared_ptr<Instance> inst;
+      
+      InstancePair() {}
+      
+      InstancePair(KeyIdentifier key_ident, const std::shared_ptr<Instance> &inst) :
+        key_ident(key_ident), inst(inst) {}
+    };
+
+    struct TypeFunctionInstancePair
+    {
+      KeyIdentifier key_ident;
+      std::shared_ptr<TypeFunctionInstance> inst;
+      
+      TypeFunctionInstancePair() {}
+      
+      TypeFunctionInstancePair(KeyIdentifier key_ident, const std::shared_ptr<TypeFunctionInstance> &inst) :
+        key_ident(key_ident), inst(inst) {}
+    };
+    
     class Positional
     {
     protected:
@@ -230,6 +253,8 @@ namespace lesfl
       std::vector<KeyIdentifier> _M_uncompiled_var_key_idents;
       std::vector<KeyIdentifier> _M_uncompiled_type_var_key_idents;
       std::vector<KeyIdentifier> _M_uncompiled_type_fun_key_idents;
+      std::vector<InstancePair> _M_uncompiled_inst_pairs;
+      std::vector<TypeFunctionInstancePair> _M_uncompiled_type_fun_inst_pairs;
     public:
       Tree() : _M_ident_table(std::shared_ptr<AbsoluteIdentifierTable>(new AbsoluteIdentifierTable())) {}
 
@@ -368,6 +393,14 @@ namespace lesfl
       const std::vector<KeyIdentifier> &uncompiled_type_fun_key_idents() const { return _M_uncompiled_type_fun_key_idents; }
 
       std::vector<KeyIdentifier> &uncompiled_type_fun_key_idents() { return _M_uncompiled_type_fun_key_idents; }
+
+      const std::vector<InstancePair> &uncompiled_inst_pairs() const { return _M_uncompiled_inst_pairs; }
+
+      std::vector<InstancePair> &uncompiled_inst_pairs() { return _M_uncompiled_inst_pairs; }
+
+      const std::vector<TypeFunctionInstancePair> &uncompiled_type_fun_inst_pairs() const { return _M_uncompiled_type_fun_inst_pairs; }
+
+      std::vector<TypeFunctionInstancePair> &uncompiled_type_fun_inst_pairs() { return _M_uncompiled_type_fun_inst_pairs; }
     };
 
     class Definition : public Positional
