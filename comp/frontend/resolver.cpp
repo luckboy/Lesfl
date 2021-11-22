@@ -172,7 +172,10 @@ namespace lesfl
     }
 
     static void clear_type_params(ResolverContext &context)
-    { context.type_param_indices.clear(); }
+    {
+      context.type_param_indices.clear();
+      context.type_param_count = 0;
+    }
 
     static bool check_and_clear_type_param_indices(ResolverContext &context, const Position &pos, list<Error> &errors)
     {
@@ -181,7 +184,12 @@ namespace lesfl
         errors.push_back(Error(pos, "internal error: type_param_indices isn't empty"));
         is_success = false;
       }
+      if(context.type_param_count != 0) {
+        errors.push_back(Error(pos, "internal error: type_param_count isn't zero"));
+        is_success = false;
+      }
       context.type_param_indices.clear();
+      context.type_param_count = 0;
       return is_success;
     }
 
