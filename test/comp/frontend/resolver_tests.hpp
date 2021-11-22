@@ -82,6 +82,24 @@ namespace lesfl
         CPPUNIT_TEST(test_resolver_adds_private_constructor_in_type_function_instance_for_public_datatype);
         CPPUNIT_TEST(test_resolver_adds_public_constructor_in_type_function_instance_for_private_datatype);
         CPPUNIT_TEST(test_resolver_adds_private_constructor_in_type_function_instance_for_private_datatype);
+        CPPUNIT_TEST(test_resolver_resolves_variable_absolute_identifiers);
+        CPPUNIT_TEST(test_resolver_resolves_variable_relative_identifiers_for_current_module);
+        CPPUNIT_TEST(test_resolver_resolves_variable_relative_identifiers_for_imported_modules);
+        CPPUNIT_TEST(test_resolver_resolves_variable_relative_identifiers_for_predef_module);
+        CPPUNIT_TEST(test_resolver_resolves_variable_absolute_identifier_for_private_variable);
+        CPPUNIT_TEST(test_resolver_resolves_variable_relative_identifier_for_private_variable);
+        CPPUNIT_TEST(test_resolver_resolves_type_variable_absolute_identifiers);
+        CPPUNIT_TEST(test_resolver_resolves_type_variable_relative_identifiers_for_current_module);
+        CPPUNIT_TEST(test_resolver_resolves_type_variable_relative_identifiers_for_imported_modules);
+        CPPUNIT_TEST(test_resolver_resolves_type_variable_relative_identifiers_for_predef_module);
+        CPPUNIT_TEST(test_resolver_resolves_type_variable_absolute_identifier_for_private_type_variable);
+        CPPUNIT_TEST(test_resolver_resolves_type_variable_relative_identifier_for_private_type_variable);
+        CPPUNIT_TEST(test_resolver_resolves_type_function_absolute_identifiers);
+        CPPUNIT_TEST(test_resolver_resolves_type_function_relative_identifiers_for_current_module);
+        CPPUNIT_TEST(test_resolver_resolves_type_function_relative_identifiers_for_imported_modules);
+        CPPUNIT_TEST(test_resolver_resolves_type_function_relative_identifiers_for_predef_module);
+        CPPUNIT_TEST(test_resolver_resolves_type_function_absolute_identifier_for_private_type_function);
+        CPPUNIT_TEST(test_resolver_resolves_type_function_relative_identifier_for_private_type_function);
         CPPUNIT_TEST_SUITE_END();
 
         BuiltinTypeAdder *_M_builtin_type_adder;
@@ -152,6 +170,24 @@ namespace lesfl
         void test_resolver_adds_private_constructor_in_type_function_instance_for_public_datatype();
         void test_resolver_adds_public_constructor_in_type_function_instance_for_private_datatype();
         void test_resolver_adds_private_constructor_in_type_function_instance_for_private_datatype();
+        void test_resolver_resolves_variable_absolute_identifiers();
+        void test_resolver_resolves_variable_relative_identifiers_for_current_module();
+        void test_resolver_resolves_variable_relative_identifiers_for_imported_modules();
+        void test_resolver_resolves_variable_relative_identifiers_for_predef_module();
+        void test_resolver_resolves_variable_absolute_identifier_for_private_variable();
+        void test_resolver_resolves_variable_relative_identifier_for_private_variable();
+        void test_resolver_resolves_type_variable_absolute_identifiers();
+        void test_resolver_resolves_type_variable_relative_identifiers_for_current_module();
+        void test_resolver_resolves_type_variable_relative_identifiers_for_imported_modules();
+        void test_resolver_resolves_type_variable_relative_identifiers_for_predef_module();
+        void test_resolver_resolves_type_variable_absolute_identifier_for_private_type_variable();
+        void test_resolver_resolves_type_variable_relative_identifier_for_private_type_variable();
+        void test_resolver_resolves_type_function_absolute_identifiers();
+        void test_resolver_resolves_type_function_relative_identifiers_for_current_module();
+        void test_resolver_resolves_type_function_relative_identifiers_for_imported_modules();
+        void test_resolver_resolves_type_function_relative_identifiers_for_predef_module();
+        void test_resolver_resolves_type_function_absolute_identifier_for_private_type_function();
+        void test_resolver_resolves_type_function_relative_identifier_for_private_type_function();
       };
     }
   }
