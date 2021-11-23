@@ -1547,8 +1547,8 @@ namespace lesfl
         return is_success;
       },
       [&](NativeFunction *fun) -> bool {
-        bool is_success = check_annotations(fun->annotations(), errors);
-        is_success &= check_and_clear_type_param_indices(context, pos, errors);
+        bool is_success = check_and_clear_type_param_indices(context, pos, errors);
+        is_success &= check_annotations(fun->annotations(), errors);
         context.template_flag = false;
         is_success &= check_and_clear_local_var_ident_stack(context, pos, errors);
         is_success &= resolve_idents_from_args(context, fun->args(), errors, true);
