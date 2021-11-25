@@ -686,7 +686,8 @@ namespace lesfl
         if(non_unique_lambda_value != nullptr && non_unique_lambda_value->fun_modifier() == FunctionModifier::PRIMITIVE)
           push_closure_limit(context, context.local_var_count);
         bool is_success = resolve_idents_from_args(context, value->args(), errors);
-        is_success &= resolve_idents_from_type_expr(context, value->result_type_expr(), errors);
+        if(value->result_type_expr() != nullptr)
+          is_success &= resolve_idents_from_type_expr(context, value->result_type_expr(), errors);
         is_success &= resolve_idents_from_expr(context, value->body(), errors);
         if(non_unique_lambda_value != nullptr && non_unique_lambda_value->fun_modifier() == FunctionModifier::PRIMITIVE)
           pop_closure_limit(context);
