@@ -100,6 +100,24 @@ namespace lesfl
         CPPUNIT_TEST(test_resolver_resolves_type_function_relative_identifiers_for_predef_module);
         CPPUNIT_TEST(test_resolver_resolves_type_function_absolute_identifier_for_private_type_function);
         CPPUNIT_TEST(test_resolver_resolves_type_function_relative_identifier_for_private_type_function);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_for_arguments);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_for_arguments_and_covered_global_variable);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_for_local_variables_and_let_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_for_local_variables_and_let_expression_and_tuple_binding);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_for_covered_local_variables_and_let_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_for_covered_local_variables_and_nested_let_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_for_used_local_variables_in_other_variables_and_let_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_for_local_variable_and_let_expression_and_recursive_lambda);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_for_local_variables_and_match_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_for_covered_local_variables_and_match_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_for_covered_local_variables_and_nested_match_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_for_local_variables_and_lambda_value);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_for_covered_local_variables_and_lambda_value);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_for_covered_local_variables_and_nested_lambda_value);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_for_covered_local_variables_and_primitive_lambda_value);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_for_type_arguments);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_for_type_parameters_and_variable_template);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_for_type_parameters_and_function_template);
         CPPUNIT_TEST_SUITE_END();
 
         BuiltinTypeAdder *_M_builtin_type_adder;
@@ -188,6 +206,24 @@ namespace lesfl
         void test_resolver_resolves_type_function_relative_identifiers_for_predef_module();
         void test_resolver_resolves_type_function_absolute_identifier_for_private_type_function();
         void test_resolver_resolves_type_function_relative_identifier_for_private_type_function();
+        void test_resolver_resolves_identifiers_for_arguments();
+        void test_resolver_resolves_identifiers_for_arguments_and_covered_global_variable();
+        void test_resolver_resolves_identifiers_for_local_variables_and_let_expression();
+        void test_resolver_resolves_identifiers_for_local_variables_and_let_expression_and_tuple_binding();
+        void test_resolver_resolves_identifiers_for_covered_local_variables_and_let_expression();
+        void test_resolver_resolves_identifiers_for_covered_local_variables_and_nested_let_expression();
+        void test_resolver_resolves_identifiers_for_used_local_variables_in_other_variables_and_let_expression();
+        void test_resolver_resolves_identifiers_for_local_variable_and_let_expression_and_recursive_lambda();
+        void test_resolver_resolves_identifiers_for_local_variables_and_match_expression();
+        void test_resolver_resolves_identifiers_for_covered_local_variables_and_match_expression();
+        void test_resolver_resolves_identifiers_for_covered_local_variables_and_nested_match_expression();
+        void test_resolver_resolves_identifiers_for_local_variables_and_lambda_value();
+        void test_resolver_resolves_identifiers_for_covered_local_variables_and_lambda_value();
+        void test_resolver_resolves_identifiers_for_covered_local_variables_and_nested_lambda_value();
+        void test_resolver_resolves_identifiers_for_covered_local_variables_and_primitive_lambda_value();
+        void test_resolver_resolves_identifiers_for_type_arguments();
+        void test_resolver_resolves_identifiers_for_type_parameters_and_variable_template();
+        void test_resolver_resolves_identifiers_for_type_parameters_and_function_template();
       };
     }
   }
