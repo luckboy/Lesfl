@@ -1365,11 +1365,11 @@ namespace lesfl
         is_unmemoized |= tmp_is_unmemoized;
         is_memoized |= tmp_is_memoized;
         if((tmp_is_eager || tmp_is_lazy) && is_eager && is_lazy) {
-          errors.push_back(Error(annotation->pos(), "function can't be eager and lazy"));
+          errors.push_back(Error(annotation->pos(), "annotation can't be eager and lazy"));
           is_success = false;
         }
         if((tmp_is_unmemoized || tmp_is_memoized) && is_unmemoized && is_memoized) {
-          errors.push_back(Error(annotation->pos(), "function can't be unmemoized and memoized"));
+          errors.push_back(Error(annotation->pos(), "annotation can't be unmemoized and memoized"));
           is_success = false;
         }
       }
