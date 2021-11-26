@@ -118,6 +118,17 @@ namespace lesfl
         CPPUNIT_TEST(test_resolver_resolves_identifiers_for_type_arguments);
         CPPUNIT_TEST(test_resolver_resolves_identifiers_for_type_parameters_and_variable_template);
         CPPUNIT_TEST(test_resolver_resolves_identifiers_for_type_parameters_and_function_template);
+        CPPUNIT_TEST(test_resolver_checks_eager_annotation);
+        CPPUNIT_TEST(test_resolver_checks_lazy_annotation);
+        CPPUNIT_TEST(test_resolver_checks_memoized_annotation);
+        CPPUNIT_TEST(test_resolver_checks_unmemoized_annotation);
+        CPPUNIT_TEST(test_resolver_checks_eager_annotation_and_memoized_annotation);
+        CPPUNIT_TEST(test_resolver_checks_eager_annotation_and_unmemoized_annotation);
+        CPPUNIT_TEST(test_resolver_checks_lazy_annotation_and_memoized_annotation);
+        CPPUNIT_TEST(test_resolver_checks_lazy_annotation_and_unmemoized_annotation);
+        CPPUNIT_TEST(test_resolver_checks_onlyeager_annotation);
+        CPPUNIT_TEST(test_resolver_checks_onlylazy_annotation);
+        CPPUNIT_TEST(test_resolver_checks_onlymemoized_annotation);
         CPPUNIT_TEST_SUITE_END();
 
         BuiltinTypeAdder *_M_builtin_type_adder;
@@ -224,6 +235,17 @@ namespace lesfl
         void test_resolver_resolves_identifiers_for_type_arguments();
         void test_resolver_resolves_identifiers_for_type_parameters_and_variable_template();
         void test_resolver_resolves_identifiers_for_type_parameters_and_function_template();
+        void test_resolver_checks_eager_annotation();
+        void test_resolver_checks_lazy_annotation();
+        void test_resolver_checks_memoized_annotation();
+        void test_resolver_checks_unmemoized_annotation();
+        void test_resolver_checks_eager_annotation_and_memoized_annotation();
+        void test_resolver_checks_eager_annotation_and_unmemoized_annotation();
+        void test_resolver_checks_lazy_annotation_and_memoized_annotation();
+        void test_resolver_checks_lazy_annotation_and_unmemoized_annotation();
+        void test_resolver_checks_onlyeager_annotation();
+        void test_resolver_checks_onlylazy_annotation();
+        void test_resolver_checks_onlymemoized_annotation();
       };
     }
   }
