@@ -129,6 +129,28 @@ namespace lesfl
         CPPUNIT_TEST(test_resolver_checks_onlyeager_annotation);
         CPPUNIT_TEST(test_resolver_checks_onlylazy_annotation);
         CPPUNIT_TEST(test_resolver_checks_onlymemoized_annotation);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_let_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_match_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_throw_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_typed_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_field_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_unique_field_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_set_unique_field_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_named_field_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_unique_named_field_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_set_unique_named_field_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_application);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_primitive_application);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_unique_application);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_builtin_application);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_literal);
+        CPPUNIT_TEST(test_resolver_resolves_identifier_from_variable_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_list);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_array);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_unique_array);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_tuple);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_unique_tuple);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_named_field_constructor_application);
         CPPUNIT_TEST_SUITE_END();
 
         BuiltinTypeAdder *_M_builtin_type_adder;
@@ -246,6 +268,28 @@ namespace lesfl
         void test_resolver_checks_onlyeager_annotation();
         void test_resolver_checks_onlylazy_annotation();
         void test_resolver_checks_onlymemoized_annotation();
+        void test_resolver_resolves_identifiers_from_let_expression();
+        void test_resolver_resolves_identifiers_from_match_expression();
+        void test_resolver_resolves_identifiers_from_throw_expression();
+        void test_resolver_resolves_identifiers_from_typed_expression();
+        void test_resolver_resolves_identifiers_from_field_expression();
+        void test_resolver_resolves_identifiers_from_unique_field_expression();
+        void test_resolver_resolves_identifiers_from_set_unique_field_expression();
+        void test_resolver_resolves_identifiers_from_named_field_expression();
+        void test_resolver_resolves_identifiers_from_unique_named_field_expression();
+        void test_resolver_resolves_identifiers_from_set_unique_named_field_expression();
+        void test_resolver_resolves_identifiers_from_application();
+        void test_resolver_resolves_identifiers_from_primitive_application();
+        void test_resolver_resolves_identifiers_from_unique_application();
+        void test_resolver_resolves_identifiers_from_builtin_application();
+        void test_resolver_resolves_identifiers_from_literal();
+        void test_resolver_resolves_identifier_from_variable_expression();
+        void test_resolver_resolves_identifiers_from_list();
+        void test_resolver_resolves_identifiers_from_array();
+        void test_resolver_resolves_identifiers_from_unique_array();
+        void test_resolver_resolves_identifiers_from_tuple();
+        void test_resolver_resolves_identifiers_from_unique_tuple();
+        void test_resolver_resolves_identifiers_from_named_field_constructor_application();
       };
     }
   }
