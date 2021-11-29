@@ -873,7 +873,9 @@ namespace lesfl
         return resolve_idents_from_expr(context, field->expr(), errors);
       },
       [&](SetUniqueNamedField *set_field) -> bool {
-        return resolve_idents_from_expr(context, set_field->value_expr(), errors);
+        bool is_success = resolve_idents_from_expr(context, set_field->expr(), errors);
+        is_success &= resolve_idents_from_expr(context, set_field->value_expr(), errors);
+        return is_success;
       },
       [&](TypedExpression *typed_expr) -> bool {
         bool is_success = resolve_idents_from_expr(context, typed_expr->expr(), errors);
