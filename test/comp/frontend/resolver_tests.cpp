@@ -10109,9 +10109,9 @@ f(x: unique (Int64, Int64)) = x unique .0 <- a\n\
 import stdlib\n\
 \n\
 datatype T = C {\n\
-  field1: Int64,\n\
-  field2: Int64\n\
-}\n\
+    field1: Int64,\n\
+    field2: Int64\n\
+  }\n\
 \n\
 a = C { field1 = 1, field2 = 2 }\n\
 \n\
@@ -10243,9 +10243,9 @@ f() = (a).field1\n\
 import stdlib\n\
 \n\
 unique datatype T = C {\n\
-  field1: Int64,\n\
-  field2: Int64\n\
-}\n\
+    field1: Int64,\n\
+    field2: Int64\n\
+  }\n\
 \n\
 f(x: T) = x unique .field1\n\
 ");
@@ -10358,9 +10358,9 @@ f(x: T) = x unique .field1\n\
 import stdlib\n\
 \n\
 unique datatype T = C {\n\
-  field1: Int64,\n\
-  field2: Int64\n\
-}\n\
+    field1: Int64,\n\
+    field2: Int64\n\
+  }\n\
 \n\
 a = 1\n\
 \n\
@@ -11735,10 +11735,10 @@ f(x: Int64) = unique (x, a, b)\n\
 import stdlib\n\
 \n\
 datatype T = C {\n\
-  field1: Int64,\n\
-  field2: Int64,\n\
-  field3: Int64\n\
-}\n\
+    field1: Int64,\n\
+    field2: Int64,\n\
+    field3: Int64\n\
+  }\n\
 \n\
 a = 1\n\
 \n\
