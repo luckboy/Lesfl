@@ -151,6 +151,19 @@ namespace lesfl
         CPPUNIT_TEST(test_resolver_resolves_identifiers_from_tuple);
         CPPUNIT_TEST(test_resolver_resolves_identifiers_from_unique_tuple);
         CPPUNIT_TEST(test_resolver_resolves_identifiers_from_named_field_constructor_application);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_typed_pattern);
+        CPPUNIT_TEST(test_resolver_resolves_identifier_from_variable_constructor_pattern);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_function_constructor_pattern);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_named_field_constructor_pattern);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_list_pattern);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_array_pattern);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_unique_array_pattern);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_tuple_pattern);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_unique_tuple_pattern);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_literal_pattern);
+        CPPUNIT_TEST(test_resolver_resolves_identifier_from_variable_pattern);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_as_pattern);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_wildcard_pattern);
         CPPUNIT_TEST_SUITE_END();
 
         BuiltinTypeAdder *_M_builtin_type_adder;
@@ -290,6 +303,19 @@ namespace lesfl
         void test_resolver_resolves_identifiers_from_tuple();
         void test_resolver_resolves_identifiers_from_unique_tuple();
         void test_resolver_resolves_identifiers_from_named_field_constructor_application();
+        void test_resolver_resolves_identifiers_from_typed_pattern();
+        void test_resolver_resolves_identifier_from_variable_constructor_pattern();
+        void test_resolver_resolves_identifiers_from_function_constructor_pattern();
+        void test_resolver_resolves_identifiers_from_named_field_constructor_pattern();
+        void test_resolver_resolves_identifiers_from_list_pattern();
+        void test_resolver_resolves_identifiers_from_array_pattern();
+        void test_resolver_resolves_identifiers_from_unique_array_pattern();
+        void test_resolver_resolves_identifiers_from_tuple_pattern();
+        void test_resolver_resolves_identifiers_from_unique_tuple_pattern();
+        void test_resolver_resolves_identifiers_from_literal_pattern();
+        void test_resolver_resolves_identifier_from_variable_pattern();
+        void test_resolver_resolves_identifiers_from_as_pattern();
+        void test_resolver_resolves_identifiers_from_wildcard_pattern();
       };
     }
   }
