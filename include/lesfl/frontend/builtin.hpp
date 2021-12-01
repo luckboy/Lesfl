@@ -85,6 +85,8 @@ namespace lesfl
       ITOF,
       FTOI,
       TRY,
+      RETHROW,
+      STACKTRACE,
       I8TOI,
       I16TOI,
       I32TOI,
