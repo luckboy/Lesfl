@@ -323,7 +323,7 @@ v = 1\n\
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
           CPPUNIT_ASSERT_EQUAL(AccessModifier::NONE, var_info->constr_access_modifier());
           CPPUNIT_ASSERT(nullptr == var_info->datatype_ident());
-       }
+        }
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), tree.uncompiled_var_key_idents().size());
         CPPUNIT_ASSERT(v_abs_ident.key_ident() == tree.uncompiled_var_key_idents()[0]);
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_var_key_idents().empty());
