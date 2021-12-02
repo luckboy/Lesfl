@@ -164,6 +164,20 @@ namespace lesfl
         CPPUNIT_TEST(test_resolver_resolves_identifier_from_variable_pattern);
         CPPUNIT_TEST(test_resolver_resolves_identifiers_from_as_pattern);
         CPPUNIT_TEST(test_resolver_resolves_identifiers_from_wildcard_pattern);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_typed_value);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_variable_literal_value);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_list_value);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_array_value);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_tuple_value);
+        CPPUNIT_TEST(test_resolver_resolves_identifier_from_variable_constructor_value);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_function_constructor_value);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_named_field_constructor_value);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_lambda_value);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_lambda_value_with_types);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_unique_lambda_value);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_unique_lambda_value_with_types);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_lambda_value_for_value);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_lambda_value_with_types_for_value);
         CPPUNIT_TEST_SUITE_END();
 
         BuiltinTypeAdder *_M_builtin_type_adder;
@@ -316,6 +330,20 @@ namespace lesfl
         void test_resolver_resolves_identifier_from_variable_pattern();
         void test_resolver_resolves_identifiers_from_as_pattern();
         void test_resolver_resolves_identifiers_from_wildcard_pattern();
+        void test_resolver_resolves_identifiers_from_typed_value();
+        void test_resolver_resolves_identifiers_from_variable_literal_value();
+        void test_resolver_resolves_identifiers_from_list_value();
+        void test_resolver_resolves_identifiers_from_array_value();
+        void test_resolver_resolves_identifiers_from_tuple_value();
+        void test_resolver_resolves_identifier_from_variable_constructor_value();
+        void test_resolver_resolves_identifiers_from_function_constructor_value();
+        void test_resolver_resolves_identifiers_from_named_field_constructor_value();
+        void test_resolver_resolves_identifiers_from_lambda_value();
+        void test_resolver_resolves_identifiers_from_lambda_value_with_types();
+        void test_resolver_resolves_identifiers_from_unique_lambda_value();
+        void test_resolver_resolves_identifiers_from_unique_lambda_value_with_types();
+        void test_resolver_resolves_identifiers_from_lambda_value_for_value();
+        void test_resolver_resolves_identifiers_from_lambda_value_with_types_for_value();
       };
     }
   }
