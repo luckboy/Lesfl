@@ -178,6 +178,15 @@ namespace lesfl
         CPPUNIT_TEST(test_resolver_resolves_identifiers_from_unique_lambda_value_with_types);
         CPPUNIT_TEST(test_resolver_resolves_identifiers_from_lambda_value_for_value);
         CPPUNIT_TEST(test_resolver_resolves_identifiers_from_lambda_value_with_types_for_value);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_with_type_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_function_type);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_primitive_function_type);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_unique_function_type);
+        CPPUNIT_TEST(test_resolver_resolves_identifier_from_type_variable_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifier_from_type_parameter_expression);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_tuple_type);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_unique_tuple_type);
+        CPPUNIT_TEST(test_resolver_resolves_identifiers_from_type_application);
         CPPUNIT_TEST_SUITE_END();
 
         BuiltinTypeAdder *_M_builtin_type_adder;
@@ -344,6 +353,15 @@ namespace lesfl
         void test_resolver_resolves_identifiers_from_unique_lambda_value_with_types();
         void test_resolver_resolves_identifiers_from_lambda_value_for_value();
         void test_resolver_resolves_identifiers_from_lambda_value_with_types_for_value();
+        void test_resolver_resolves_identifiers_from_with_type_expression();
+        void test_resolver_resolves_identifiers_from_function_type();
+        void test_resolver_resolves_identifiers_from_primitive_function_type();
+        void test_resolver_resolves_identifiers_from_unique_function_type();
+        void test_resolver_resolves_identifier_from_type_variable_expression();
+        void test_resolver_resolves_identifier_from_type_parameter_expression();
+        void test_resolver_resolves_identifiers_from_tuple_type();
+        void test_resolver_resolves_identifiers_from_unique_tuple_type();
+        void test_resolver_resolves_identifiers_from_type_application();
       };
     }
   }
