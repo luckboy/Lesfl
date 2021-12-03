@@ -15757,7 +15757,7 @@ type U(t) = T(Int64, t, Int8)\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
-      void ResolverTests::test_resolver_gets_constructor_from_named_field_constructor_application_for_alias_variable()
+      void ResolverTests::test_resolver_gives_constructor_from_named_field_constructor_application_for_alias_variable()
       {
         istringstream iss("\
 import stdlib\n\
@@ -15891,7 +15891,7 @@ f() = C2 { field1 = 1, field2 = 2 }\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
-      void ResolverTests::test_resolver_gets_constructor_from_variable_constructor_pattern_for_alias_variable()
+      void ResolverTests::test_resolver_gives_constructor_from_variable_constructor_pattern_for_alias_variable()
       {
         istringstream iss("\
 datatype T = C\n\
@@ -16012,7 +16012,7 @@ f(x) =\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
-      void ResolverTests::test_resolver_gets_constructor_from_function_constructor_pattern_for_alias_variable()
+      void ResolverTests::test_resolver_gives_constructor_from_function_constructor_pattern_for_alias_variable()
       {
         istringstream iss("\
 import stdlib\n\
@@ -16165,7 +16165,7 @@ f(x) =\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
-      void ResolverTests::test_resolver_gets_constructor_from_named_field_constructor_pattern_for_alias_variable()
+      void ResolverTests::test_resolver_gives_constructor_from_named_field_constructor_pattern_for_alias_variable()
       {
         istringstream iss("\
 import stdlib\n\
@@ -16323,7 +16323,7 @@ f(x) =\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
-      void ResolverTests::test_resolver_gets_constructor_from_variable_constructor_value_for_alias_variable()
+      void ResolverTests::test_resolver_gives_constructor_from_variable_constructor_value_for_alias_variable()
       {
         istringstream iss("\
 datatype T = C\n\
@@ -16423,7 +16423,7 @@ v = (C2)\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
-      void ResolverTests::test_resolver_gets_constructor_from_function_constructor_value_for_alias_variable()
+      void ResolverTests::test_resolver_gives_constructor_from_function_constructor_value_for_alias_variable()
       {
         istringstream iss("\
 import stdlib\n\
@@ -16549,7 +16549,7 @@ v = C2(1, 2)\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
-      void ResolverTests::test_resolver_gets_constructor_from_named_field_constructor_value_for_alias_variable()
+      void ResolverTests::test_resolver_gives_constructor_from_named_field_constructor_value_for_alias_variable()
       {
         istringstream iss("\
 import stdlib\n\
