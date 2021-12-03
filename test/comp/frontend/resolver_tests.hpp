@@ -187,6 +187,13 @@ namespace lesfl
         CPPUNIT_TEST(test_resolver_resolves_identifiers_from_tuple_type);
         CPPUNIT_TEST(test_resolver_resolves_identifiers_from_unique_tuple_type);
         CPPUNIT_TEST(test_resolver_resolves_identifiers_from_type_application);
+        CPPUNIT_TEST(test_resolver_gets_constructor_from_named_field_constructor_application_for_alias_variable);
+        CPPUNIT_TEST(test_resolver_gets_constructor_from_variable_constructor_pattern_for_alias_variable);
+        CPPUNIT_TEST(test_resolver_gets_constructor_from_function_constructor_pattern_for_alias_variable);
+        CPPUNIT_TEST(test_resolver_gets_constructor_from_named_field_constructor_pattern_for_alias_variable);
+        CPPUNIT_TEST(test_resolver_gets_constructor_from_variable_constructor_value_for_alias_variable);
+        CPPUNIT_TEST(test_resolver_gets_constructor_from_function_constructor_value_for_alias_variable);
+        CPPUNIT_TEST(test_resolver_gets_constructor_from_named_field_constructor_value_for_alias_variable);
         CPPUNIT_TEST_SUITE_END();
 
         BuiltinTypeAdder *_M_builtin_type_adder;
@@ -362,6 +369,13 @@ namespace lesfl
         void test_resolver_resolves_identifiers_from_tuple_type();
         void test_resolver_resolves_identifiers_from_unique_tuple_type();
         void test_resolver_resolves_identifiers_from_type_application();
+        void test_resolver_gets_constructor_from_named_field_constructor_application_for_alias_variable();
+        void test_resolver_gets_constructor_from_variable_constructor_pattern_for_alias_variable();
+        void test_resolver_gets_constructor_from_function_constructor_pattern_for_alias_variable();
+        void test_resolver_gets_constructor_from_named_field_constructor_pattern_for_alias_variable();
+        void test_resolver_gets_constructor_from_variable_constructor_value_for_alias_variable();
+        void test_resolver_gets_constructor_from_function_constructor_value_for_alias_variable();
+        void test_resolver_gets_constructor_from_named_field_constructor_value_for_alias_variable();
       };
     }
   }
