@@ -1639,9 +1639,9 @@ f(x: Array(t), y: Int64): t\n\
           CPPUNIT_ASSERT_EQUAL(true, type_rel_ident3->has_key_ident());
           CPPUNIT_ASSERT(stdlib_int64_abs_ident.key_ident() == type_rel_ident3->key_ident());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*arg_iter)->index());
-          TypeParameterExpression *type_param_expr3 = dynamic_cast<TypeParameterExpression *>(user_defined_fun->result_type_expr());
-          CPPUNIT_ASSERT(nullptr != type_param_expr3);
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), type_param_expr3->index());
+          TypeParameterExpression *type_param_expr4 = dynamic_cast<TypeParameterExpression *>(user_defined_fun->result_type_expr());
+          CPPUNIT_ASSERT(nullptr != type_param_expr4);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), type_param_expr4->index());
           CPPUNIT_ASSERT(nullptr == user_defined_fun->body());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
@@ -1715,9 +1715,9 @@ private f(x: Array(t), y: Int64): t\n\
           CPPUNIT_ASSERT_EQUAL(true, type_rel_ident3->has_key_ident());
           CPPUNIT_ASSERT(stdlib_int64_abs_ident.key_ident() == type_rel_ident3->key_ident());
           CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), (*arg_iter)->index());
-          TypeParameterExpression *type_param_expr3 = dynamic_cast<TypeParameterExpression *>(user_defined_fun->result_type_expr());
-          CPPUNIT_ASSERT(nullptr != type_param_expr3);
-          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), type_param_expr3->index());
+          TypeParameterExpression *type_param_expr4 = dynamic_cast<TypeParameterExpression *>(user_defined_fun->result_type_expr());
+          CPPUNIT_ASSERT(nullptr != type_param_expr4);
+          CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(0), type_param_expr4->index());
           CPPUNIT_ASSERT(nullptr == user_defined_fun->body());
           CPPUNIT_ASSERT(nullptr != var_info->insts().get());
           CPPUNIT_ASSERT_EQUAL(true, var_info->insts()->empty());
