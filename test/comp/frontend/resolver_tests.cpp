@@ -17726,7 +17726,7 @@ f(x: Array(t), y): t = #anth(x, y)\n\
         CPPUNIT_ASSERT_EQUAL(true, tree.uncompiled_type_fun_inst_pairs().empty());
       }
       
-      void ResolverTests::test_resolver_adds_type_synonym_instance()
+      void ResolverTests::test_resolver_adds_type_synonym_function_instance()
       {
         istringstream iss("\
 import stdlib\n\
@@ -17804,7 +17804,7 @@ type T(Int64) = Int8\n\
         }
       }
       
-      void ResolverTests::test_resolver_adds_datatype_instance()
+      void ResolverTests::test_resolver_adds_datatype_function_instance()
       {
         istringstream iss("\
 import stdlib\n\
@@ -17919,7 +17919,7 @@ datatype T(Int64) = C(Int16, Int8)\n\
         }
       }
       
-      void ResolverTests::test_resolver_adds_unique_datatype_instance()
+      void ResolverTests::test_resolver_adds_unique_datatype_function_instance()
       {
         istringstream iss("\
 import stdlib\n\
@@ -18034,7 +18034,7 @@ unique datatype T(Int64) = C(Int8, Int16)\n\
         }
       }
       
-      void ResolverTests::test_resolver_adds_datatype_instance_without_constructors()
+      void ResolverTests::test_resolver_adds_datatype_function_instance_without_constructors()
       {
         istringstream iss("\
 import stdlib\n\
@@ -18109,7 +18109,7 @@ datatype T(Int64)\n\
         }
       }
       
-      void ResolverTests::test_resolver_adds_unique_datatype_instance_without_constructors()
+      void ResolverTests::test_resolver_adds_unique_datatype_function_instance_without_constructors()
       {
         istringstream iss("\
 import stdlib\n\
@@ -18184,7 +18184,7 @@ unique datatype T(Int64)\n\
         }
       }
       
-      void ResolverTests::test_resolver_adds_type_synonym_instance_template()
+      void ResolverTests::test_resolver_adds_type_synonym_function_instance_template()
       {
         istringstream iss("\
 import stdlib\n\
@@ -18262,7 +18262,7 @@ type T(Array(t)) = t\n\
         }
       }
       
-      void ResolverTests::test_resolver_adds_datatype_instance_template()
+      void ResolverTests::test_resolver_adds_datatype_function_instance_template()
       {
         istringstream iss("\
 import stdlib\n\
@@ -18377,7 +18377,7 @@ datatype T(Array(t)) = C(t, Int64)\n\
         }
       }
       
-      void ResolverTests::test_resolver_adds_unique_datatype_instance_template()
+      void ResolverTests::test_resolver_adds_unique_datatype_function_instance_template()
       {
         istringstream iss("\
 import stdlib\n\
@@ -18492,7 +18492,7 @@ unique datatype T(Array(t)) = C(Int64, t)\n\
         }
       }
       
-      void ResolverTests::test_resolver_adds_datatype_instance_template_without_constructors()
+      void ResolverTests::test_resolver_adds_datatype_function_instance_template_without_constructors()
       {
         istringstream iss("\
 import stdlib\n\
@@ -18572,7 +18572,7 @@ datatype T(Array(t))\n\
         }
       }
       
-      void ResolverTests::test_resolver_adds_unique_datatype_instance_template_without_constructors()
+      void ResolverTests::test_resolver_adds_unique_datatype_function_instance_template_without_constructors()
       {
         istringstream iss("\
 import stdlib\n\

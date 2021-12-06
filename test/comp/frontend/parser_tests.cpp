@@ -6718,7 +6718,7 @@ private unique datatype T(t, u)\n\
         }
       }
       
-      void ParserTests::test_parser_parses_type_synonym_instance_definition()
+      void ParserTests::test_parser_parses_type_synonym_function_instance_definition()
       {
         istringstream iss("\
 instance\n\
@@ -6783,7 +6783,7 @@ type T(Int, Int8) = Int\n\
         }
       }
       
-      void ParserTests::test_parser_parses_datatype_instance_definition()
+      void ParserTests::test_parser_parses_datatype_function_instance_definition()
       {
         istringstream iss("\
 instance\n\
@@ -6874,7 +6874,7 @@ datatype T(Int, Int8) = C(Int, Int8)\n\
         }
       }
       
-      void ParserTests::test_parser_parses_unique_datatype_instance_definition()
+      void ParserTests::test_parser_parses_unique_datatype_function_instance_definition()
       {
         istringstream iss("\
 instance\n\
@@ -6965,7 +6965,7 @@ unique datatype T(WChar, Int) = C(WChar, Int)\n\
         }
       }
       
-      void ParserTests::test_parser_parses_datatype_instance_definition_without_constructors()
+      void ParserTests::test_parser_parses_datatype_function_instance_definition_without_constructors()
       {
         istringstream iss("\
 instance\n\
@@ -7023,7 +7023,7 @@ datatype T(Int, Int8)\n\
         }
       }
       
-      void ParserTests::test_parser_parses_unique_datatype_instance_definition_without_constructors()
+      void ParserTests::test_parser_parses_unique_datatype_function_instance_definition_without_constructors()
       {
         istringstream iss("\
 instance\n\
@@ -7081,7 +7081,7 @@ unique datatype T(WChar, Int)\n\
         }
       }
 
-      void ParserTests::test_parser_parses_type_synonym_instance_template_definition()
+      void ParserTests::test_parser_parses_type_synonym_function_instance_template_definition()
       {
         istringstream iss("\
 template instance\n\
@@ -7176,7 +7176,7 @@ type T(U(t, u), Int8) = U(t, u)\n\
         }
       }
       
-      void ParserTests::test_parser_parses_datatype_instance_template_definition()
+      void ParserTests::test_parser_parses_datatype_function_instance_template_definition()
       {
         istringstream iss("\
 template instance\n\
@@ -7297,7 +7297,7 @@ datatype T(U(t, u), Int8) = C(U(t, u), Int8)\n\
         }
       }
       
-      void ParserTests::test_parser_parses_unique_datatype_instance_template_definition()
+      void ParserTests::test_parser_parses_unique_datatype_function_instance_template_definition()
       {
         istringstream iss("\
 template instance\n\
@@ -7418,7 +7418,7 @@ unique datatype T(WChar, U(t, u)) = C(WChar, U(t, u))\n\
         }
       }
       
-      void ParserTests::test_parser_parses_datatype_instance_template_definition_without_constructors()
+      void ParserTests::test_parser_parses_datatype_function_instance_template_definition_without_constructors()
       {
         istringstream iss("\
 template instance\n\
@@ -7491,7 +7491,7 @@ datatype T(U(t, u), Int8)\n\
         }
       }
 
-      void ParserTests::test_parser_parses_unique_datatype_instance_template_definition_without_constructors()
+      void ParserTests::test_parser_parses_unique_datatype_function_instance_template_definition_without_constructors()
       {
         istringstream iss("\
 template instance\n\
