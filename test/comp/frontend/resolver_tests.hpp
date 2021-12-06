@@ -194,6 +194,27 @@ namespace lesfl
         CPPUNIT_TEST(test_resolver_gives_constructor_from_variable_constructor_value_for_alias_variable);
         CPPUNIT_TEST(test_resolver_gives_constructor_from_function_constructor_value_for_alias_variable);
         CPPUNIT_TEST(test_resolver_gives_constructor_from_named_field_constructor_value_for_alias_variable);
+        CPPUNIT_TEST(test_resolver_adds_user_defined_variable_instance);
+        CPPUNIT_TEST(test_resolver_adds_user_defined_variable_instance_with_type);
+        CPPUNIT_TEST(test_resolver_adds_external_variable_instance);
+        CPPUNIT_TEST(test_resolver_adds_user_defined_variable_instance_template);
+        CPPUNIT_TEST(test_resolver_adds_user_defined_variable_instance_template_with_type);
+        CPPUNIT_TEST(test_resolver_adds_user_defined_function_instance);
+        CPPUNIT_TEST(test_resolver_adds_user_defined_function_instance_with_types);
+        CPPUNIT_TEST(test_resolver_adds_external_function_instance);
+        CPPUNIT_TEST(test_resolver_adds_native_function_instance);
+        CPPUNIT_TEST(test_resolver_adds_user_defined_function_instance_template);
+        CPPUNIT_TEST(test_resolver_adds_user_defined_function_instance_template_with_types);
+        CPPUNIT_TEST(test_resolver_adds_type_synonym_instance);
+        CPPUNIT_TEST(test_resolver_adds_datatype_instance);
+        CPPUNIT_TEST(test_resolver_adds_unique_datatype_instance);
+        CPPUNIT_TEST(test_resolver_adds_datatype_instance_without_constructors);
+        CPPUNIT_TEST(test_resolver_adds_unique_datatype_instance_without_constructors);
+        CPPUNIT_TEST(test_resolver_adds_type_synonym_instance_template);
+        CPPUNIT_TEST(test_resolver_adds_datatype_instance_template);
+        CPPUNIT_TEST(test_resolver_adds_unique_datatype_instance_template);
+        CPPUNIT_TEST(test_resolver_adds_datatype_instance_template_without_constructors);
+        CPPUNIT_TEST(test_resolver_adds_unique_datatype_instance_template_without_constructors);
         CPPUNIT_TEST_SUITE_END();
 
         BuiltinTypeAdder *_M_builtin_type_adder;
@@ -376,6 +397,27 @@ namespace lesfl
         void test_resolver_gives_constructor_from_variable_constructor_value_for_alias_variable();
         void test_resolver_gives_constructor_from_function_constructor_value_for_alias_variable();
         void test_resolver_gives_constructor_from_named_field_constructor_value_for_alias_variable();
+        void test_resolver_adds_user_defined_variable_instance();
+        void test_resolver_adds_user_defined_variable_instance_with_type();
+        void test_resolver_adds_external_variable_instance();
+        void test_resolver_adds_user_defined_variable_instance_template();
+        void test_resolver_adds_user_defined_variable_instance_template_with_type();
+        void test_resolver_adds_user_defined_function_instance();
+        void test_resolver_adds_user_defined_function_instance_with_types();
+        void test_resolver_adds_external_function_instance();
+        void test_resolver_adds_native_function_instance();
+        void test_resolver_adds_user_defined_function_instance_template();
+        void test_resolver_adds_user_defined_function_instance_template_with_types();
+        void test_resolver_adds_type_synonym_instance();
+        void test_resolver_adds_datatype_instance();
+        void test_resolver_adds_unique_datatype_instance();
+        void test_resolver_adds_datatype_instance_without_constructors();
+        void test_resolver_adds_unique_datatype_instance_without_constructors();
+        void test_resolver_adds_type_synonym_instance_template();
+        void test_resolver_adds_datatype_instance_template();
+        void test_resolver_adds_unique_datatype_instance_template();
+        void test_resolver_adds_datatype_instance_template_without_constructors();
+        void test_resolver_adds_unique_datatype_instance_template_without_constructors();
       };
     }
   }
