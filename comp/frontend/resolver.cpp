@@ -1420,6 +1420,7 @@ namespace lesfl
           is_success = false;
         }
         is_success &= resolve_idents_from_type_expr(context, pair->type_expr(), errors);
+        index++;
       }
       return is_success;
     }
