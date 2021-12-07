@@ -1084,7 +1084,7 @@ namespace lesfl
       },
       [&](TypedPattern *pattern) -> bool {
         bool is_success = resolve_idents_from_pattern(context, pattern->pattern(), errors);
-        is_success = resolve_idents_from_type_expr(context, pattern->type_expr(), errors);
+        is_success &= resolve_idents_from_type_expr(context, pattern->type_expr(), errors);
         return is_success;
       });
     }
