@@ -243,10 +243,7 @@ namespace lesfl
       constr->set_datatype_fun_inst(datatype_fun_inst);
       shared_ptr<Variable> constr_var(new ConstructorVariable(constr));
       if(!context.tree.add_var(key_ident, access_modifier, constr_var, constr->access_modifier(), datatype_ident)) {
-        if(context.template_flag)
-          errors.push_back(Error(constr->pos(), "constructor template " + abs_ident->to_string() + " is already defined"));
-        else
-          errors.push_back(Error(constr->pos(), "constructor " + abs_ident->to_string() + " is already defined"));
+        errors.push_back(Error(constr->pos(), "variable " + abs_ident->to_string() + " is already defined"));
         is_success = false;
       }
       context.tree.uncompiled_var_key_idents().push_back(key_ident);
@@ -379,10 +376,7 @@ namespace lesfl
           if(is_added_abs_ident) abs_ident.release();
           bool tmp_is_success = true;
           if(!context.tree.add_var(key_ident, var_def->access_modifier(), var_def->var())) {
-            if(var_def->var()->is_template())
-              errors.push_back(Error(var_def->pos(), "variable template " + abs_ident->to_string() + " is already defined"));
-            else
-              errors.push_back(Error(var_def->pos(), "variable " + abs_ident->to_string() + " is already defined"));
+            errors.push_back(Error(var_def->pos(), "variable " + abs_ident->to_string() + " is already defined"));
             tmp_is_success = false;
           }
           context.tree.uncompiled_var_key_idents().push_back(key_ident);
@@ -400,10 +394,7 @@ namespace lesfl
           bool tmp_is_success = true;
           shared_ptr<Variable> fun_var(new FunctionVariable(fun_def->fun()));
           if(!context.tree.add_var(key_ident, fun_def->access_modifier(), fun_var)) {
-            if(fun_def->fun()->is_template())
-              errors.push_back(Error(fun_def->pos(), "function template " + abs_ident->to_string() + " is already defined"));
-            else
-              errors.push_back(Error(fun_def->pos(), "function " + abs_ident->to_string() + " is already defined"));
+            errors.push_back(Error(fun_def->pos(), "variable " + abs_ident->to_string() + " is already defined"));
             tmp_is_success = false;
           }
           context.tree.uncompiled_var_key_idents().push_back(key_ident);
