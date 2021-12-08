@@ -1373,13 +1373,13 @@ namespace lesfl
     {
       bool is_success = true;
       for(auto &param : params) {
-        if(can_add_type_params) {
-          if(!add_type_param(context, *param)) {
-            errors.push_back(Error(param->pos(), "type parameter " + param->to_ident_string() + " is already defined"));
-            is_success = false;
-          }
-        } else {
-          if(!set_type_param_index(context, *param)) {
+        if(!set_type_param_index(context, *param)) {
+          if(can_add_type_params) {
+            if(!add_type_param(context, *param)) {
+              errors.push_back(Error(param->pos(), "type parameter " + param->to_ident_string() + " is already defined"));
+              is_success = false;
+            }
+          } else {
             errors.push_back(Error(param->pos(), "type parameter " + param->to_ident_string() + " is undefined"));
             is_success = false;
           }
