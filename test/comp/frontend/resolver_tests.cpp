@@ -18733,6 +18733,792 @@ unique datatype T(Array(t))\n\
           CPPUNIT_ASSERT(inst_iter->get() == tree.uncompiled_type_fun_inst_pairs()[0].inst.get());
         }
       }
+      
+      void ResolverTests::test_resolver_complains_on_errors()
+      {
+        istringstream iss("\
+f() = v\n\
+\n\
+g() = w\n\
+\n\
+f() = 1\n\
+\n\
+g() = 2\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable .f is already defined"), error_iter->msg());
+        error_iter++;
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable .g is already defined"), error_iter->msg());
+        error_iter++;
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable v is undefined"), error_iter->msg());
+        error_iter++;
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable w is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_already_defined_variable_for_variable()
+      {
+        istringstream iss("\
+v = 1\n\
+\n\
+v = 2\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable .v is already defined"), error_iter->msg());
+      }
+
+      void ResolverTests::test_resolver_complains_on_already_defined_variable_for_function()
+      {
+        istringstream iss("\
+f() = 1\n\
+\n\
+f() = 2\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable .f is already defined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_already_defined_variable_for_constructor_at_datatype()
+      {
+        istringstream iss("\
+C = 1\n\
+\n\
+datatype T = C\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(14), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable .C is already defined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_already_defined_variable_for_constructor_at_datatype_instance()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+C = 1\n\
+\n\
+template(t)\n\
+datatype T(t)\n\
+\n\
+instance\n\
+datatype T(Int64) = C\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(21), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable .C is already defined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_already_defined_variable_for_constructor_at_unique_datatype()
+      {
+        istringstream iss("\
+C() = 1\n\
+\n\
+unique datatype T = C()\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(21), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable .C is already defined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_already_defined_variable_for_constructor_at_unique_datatype_instance()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+C() = 1\n\
+\n\
+template(t)\n\
+unique datatype T(t)\n\
+\n\
+instance\n\
+unique datatype T(Int64) = C()\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(28), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable .C is already defined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_already_defined_type()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+type T = Int64\n\
+\n\
+type T = Int16\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type .T is already defined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_already_defined_type_template()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+template\n\
+type T(t) = Array(t)\n\
+\n\
+template\n\
+type T(t) = UniqueArray(t)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type template .T is already defined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_module_for_absolute_identifier()
+      {
+        istringstream iss("\
+import .somelib\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("module .somelib is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_module_for_relative_identifier()
+      {
+        istringstream iss("\
+import somelib\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("module somelib is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_variable_for_absolute_identifier()
+      {
+        istringstream iss("\
+module somelib {\n\
+  f() = .somelib2.v\n\
+}\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable .somelib2.v is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_variable_for_relative_identifier()
+      {
+        istringstream iss("\
+module somelib {\n\
+  f() = v\n\
+}\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable v is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_variable_for_relative_identifier_and_imported_module()
+      {
+        istringstream iss("\
+module somelib {\n\
+  w = 1\n\
+}\n\
+\n\
+import somelib\n\
+\n\
+module somelib2 {\n\
+  f() = v\n\
+}\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable v is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_variable_for_relative_identifier_and_imported_module_with_private_variable()
+      {
+        istringstream iss("\
+module somelib {\n\
+  private v = 1\n\
+}\n\
+\n\
+import somelib\n\
+\n\
+module somelib2 {\n\
+  f() = v\n\
+}\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable v is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_private_variable_for_absolute_identifier()
+      {
+        istringstream iss("\
+module somelib {\n\
+  private v = 1\n\
+}\n\
+\n\
+module somelib2 {\n\
+  f() = .somelib.v\n\
+}\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable .somelib.v is private"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_private_variable_for_relative_identifier()
+      {
+        istringstream iss("\
+module predef {\n\
+  private v = 1\n\
+}\n\
+\n\
+module somelib2 {\n\
+  f() = v\n\
+}\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable .predef.v is private"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_type_for_absolute_identifier()
+      {
+        istringstream iss("\
+module somelib {\n\
+  type U = .somelib2.T\n\
+}\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(12), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type .somelib2.T is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_type_for_relative_identifier()
+      {
+        istringstream iss("\
+module somelib {\n\
+  type U = T\n\
+}\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(12), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type T is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_type_for_relative_identifier_and_imported_module()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+module somelib {\n\
+  type U = Int64\n\
+}\n\
+\n\
+import somelib\n\
+\n\
+module somelib2 {\n\
+  type V = T\n\
+}\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(12), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type T is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_type_for_relative_identifier_and_imported_module_with_private_type()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+module somelib {\n\
+  private type T = Int64\n\
+}\n\
+\n\
+import somelib\n\
+\n\
+module somelib2 {\n\
+  type U = T\n\
+}\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(12), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type T is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_private_type_for_absolute_identifier()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+module somelib {\n\
+  private type T = Int64\n\
+}\n\
+\n\
+module somelib2 {\n\
+  type U = .somelib.T\n\
+}\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(12), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type .somelib.T is private"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_private_type_for_relative_identifier()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+module predef {\n\
+  private type T = Int64\n\
+}\n\
+\n\
+module somelib2 {\n\
+  type U = T\n\
+}\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(8), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(12), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type .predef.T is private"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_type_template_for_absolute_identifier()
+      {
+        istringstream iss("\
+module somelib {\n\
+  template\n\
+  type U(t) = .somelib2.T(t)\n\
+}\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(15), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type template .somelib2.T is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_type_template_for_relative_identifier()
+      {
+        istringstream iss("\
+module somelib {\n\
+  template\n\
+  type U(t) = T(t)\n\
+}\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(15), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type template T is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_type_template_for_relative_identifier_and_imported_module()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+module somelib {\n\
+  template\n\
+  type U(t) = Array(t)\n\
+}\n\
+\n\
+import somelib\n\
+\n\
+module somelib2 {\n\
+  template\n\
+  type V(t) = T(t)\n\
+}\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(12), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(15), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type template T is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_type_template_for_relative_identifier_and_imported_module_with_private_type_template()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+module somelib {\n\
+  template\n\
+  private type T(t) = Array(t)\n\
+}\n\
+\n\
+import somelib\n\
+\n\
+module somelib2 {\n\
+  template\n\
+  type U(t) = T(t)\n\
+}\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(12), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(15), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type template T is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_private_type_template_for_absolute_identifier()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+module somelib {\n\
+  template\n\
+  private type T(t) = Array(t)\n\
+}\n\
+\n\
+module somelib2 {\n\
+  template\n\
+  type U(t) = .somelib.T(t)\n\
+}\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(15), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type template .somelib.T is private"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_private_type_template_for_relative_identifier()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+module predef {\n\
+  template\n\
+  private type T(t) = Array(t)\n\
+}\n\
+\n\
+module somelib2 {\n\
+  template\n\
+  type U(t) = T(t)\n\
+}\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(15), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type template .predef.T is private"), error_iter->msg());
+      }
     }
   }
 }
