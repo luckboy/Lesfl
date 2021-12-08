@@ -428,7 +428,7 @@ namespace lesfl
           if(is_added_abs_ident) abs_ident.release();
           bool tmp_is_success = true;
           if(!context.tree.add_type_fun(key_ident, type_fun_def->access_modifier(), type_fun_def->fun())) {
-            errors.push_back(Error(def->pos(), "type template" + abs_ident->to_string() + " is already defined"));
+            errors.push_back(Error(def->pos(), "type template " + abs_ident->to_string() + " is already defined"));
             tmp_is_success = false;
           }
           context.template_flag = true;
@@ -568,18 +568,18 @@ namespace lesfl
       });
     }
 
-    static bool resolve_module_ident(ResolverContext &context, Identifier *ident, const Position &pos, list<Error> &errors)
+    static bool resolve_module_ident(ResolverContext &context, Identifier *ident, const Position &pos, list<Error> &errors, bool can_add_error = true)
     {
       return resolve_ident(context, ident, pos, errors,
       [&context](const AbsoluteIdentifier &abs_ident, AccessModifier &access_modifier, bool &is_added_module) {
         is_added_module = context.tree.has_module_key_ident(abs_ident);
         return false;
       },
-      [&pos, &errors](const AbsoluteIdentifier &abs_ident) {
-        errors.push_back(Error(pos, "module " + abs_ident.to_string() + " is private"));
+      [&pos, &errors, &can_add_error](const AbsoluteIdentifier &abs_ident) {
+        if(can_add_error) errors.push_back(Error(pos, "module " + abs_ident.to_string() + " is private"));
       },
-      [&ident, &pos, &errors]() {
-        errors.push_back(Error(pos, "module " + ident->to_string() + " is undefined"));
+      [&ident, &pos, &errors, &can_add_error]() {
+        if(can_add_error) errors.push_back(Error(pos, "module " + ident->to_string() + " is undefined"));
       }, false);
     }
 
@@ -1708,7 +1708,7 @@ namespace lesfl
           return true;
         },
         [&](Import *import) -> bool {
-          bool tmp_is_success = resolve_module_ident(context, import->module_ident(), import->pos(), errors);
+          bool tmp_is_success = resolve_module_ident(context, import->module_ident(), import->pos(), errors, false);
           if(tmp_is_success) push_imported_module(context, *(import->module_ident()->abs_ident(*(context.tree.ident_table()))));
           return tmp_is_success;
         },
