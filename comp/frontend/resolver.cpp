@@ -817,11 +817,11 @@ namespace lesfl
               }
               constr_abs_ident_string_fun_ptr = &constr_abs_ident_string_fun;
               if(app->fields().size() < constr->field_count()) {
-                errors.push_back(Error(app->pos(), "too few fields of constructor " + constr_abs_ident_string_fun() + " isn't function constructor"));
+                errors.push_back(Error(app->pos(), "too few fields of constructor " + constr_abs_ident_string_fun()));
                 return false;
               }
               if(app->fields().size() > constr->field_count()) {
-                errors.push_back(Error(app->pos(), "too many fields of constructor " + constr_abs_ident_string_fun() + " isn't function constructor"));
+                errors.push_back(Error(app->pos(), "too many fields of constructor " + constr_abs_ident_string_fun()));
                 return false;
               }
               return true;
@@ -944,7 +944,7 @@ namespace lesfl
           [&](ConstructorVariable *constr_var) -> bool {
             return dynamic_match(constr_var->constr().get(),
             [&](Constructor *constr) -> bool {
-              errors.push_back(Error(pattern->pos(), "constructor " + constr_abs_ident_string_fun() + " isn't veriable constructor"));
+              errors.push_back(Error(pattern->pos(), "constructor " + constr_abs_ident_string_fun() + " isn't variable constructor"));
               return false;
             },
             [&](VariableConstructor *constr) -> bool {
@@ -976,11 +976,11 @@ namespace lesfl
             },
             [&](FunctionConstructor *constr) -> bool {
               if(pattern->field_patterns().size() < constr->field_count()) {
-                errors.push_back(Error(pattern->pos(), "too few fields of constructor " + constr_abs_ident_string_fun() + " isn't function constructor"));
+                errors.push_back(Error(pattern->pos(), "too few fields of constructor " + constr_abs_ident_string_fun()));
                 return false;
               }
               if(pattern->field_patterns().size() > constr->field_count()) {
-                errors.push_back(Error(pattern->pos(), "too many fields of constructor " + constr_abs_ident_string_fun() + " isn't function constructor"));
+                errors.push_back(Error(pattern->pos(), "too many fields of constructor " + constr_abs_ident_string_fun()));
                 return false;
               }
               return true;
@@ -1020,12 +1020,13 @@ namespace lesfl
                 indices.insert(make_pair(field_type->ident(), index));
                 index++;
               }
+              constr_abs_ident_string_fun_ptr = &constr_abs_ident_string_fun;
               if(pattern->field_patterns().size() < constr->field_count()) {
-                errors.push_back(Error(pattern->pos(), "too few fields of constructor " + constr_abs_ident_string_fun() + " isn't function constructor"));
+                errors.push_back(Error(pattern->pos(), "too few fields of constructor " + constr_abs_ident_string_fun()));
                 return false;
               }
               if(pattern->field_patterns().size() > constr->field_count()) {
-                errors.push_back(Error(pattern->pos(), "too many fields of constructor " + constr_abs_ident_string_fun() + " isn't function constructor"));
+                errors.push_back(Error(pattern->pos(), "too many fields of constructor " + constr_abs_ident_string_fun()));
                 return false;
               }
               return true;
@@ -1148,7 +1149,7 @@ namespace lesfl
           [&](ConstructorVariable *constr_var) -> bool {
             return dynamic_match(constr_var->constr().get(),
             [&](Constructor *constr) -> bool {
-              errors.push_back(Error(value->pos(), "constructor " + constr_abs_ident_string_fun() + " isn't veriable constructor"));
+              errors.push_back(Error(value->pos(), "constructor " + constr_abs_ident_string_fun() + " isn't variable constructor"));
               return false;
             },
             [&](VariableConstructor *constr) -> bool {
@@ -1180,11 +1181,11 @@ namespace lesfl
             },
             [&](FunctionConstructor *constr) -> bool {
               if(value->fields().size() < constr->field_count()) {
-                errors.push_back(Error(value->pos(), "too few fields of constructor " + constr_abs_ident_string_fun() + " isn't function constructor"));
+                errors.push_back(Error(value->pos(), "too few fields of constructor " + constr_abs_ident_string_fun()));
                 return false;
               }
               if(value->fields().size() > constr->field_count()) {
-                errors.push_back(Error(value->pos(), "too many fields of constructor " + constr_abs_ident_string_fun() + " isn't function constructor"));
+                errors.push_back(Error(value->pos(), "too many fields of constructor " + constr_abs_ident_string_fun()));
                 return false;
               }
               return true;
@@ -1226,11 +1227,11 @@ namespace lesfl
               }
               constr_abs_ident_string_fun_ptr = &constr_abs_ident_string_fun;
               if(value->fields().size() < constr->field_count()) {
-                errors.push_back(Error(value->pos(), "too few fields of constructor " + constr_abs_ident_string_fun() + " isn't function constructor"));
+                errors.push_back(Error(value->pos(), "too few fields of constructor " + constr_abs_ident_string_fun()));
                 return false;
               }
               if(value->fields().size() > constr->field_count()) {
-                errors.push_back(Error(value->pos(), "too many fields of constructor " + constr_abs_ident_string_fun() + " isn't function constructor"));
+                errors.push_back(Error(value->pos(), "too many fields of constructor " + constr_abs_ident_string_fun()));
                 return false;
               }
               return true;
@@ -1358,11 +1359,11 @@ namespace lesfl
         is_unmemoized |= tmp_is_unmemoized;
         is_memoized |= tmp_is_memoized;
         if((tmp_is_eager || tmp_is_lazy) && is_eager && is_lazy) {
-          errors.push_back(Error(annotation->pos(), "annotation can't be eager and lazy"));
+          errors.push_back(Error(annotation->pos(), "annotations can't be eager and lazy"));
           is_success = false;
         }
         if((tmp_is_unmemoized || tmp_is_memoized) && is_unmemoized && is_memoized) {
-          errors.push_back(Error(annotation->pos(), "annotation can't be unmemoized and memoized"));
+          errors.push_back(Error(annotation->pos(), "annotations can't be unmemoized and memoized"));
           is_success = false;
         }
       }
@@ -1663,7 +1664,7 @@ namespace lesfl
         context.template_flag = var->is_template();
         if(var->type_expr() != nullptr)
           is_success &= resolve_idents_from_type_expr(context, var->type_expr(), errors, true);
-        is_success &= resolve_var_ident(context, var->ident(), pos, errors);
+        is_success &= resolve_var_ident(context, var->ident(), var->pos(), errors);
         context.template_flag = false;
         clear_type_params(context);
         return is_success;
