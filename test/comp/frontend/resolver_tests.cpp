@@ -19519,6 +19519,1316 @@ module somelib2 {\n\
         CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(15), error_iter->pos().column());
         CPPUNIT_ASSERT_EQUAL(string("type template .predef.T is private"), error_iter->msg());
       }
+      
+      void ResolverTests::test_resolver_complains_on_already_defined_argument_for_function()
+      {
+        istringstream iss("\
+f(x, x) = #itoi8(x)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("argument x is already defined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_already_defined_variable_for_let_expression()
+      {
+        istringstream iss("\
+f() =\n\
+  let x = 1\n\
+      x = 2\n\
+  in  #itoi8(x)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable x is already defined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_already_defined_variable_for_let_expression_and_tuple_binding()
+      {
+        istringstream iss("\
+f() =\n\
+  let (x, x) = (1, 2)\n\
+  in  #itoi8(x)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable x is already defined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_already_defined_variable_for_match_expression()
+      {
+        istringstream iss("\
+f(x) =\n\
+  x match {\n\
+    (y, y) -> #itoi8(y)\n\
+  }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable y is already defined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_already_defined_argument_for_lambda_value()
+      {
+        istringstream iss("\
+f() = \\(x, x) -> #itoi8(x)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(12), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("argument x is already defined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_variable_for_primitive_lambda_value()
+      {
+        istringstream iss("\
+f(x) = primitive \\(y) -> #iadd(x, y)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(32), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable x is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_already_defined_type_argument()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+template\n\
+type T(t, t) = Array(t)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type argument t is already defined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_type_parameter()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+template\n\
+type T(t) = Array(u)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(19), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type parameter u is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_type_parameter_for_instance_type_parameter()
+      {
+        istringstream iss("\
+template(u)\n\
+type T(t)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type parameter u is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_type_parameter_in_type()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+type T = Array(t)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(16), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type parameters only can used in templates"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_type_parameter_for_variable_template()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+template\n\
+v: Array(t) = #[]: Array(u)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(26), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type parameter u is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_type_parameters_in_variable()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+v: Array(t) = #[]: Array(t)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(10), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type parameters only can used in templates"), error_iter->msg());
+        error_iter++;
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(26), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type parameters only can used in templates"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_type_parameter_for_function_template()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+template\n\
+f(x: Array(t), y) = #anth(x, y): u\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(4), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(34), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type parameter u is undefined"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_type_parameters_in_function()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+f(x: Array(t), y) = #anth(x, y): t\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(12), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type parameters only can used in templates"), error_iter->msg());
+        error_iter++;
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(34), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("type parameters only can used in templates"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_unsupported_annotation()
+      {
+        istringstream iss("\
+@xxx\n\
+f() = 1\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("annotation @xxx is unsupported"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_eager_annotation_and_lazy_annotation()
+      {
+        istringstream iss("\
+@eager @lazy\n\
+f() = 1\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("annotations can't be eager and lazy"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_memoized_annotation_and_unmemoized_annotation()
+      {
+        istringstream iss("\
+@memoized @unmemoized\n\
+f() = 1\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(12), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("annotations can't be unmemoized and memoized"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_non_constructor_variable_for_named_field_constructor_application()
+      {
+        istringstream iss("\
+C = 1\n\
+\n\
+f() = C { field1 = 1, field2 = 2, field3 = 3 }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable .C isn't constructor"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_incorrect_constructor_for_named_field_constructor_application()
+      {
+        istringstream iss("\
+datatype T = C\n\
+\n\
+f() = C { field1 = 1, field2 = 2, field3 = 3 }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("constructor .C isn't function constructor with named fields"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_too_few_fields_for_named_field_constructor_application()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C {\n\
+    field1: Int64,\n\
+    field2: Int64,\n\
+    field3: Int64\n\
+  }\n\
+\n\
+f() = C { field1 = 1, field2 = 2 }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("too few fields of constructor .C"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_too_many_fields_for_named_field_constructor_application()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C {\n\
+    field1: Int64,\n\
+    field2: Int64,\n\
+    field3: Int64\n\
+  }\n\
+\n\
+f() = C { field1 = 1, field2 = 2, field3 = 3, field4 = 4 }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("too many fields of constructor .C"), error_iter->msg());
+        error_iter++;
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(47), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("field field4 is undefined at constructor .C"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_already_specified_field_for_named_field_constructor_application()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C {\n\
+    field1: Int64,\n\
+    field2: Int64,\n\
+    field3: Int64\n\
+  }\n\
+\n\
+f() = C { field1 = 1, field2 = 2, field2 = 3 }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(35), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("field field2 is already specified"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_field_for_named_field_constructor_application()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C {\n\
+    field1: Int64,\n\
+    field2: Int64,\n\
+    field3: Int64\n\
+  }\n\
+\n\
+f() = C { field1 = 1, field2 = 2, field4 = 3 }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(35), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("field field4 is undefined at constructor .C"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_non_constructor_variable_for_variable_constructor_pattern()
+      {
+        istringstream iss("\
+C = 1\n\
+\n\
+f(x) =\n\
+  x match {\n\
+    C -> 1\n\
+  }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable .C isn't constructor"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_incorrect_constructor_for_variable_constructor_pattern()
+      {
+        istringstream iss("\
+datatype T = C()\n\
+\n\
+f(x) =\n\
+  x match {\n\
+    C -> 1\n\
+  }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("constructor .C isn't variable constructor"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_non_constructor_variable_for_function_constructor_pattern()
+      {
+        istringstream iss("\
+C = 1\n\
+\n\
+f(x) =\n\
+  x match {\n\
+    C(1, 2, 3) -> 1\n\
+    _ -> 2\n\
+  }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable .C isn't constructor"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_incorrect_constructor_for_function_constructor_pattern()
+      {
+        istringstream iss("\
+datatype T = C\n\
+\n\
+f(x) =\n\
+  x match {\n\
+    C(1, 2, 3) -> 1\n\
+    _ -> 2\n\
+  }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("constructor .C isn't function constructor"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_too_few_fields_for_function_constructor_pattern()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C(Int64, Int64, Int64)\n\
+\n\
+f(x) =\n\
+  x match {\n\
+    C(1, 2) -> 1\n\
+    _ -> 2\n\
+  }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("too few fields of constructor .C"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_too_many_fields_for_function_constructor_pattern()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C(Int64, Int64, Int64)\n\
+\n\
+f(x) =\n\
+  x match {\n\
+    C(1, 2, 3, 4) -> 1\n\
+    _ -> 2\n\
+  }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("too many fields of constructor .C"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_non_constructor_variable_for_named_field_constructor_pattern()
+      {
+        istringstream iss("\
+C = 1\n\
+\n\
+f(x) =\n\
+  x match {\n\
+    C { field1 = 1, field2 = 2, field3 = 3 } -> 1\n\
+    _ -> 2\n\
+  }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable .C isn't constructor"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_incorrect_constructor_for_named_field_constructor_pattern()
+      {
+        istringstream iss("\
+datatype T = C\n\
+\n\
+f(x) =\n\
+  x match {\n\
+    C { field1 = 1, field2 = 2, field3 = 3 } -> 1\n\
+    _ -> 2\n\
+  }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("constructor .C isn't function constructor with named fields"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_too_few_fields_for_named_field_constructor_pattern()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C {\n\
+    field1: Int64,\n\
+    field2: Int64,\n\
+    field3: Int64\n\
+  }\n\
+\n\
+f(x) =\n\
+  x match {\n\
+    C { field1 = 1, field2 = 2 } -> 1\n\
+    _ -> 2\n\
+  }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("too few fields of constructor .C"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_too_many_fields_for_named_field_constructor_pattern()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C {\n\
+    field1: Int64,\n\
+    field2: Int64,\n\
+    field3: Int64\n\
+  }\n\
+\n\
+f(x) =\n\
+  x match {\n\
+    C { field1 = 1, field2 = 2, field3 = 3, field4 = 4 } -> 1\n\
+    _ -> 2\n\
+  }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("too many fields of constructor .C"), error_iter->msg());
+        error_iter++;
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(45), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("field field4 is undefined at constructor .C"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_already_specified_field_for_named_field_constructor_pattern()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C {\n\
+    field1: Int64,\n\
+    field2: Int64,\n\
+    field3: Int64\n\
+  }\n\
+\n\
+f(x) =\n\
+  x match {\n\
+    C { field1 = 1, field2 = 2, field2 = 3 } -> 1\n\
+    _ -> 2\n\
+  }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(33), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("field field2 is already specified"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_field_for_named_field_constructor_pattern()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C {\n\
+    field1: Int64,\n\
+    field2: Int64,\n\
+    field3: Int64\n\
+  }\n\
+\n\
+f(x) =\n\
+  x match {\n\
+    C { field1 = 1, field2 = 2, field4 = 3 } -> 1\n\
+    _ -> 2\n\
+  }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(11), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(33), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("field field4 is undefined at constructor .C"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_non_constructor_variable_for_variable_constructor_value()
+      {
+        istringstream iss("\
+C = 1\n\
+\n\
+v = (C)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable .C isn't constructor"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_incorrect_constructor_for_variable_constructor_value()
+      {
+        istringstream iss("\
+datatype T = C()\n\
+\n\
+v = (C)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("constructor .C isn't variable constructor"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_non_constructor_variable_for_function_constructor_value()
+      {
+        istringstream iss("\
+C = 1\n\
+\n\
+v = C(1, 2, 3)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable .C isn't constructor"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_incorrect_constructor_for_function_constructor_value()
+      {
+        istringstream iss("\
+datatype T = C\n\
+\n\
+v = C(1, 2, 3)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("constructor .C isn't function constructor"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_too_few_fields_for_function_constructor_value()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C(Int64, Int64, Int64)\n\
+\n\
+f = C(1, 2)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("too few fields of constructor .C"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_too_many_fields_for_function_constructor_value()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C(Int64, Int64, Int64)\n\
+\n\
+v = C(1, 2, 3, 4)\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("too many fields of constructor .C"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_non_constructor_variable_for_named_field_constructor_value()
+      {
+        istringstream iss("\
+C = 1\n\
+\n\
+v = C { field1 = 1, field2 = 2, field3 = 3 }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable .C isn't constructor"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_incorrect_constructor_for_named_field_constructor_value()
+      {
+        istringstream iss("\
+datatype T = C\n\
+\n\
+v = C { field1 = 1, field2 = 2, field3 = 3 }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("constructor .C isn't function constructor with named fields"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_too_few_fields_for_named_field_constructor_value()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C {\n\
+    field1: Int64,\n\
+    field2: Int64,\n\
+    field3: Int64\n\
+  }\n\
+\n\
+v = C { field1 = 1, field2 = 2 }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("too few fields of constructor .C"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_too_many_fields_for_named_field_constructor_value()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C {\n\
+    field1: Int64,\n\
+    field2: Int64,\n\
+    field3: Int64\n\
+  }\n\
+\n\
+v = C { field1 = 1, field2 = 2, field3 = 3, field4 = 4 }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("too many fields of constructor .C"), error_iter->msg());
+        error_iter++;
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(45), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("field field4 is undefined at constructor .C"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_already_specified_field_for_named_field_constructor_value()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C {\n\
+    field1: Int64,\n\
+    field2: Int64,\n\
+    field3: Int64\n\
+  }\n\
+\n\
+v = C { field1 = 1, field2 = 2, field2 = 3 }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(33), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("field field2 is already specified"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_undefined_field_for_named_field_constructor_value()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C {\n\
+    field1: Int64,\n\
+    field2: Int64,\n\
+    field3: Int64\n\
+  }\n\
+\n\
+v = C { field1 = 1, field2 = 2, field4 = 3 }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(9), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(33), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("field field4 is undefined at constructor .C"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_already_defined_field_at_constructor()
+      {
+        istringstream iss("\
+import stdlib\n\
+\n\
+datatype T = C {\n\
+    field1: Int64,\n\
+    field2: Int64,\n\
+    field2: Int64\n\
+  }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(5), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("field field2 is already defined at constructor .C"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_alias_variable_reference_to_undefined_variable()
+      {
+        istringstream iss("\
+C2 = C\n\
+\n\
+f() = C2 { field1 = 1, field2 = 2 }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(6), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("variable C is undefined"), error_iter->msg());
+        error_iter++;
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("alias variable .C2 refers to undefined variable"), error_iter->msg());
+      }
+      
+      void ResolverTests::test_resolver_complains_on_alias_variable_reference_to_alias_cycle()
+      {
+        istringstream iss("\
+C = C2\n\
+\n\
+C2 = C\n\
+\n\
+C3 = C2\n\
+\n\
+f() = C3 { field1 = 1, field2 = 2 }\n\
+");
+        vector<Source> sources;
+        sources.push_back(Source("test.lesfl", iss));
+        list<Error> errors;
+        Tree tree;
+        CPPUNIT_ASSERT_EQUAL(true, _M_builtin_type_adder->add_builtin_types(tree));
+        CPPUNIT_ASSERT_EQUAL(true, _M_parser->parse(sources, tree, errors));
+        CPPUNIT_ASSERT(errors.empty());
+        CPPUNIT_ASSERT_EQUAL(false, _M_resolver->resolve(tree, errors));
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(1), errors.size());
+        auto error_iter = errors.begin();
+        CPPUNIT_ASSERT_EQUAL(string("test.lesfl"), error_iter->pos().source().file_name());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().line());
+        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(7), error_iter->pos().column());
+        CPPUNIT_ASSERT_EQUAL(string("alias variable .C3 refers to alias cycle"), error_iter->msg());
+      }
     }
   }
 }
