@@ -144,6 +144,12 @@ namespace lesfl
     Variable::~Variable() {}
 
     //
+    // An InstanceVariable class.
+    //
+
+    InstanceVariable::~InstanceVariable() {}
+
+    //
     // A DefinableVariable class.
     //
 
@@ -196,6 +202,12 @@ namespace lesfl
     //
 
     Function::~Function() {}
+
+    //
+    // An InstanceFunction class.
+    //
+
+    InstanceFunction::~InstanceFunction() {}
 
     //
     // A DefinableFunction class.

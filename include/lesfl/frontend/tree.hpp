@@ -550,8 +550,16 @@ namespace lesfl
     public:
       virtual ~Variable();
     };
+    
+    class InstanceVariable : public Variable
+    {
+    protected:
+      InstanceVariable() {}
+    public:
+      ~InstanceVariable();
+    };
 
-    class DefinableVariable : public Variable
+    class DefinableVariable : public InstanceVariable
     {
     protected:
       std::unique_ptr<const std::list<std::unique_ptr<TypeParameter>>> _M_inst_type_params;
@@ -649,7 +657,7 @@ namespace lesfl
       const std::shared_ptr<Constructor> &constr() const { return _M_constr; }
     };
 
-    class LibraryVariable : public Variable
+    class LibraryVariable : public InstanceVariable
     {
     public:
       LibraryVariable();
@@ -659,13 +667,13 @@ namespace lesfl
 
     class VariableInstance : public Instance
     {
-      std::shared_ptr<Variable> _M_var;
+      std::shared_ptr<InstanceVariable> _M_var;
     public:
-      VariableInstance(Variable *var, const Position &pos) : Instance(pos), _M_var(var) {}
+      VariableInstance(InstanceVariable *var, const Position &pos) : Instance(pos), _M_var(var) {}
 
       ~VariableInstance();
 
-      const std::shared_ptr<Variable> &var() const { return _M_var; }
+      const std::shared_ptr<InstanceVariable> &var() const { return _M_var; }
     };
 
     class Function
@@ -680,7 +688,15 @@ namespace lesfl
       std::size_t arg_count() const { return _M_arg_count; }
     };
 
-    class DefinableFunction : public Function
+    class InstanceFunction : public Function
+    {
+    protected:
+      InstanceFunction(std::size_t arg_count) : Function(arg_count) {}
+    public:
+      ~InstanceFunction();
+    };
+
+    class DefinableFunction : public InstanceFunction
     {
     protected:
       std::unique_ptr<const std::list<std::unique_ptr<TypeParameter>>> _M_inst_type_params;
@@ -690,16 +706,16 @@ namespace lesfl
       std::unique_ptr<TypeExpression> _M_result_type_expr;
 
       DefinableFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args) :
-        Function(args->size()), _M_inst_type_params(nullptr), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(nullptr) {}
+        InstanceFunction(args->size()), _M_inst_type_params(nullptr), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(nullptr) {}
 
       DefinableFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr) :
-        Function(args->size()), _M_inst_type_params(nullptr), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(result_type_expr) {}
+        InstanceFunction(args->size()), _M_inst_type_params(nullptr), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(result_type_expr) {}
 
       DefinableFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args) :
-        Function(args->size()), _M_inst_type_params(inst_type_params), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(nullptr) {}
+        InstanceFunction(args->size()), _M_inst_type_params(inst_type_params), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(nullptr) {}
 
       DefinableFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr) :
-        Function(args->size()), _M_inst_type_params(inst_type_params), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(result_type_expr) {}
+        InstanceFunction(args->size()), _M_inst_type_params(inst_type_params), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(result_type_expr) {}
     public:
       ~DefinableFunction();
 
@@ -768,13 +784,13 @@ namespace lesfl
 
     class FunctionInstance : public Instance
     {
-      std::shared_ptr<Function> _M_fun;
+      std::shared_ptr<InstanceFunction> _M_fun;
     public:
-      FunctionInstance(Function *fun, const Position &pos) : Instance(pos), _M_fun(fun) {}
+      FunctionInstance(InstanceFunction *fun, const Position &pos) : Instance(pos), _M_fun(fun) {}
 
       ~FunctionInstance();
 
-      const std::shared_ptr<Function> &fun() const { return _M_fun; }
+      const std::shared_ptr<InstanceFunction> &fun() const { return _M_fun; }
     };
 
     class Argument : public Positional, public IdentifiableAndIndexable
