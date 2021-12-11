@@ -144,6 +144,12 @@ namespace lesfl
     Variable::~Variable() {}
 
     //
+    // An OriginalVariable class.
+    //
+
+    OriginalVariable::~OriginalVariable() {}
+
+    //
     // An InstanceVariable class.
     //
 
@@ -202,6 +208,12 @@ namespace lesfl
     //
 
     Function::~Function() {}
+
+    //
+    // An OriginalFunction class.
+    //
+
+    OriginalFunction::~OriginalFunction() {}
 
     //
     // An InstanceFunction class.

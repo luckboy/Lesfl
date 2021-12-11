@@ -550,8 +550,16 @@ namespace lesfl
     public:
       virtual ~Variable();
     };
+
+    class OriginalVariable : public Variable
+    {
+    protected:
+      OriginalVariable() {}
+    public:
+      ~OriginalVariable();
+    };
     
-    class InstanceVariable : public Variable
+    class InstanceVariable : public virtual OriginalVariable
     {
     protected:
       InstanceVariable() {}
@@ -559,7 +567,7 @@ namespace lesfl
       ~InstanceVariable();
     };
 
-    class DefinableVariable : public InstanceVariable
+    class DefinableVariable : public virtual OriginalVariable
     {
     protected:
       std::unique_ptr<const std::list<std::unique_ptr<TypeParameter>>> _M_inst_type_params;
@@ -585,7 +593,7 @@ namespace lesfl
       TypeExpression *type_expr() const { return _M_type_expr.get(); }
     };    
 
-    class UserDefinedVariable : public DefinableVariable
+    class UserDefinedVariable : public DefinableVariable, public InstanceVariable
     {
       std::unique_ptr<Value> _M_value;
     public:
@@ -608,7 +616,7 @@ namespace lesfl
       Value *value() const { return _M_value.get(); }
     };
 
-    class ExternalVariable : public DefinableVariable
+    class ExternalVariable : public DefinableVariable, public InstanceVariable
     {
       std::string _M_external_var_ident;
     public:
@@ -688,15 +696,23 @@ namespace lesfl
       std::size_t arg_count() const { return _M_arg_count; }
     };
 
-    class InstanceFunction : public Function
+    class OriginalFunction : public Function
     {
     protected:
-      InstanceFunction(std::size_t arg_count) : Function(arg_count) {}
+      OriginalFunction(std::size_t arg_count) : Function(arg_count) {}
+    public:
+      ~OriginalFunction();
+    };
+    
+    class InstanceFunction : public virtual OriginalFunction
+    {
+    protected:
+      InstanceFunction(std::size_t arg_count): OriginalFunction(arg_count) {}
     public:
       ~InstanceFunction();
     };
 
-    class DefinableFunction : public InstanceFunction
+    class DefinableFunction : public virtual OriginalFunction
     {
     protected:
       std::unique_ptr<const std::list<std::unique_ptr<TypeParameter>>> _M_inst_type_params;
@@ -706,16 +722,16 @@ namespace lesfl
       std::unique_ptr<TypeExpression> _M_result_type_expr;
 
       DefinableFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args) :
-        InstanceFunction(args->size()), _M_inst_type_params(nullptr), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(nullptr) {}
+        OriginalFunction(args->size()), _M_inst_type_params(nullptr), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(nullptr) {}
 
       DefinableFunction(const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr) :
-        InstanceFunction(args->size()), _M_inst_type_params(nullptr), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(result_type_expr) {}
+        OriginalFunction(args->size()), _M_inst_type_params(nullptr), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(result_type_expr) {}
 
       DefinableFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args) :
-        InstanceFunction(args->size()), _M_inst_type_params(inst_type_params), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(nullptr) {}
+        OriginalFunction(args->size()), _M_inst_type_params(inst_type_params), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(nullptr) {}
 
       DefinableFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr) :
-        InstanceFunction(args->size()), _M_inst_type_params(inst_type_params), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(result_type_expr) {}
+        OriginalFunction(args->size()), _M_inst_type_params(inst_type_params), _M_annotations(annotations), _M_fun_modifier(fun_modifier), _M_args(args), _M_result_type_expr(result_type_expr) {}
     public:
       ~DefinableFunction();
 
@@ -734,48 +750,48 @@ namespace lesfl
       TypeExpression *result_type_expr() const { return _M_result_type_expr.get(); }
     };
 
-    class UserDefinedFunction : public DefinableFunction, public Inlinable
+    class UserDefinedFunction : public DefinableFunction, public InstanceFunction, public Inlinable
     {
       std::unique_ptr<Expression> _M_body;
     public:
       UserDefinedFunction(const std::list<std::unique_ptr<Annotation>> *annotations, InlineModifier inline_modifier, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
-        DefinableFunction(annotations, fun_modifier, args), Inlinable(inline_modifier), _M_body(body) {}
+        OriginalFunction(args->size()), DefinableFunction(annotations, fun_modifier, args), InstanceFunction(args->size()), Inlinable(inline_modifier), _M_body(body) {}
 
       UserDefinedFunction(const std::list<std::unique_ptr<Annotation>> *annotations, InlineModifier inline_modifier, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
-        DefinableFunction(annotations, fun_modifier, args, result_type_expr), Inlinable(inline_modifier), _M_body(body) {}
+        OriginalFunction(args->size()), DefinableFunction(annotations, fun_modifier, args, result_type_expr), InstanceFunction(args->size()), Inlinable(inline_modifier), _M_body(body) {}
 
       UserDefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, InlineModifier inline_modifier, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, Expression *body) :
-        DefinableFunction(inst_type_params, annotations, fun_modifier, args), Inlinable(inline_modifier), _M_body(body) {}
+        OriginalFunction(args->size()), DefinableFunction(inst_type_params, annotations, fun_modifier, args), InstanceFunction(args->size()), Inlinable(inline_modifier), _M_body(body) {}
 
       UserDefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, const std::list<std::unique_ptr<Annotation>> *annotations, InlineModifier inline_modifier, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, Expression *body) :
-        DefinableFunction(inst_type_params, annotations, fun_modifier, args, result_type_expr), Inlinable(inline_modifier), _M_body(body) {}
+        OriginalFunction(args->size()), DefinableFunction(inst_type_params, annotations, fun_modifier, args, result_type_expr), InstanceFunction(args->size()), Inlinable(inline_modifier), _M_body(body) {}
 
       UserDefinedFunction(const std::list<std::unique_ptr<TypeParameter>> *inst_type_params, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr) :
-        DefinableFunction(inst_type_params, new std::list<std::unique_ptr<Annotation>>(), fun_modifier, args, result_type_expr), Inlinable(InlineModifier::NONE), _M_body(nullptr) {}
+        OriginalFunction(args->size()), DefinableFunction(inst_type_params, new std::list<std::unique_ptr<Annotation>>(), fun_modifier, args, result_type_expr), InstanceFunction(args->size()), Inlinable(InlineModifier::NONE), _M_body(nullptr) {}
 
       ~UserDefinedFunction();
 
       Expression *body() const { return _M_body.get(); }
     };
 
-    class ExternalFunction : public DefinableFunction
+    class ExternalFunction : public DefinableFunction, public InstanceFunction
     {
       std::string _M_external_fun_ident;
     public:
       ExternalFunction(FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, const std::string &external_fun_ident) :
-        DefinableFunction(new std::list<std::unique_ptr<Annotation>>(), fun_modifier, args, result_type_expr), _M_external_fun_ident(external_fun_ident) {}
+        OriginalFunction(args->size()), DefinableFunction(new std::list<std::unique_ptr<Annotation>>(), fun_modifier, args, result_type_expr), InstanceFunction(args->size()), _M_external_fun_ident(external_fun_ident) {}
 
       ~ExternalFunction();
 
       const std::string &external_fun_ident() const { return _M_external_fun_ident; }
     };
 
-    class NativeFunction : public DefinableFunction, public Inlinable
+    class NativeFunction : public DefinableFunction, public InstanceFunction, public Inlinable
     {
       std::string _M_native_fun_ident;
     public:
       NativeFunction(const std::list<std::unique_ptr<Annotation>> *annotations, InlineModifier inline_modifier, FunctionModifier fun_modifier, const std::list<std::unique_ptr<Argument>> *args, TypeExpression *result_type_expr, const std::string &native_fun_ident) :
-        DefinableFunction(annotations, fun_modifier, args, result_type_expr), Inlinable(inline_modifier), _M_native_fun_ident(native_fun_ident) {}
+        OriginalFunction(args->size()), DefinableFunction(annotations, fun_modifier, args, result_type_expr), InstanceFunction(args->size()), Inlinable(inline_modifier), _M_native_fun_ident(native_fun_ident) {}
 
       ~NativeFunction();
 

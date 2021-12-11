@@ -1471,11 +1471,11 @@ namespace lesfl
       });
     }
     
-    static bool resolve_idents_from_var(ResolverContext &context, const shared_ptr<InstanceVariable> &var, const Position &pos, list<Error> &errors)
+    static bool resolve_idents_from_var(ResolverContext &context, const shared_ptr<OriginalVariable> &var, const Position &pos, list<Error> &errors)
     {
       return dynamic_match(var.get(),
       [&pos, &errors](Variable *var) -> bool {
-        errors.push_back(Error(pos, "internal error: unknown instance variable class"));
+        errors.push_back(Error(pos, "internal error: unknown original variable class"));
         return false;
       },
       [&](UserDefinedVariable *var) -> bool {
@@ -1509,11 +1509,11 @@ namespace lesfl
     static bool resolve_idents_from_var_inst(ResolverContext &context, const shared_ptr<VariableInstance> &inst, const Position &pos, list<Error> &errors)
     { return resolve_idents_from_var(context, inst->var(), pos, errors); }
 
-    static bool resolve_idents_from_fun(ResolverContext &context, const shared_ptr<InstanceFunction> &fun, const Position &pos, list<Error> &errors)
+    static bool resolve_idents_from_fun(ResolverContext &context, const shared_ptr<OriginalFunction> &fun, const Position &pos, list<Error> &errors)
     {
       return dynamic_match(fun.get(),
       [&pos, &errors](Function *fun) -> bool {
-        errors.push_back(Error(pos, "internal error: unknown instance function class"));
+        errors.push_back(Error(pos, "internal error: unknown original function class"));
         return false;
       },
       [&](UserDefinedFunction *fun) -> bool {
