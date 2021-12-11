@@ -1425,7 +1425,7 @@ namespace lesfl
       virtual ~LiteralValue();
     };
 
-    class NonUniqueLiteralValue : public LiteralValue
+    class NonUniqueLiteralValue : public virtual LiteralValue
     {
     protected:
       NonUniqueLiteralValue() {}
@@ -1513,7 +1513,7 @@ namespace lesfl
       const std::wstring &string() const { return _M_string; }
     };
 
-    class LambdaValue : public LiteralValue, public Inlinable
+    class LambdaValue : public virtual LiteralValue, public Inlinable
     {
     protected:
       std::unique_ptr<const std::list<std::unique_ptr<Argument>>> _M_args;
@@ -1535,7 +1535,7 @@ namespace lesfl
       Expression *body() const { return _M_body.get(); }
     };
 
-    class NonUniqueLambdaValue : public virtual LambdaValue, public virtual NonUniqueLiteralValue
+    class NonUniqueLambdaValue : public LambdaValue, public NonUniqueLiteralValue
     {
       FunctionModifier _M_fun_modifier;
     public:
