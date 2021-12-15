@@ -196,7 +196,7 @@ namespace lesfl
     bool AbsoluteIdentifierTable::add_ident_or_get_key_ident(AbsoluteIdentifier *ident, KeyIdentifier &key_ident, bool &is_added)
     {
       if(add_ident(ident, key_ident)) {
-        is_added= true;
+        is_added = true;
         return true;
       }
       is_added = false;
