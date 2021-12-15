@@ -14,10 +14,6 @@ namespace lesfl
 {
   namespace frontend
   {
-    //
-    // A BuiltinTypeAdder class.
-    //
-  
     BuiltinTypeAdder::~BuiltinTypeAdder() {}
 
     bool BuiltinTypeAdder::add_builtin_types(Tree &tree)
