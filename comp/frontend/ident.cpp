@@ -42,12 +42,6 @@ namespace lesfl
     }
 
     //
-    // A Stringable class.
-    //
-
-    Stringable::~Stringable() {}
-
-    //
     // An Indexable class.
     //
 

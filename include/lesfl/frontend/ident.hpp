@@ -15,6 +15,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <lesfl/frontend/string.hpp>
 
 namespace lesfl
 {
@@ -45,16 +46,6 @@ namespace lesfl
         std::hash<std::size_t> hasher;
         return hasher(_M_key);
       }
-    };
-
-    class Stringable
-    {
-    protected:
-      Stringable() {}
-    public:
-      virtual ~Stringable();
-
-      virtual std::string to_string() const = 0;
     };
 
     class Indexable
