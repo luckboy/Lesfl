@@ -1277,6 +1277,7 @@ static bool string_to_builtin_fun(const std::string &str, BuiltinFunction &built
     { "itof",   BuiltinFunction::ITOF },
     { "ftoi",   BuiltinFunction::FTOI },
     { "try",    BuiltinFunction::TRY },
+    { "utry",   BuiltinFunction::UTRY },
     { "force",  BuiltinFunction::FORCE },
     { "rethrow", BuiltinFunction::RETHROW },
     { "stacktrace", BuiltinFunction::STACKTRACE },
