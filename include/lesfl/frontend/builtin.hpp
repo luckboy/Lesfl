@@ -85,6 +85,7 @@ namespace lesfl
       ITOF,
       FTOI,
       TRY,
+      FORCE,
       RETHROW,
       STACKTRACE,
       I8TOI,
