@@ -48,8 +48,6 @@
 
   static Position loc_to_pos(const BisonParser::location_type &loc, Driver &driver);
 
-  static void set_state_for_name_fields(Lexer &lexer);
-
   static bool string_to_builtin_fun(const std::string &str, BuiltinFunction &builtin_fun);
 
   static std::tuple<std::string, std::list<std::unique_ptr<Argument>> *, Position> *make_ident_and_args(const std::string &ident, std::list<std::unique_ptr<Argument>> *args, const Position &pos);
@@ -295,7 +293,6 @@
 %type <expr>            expr13
 %type <expr>            expr14
 %type <expr>            expr15
-%type <ident>           constr_qident_and_lbrace
 %type <exprs>           exprs
 %type <exprs>           one_or_more_exprs
 %type <exprs>           tuple_exprs
@@ -338,7 +335,6 @@
 %type <constr>          constr
 %type <fun_constrs>     one_or_more_fun_constrs
 %type <fun_constr>      fun_constr
-%type <string>          ident_and_lbrace
 %type <type_args>       one_or_more_type_args
 %type <type_arg>        type_arg
 %type <type_params>     type_params
@@ -828,16 +824,10 @@ expr15:         literal                         { $$ = new Literal($1, P(@1)); }
 |               "unique" '#' '[' exprs ']'      { $$ = new UniqueArray($4, P(@1)); }
 |               '(' tuple_exprs ')'             { $$ = new NonUniqueTuple($2, P(@1)); }
 |               "unique" '(' tuple_exprs ')'    { $$ = new UniqueTuple($3, P(@1)); }
-|               constr_qident_and_lbrace one_or_more_expr_named_field_pairs '}' {
-  $$ = new NamedFieldConstructorApplication($1, $2, P(@1));
+|               constr_qident '{' onl one_or_more_expr_named_field_pairs onl '}' {
+  $$ = new NamedFieldConstructorApplication($1, $4, P(@1));
 }
 |               '(' expr ')'                    { $$ = $2; }
-;
-
-constr_qident_and_lbrace: constr_qident '{'     {
-  set_state_for_name_fields(lexer);
-  $$ = $1;
-}
 ;
 
 exprs:          /* empty */                     { $$ = make_unique_ptr_list<Expression>(); }
@@ -904,8 +894,8 @@ pattern2:       pattern3 constr_bin_op pattern2 { $$ = make_binary_op_pattern($1
 
 pattern3:       constr_qident                   { $$ = new VariableConstructorPattern($1, P(@1)); }
 |               constr_qident '(' patterns ')'  { $$ = new UnnamedFieldConstructorPattern($1, $3, P(@1)); }
-|               constr_qident_and_lbrace  one_or_more_pattern_named_field_pairs '}' {
-  $$ = new NamedFieldConstructorPattern($1, $2, P(@1));
+|               constr_qident '{' onl one_or_more_pattern_named_field_pairs onl '}' {
+  $$ = new NamedFieldConstructorPattern($1, $4, P(@1));
 }
 |               '[' patterns ']'                { $$ = new ListPattern($2, P(@1)); }
 |               '#' '[' patterns ']'            { $$ = new NonUniqueArrayPattern($3, P(@1)); }
@@ -1013,8 +1003,8 @@ value3:         literal                         { $$ = new VariableLiteralValue(
 |               '(' tuple_values ')'            { $$ = new TupleValue($2, P(@1)); }
 |               constr_qident                   { $$ = new VariableConstructorValue($1, P(@1)); }
 |               constr_qident '(' values ')'    { $$ = new UnnamedFieldConstructorValue($1, $3, P(@1)); }
-|               constr_qident_and_lbrace one_or_more_value_named_field_pairs '}' {
-  $$ = new NamedFieldConstructorValue($1, $2, P(@1));
+|               constr_qident '{' onl one_or_more_value_named_field_pairs onl '}' {
+  $$ = new NamedFieldConstructorValue($1, $4, P(@1));
 }
 |               '(' value ')'                   { $$ = $2; }
 ;
@@ -1067,8 +1057,8 @@ fun_constr:     annotations modifiers4 ident '(' type_exprs ')' {
   delete $2;
   delete $3;
 }
-|               annotations modifiers4 ident_and_lbrace one_or_more_type_named_field_pairs '}' {
-  $$ = new NamedFieldConstructor($1, $2->first, $2->second, *$3, $4, P(@3));
+|               annotations modifiers4 ident '{' onl one_or_more_type_named_field_pairs onl '}' {
+  $$ = new NamedFieldConstructor($1, $2->first, $2->second, *$3, $6, P(@3));
   delete $2;
   delete $3;
 }
@@ -1076,12 +1066,6 @@ fun_constr:     annotations modifiers4 ident '(' type_exprs ')' {
   $$ = make_binary_op_fun_constr($1, $2->first, $2->second, $3, *$4, $5, P(@4));
   delete $2;
   delete $4;
-}
-;
-
-ident_and_lbrace: ident '{'                     {
-  set_state_for_name_fields(lexer);
-  $$ = $1;
 }
 ;
 
@@ -1198,10 +1182,6 @@ static int yylex(BisonParser::semantic_type *value, BisonParser::location_type *
 
 static Position loc_to_pos(const BisonParser::location_type &loc, Driver &driver)
 { return Position(driver.source(), loc.begin.line, loc.begin.column); }
-
-static void set_state_for_name_fields(Lexer &lexer)
-{ lexer.set_state_for_name_fields(); }
-
 
 static bool string_to_builtin_fun(const std::string &str, BuiltinFunction &builtin_fun)
 {

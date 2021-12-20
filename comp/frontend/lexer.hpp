@@ -42,8 +42,6 @@ namespace lesfl
           this->loc = loc;
           return yylex();
         }
-
-        void set_state_for_name_fields();
       private:
         int yylex();
       };

@@ -375,12 +375,6 @@ namespace lesfl
   namespace frontend
   {
     Lexer::~Lexer() {}
-
-    namespace priv
-    {
-      void Lexer::set_state_for_name_fields()
-      { BEGIN(IN_PAREN); tmp_state = IN_PAREN; }
-    }
   }
 }
 
