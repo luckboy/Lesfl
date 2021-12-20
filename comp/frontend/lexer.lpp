@@ -374,7 +374,10 @@ namespace lesfl
 {
   namespace frontend
   {
-    Lexer::~Lexer() {}
+    namespace priv
+    {
+      Lexer::~Lexer() {}
+    }
   }
 }
 
