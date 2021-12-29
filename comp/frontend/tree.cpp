@@ -192,6 +192,18 @@ namespace lesfl
     ConstructorVariable::~ConstructorVariable() {}
 
     //
+    // A DefinedConstructorVariable class.
+    //
+
+    DefinedConstructorVariable::~DefinedConstructorVariable() {}
+
+    //
+    // A LibraryConstructorVariable class.
+    //
+
+    LibraryConstructorVariable::~LibraryConstructorVariable() {}
+
+    //
     // A LibraryVariable class.
     //
 

@@ -241,7 +241,7 @@ namespace lesfl
       constr->set_datatype_fun_flag(has_datatype_fun);
       if(datatype_key_ident != nullptr) constr->set_datatype_key_ident(*datatype_key_ident);
       constr->set_datatype_fun_inst(datatype_fun_inst);
-      shared_ptr<Variable> constr_var(new ConstructorVariable(constr));
+      shared_ptr<Variable> constr_var(new DefinedConstructorVariable(constr));
       if(!context.tree.add_var(key_ident, access_modifier, constr_var, constr->access_modifier(), datatype_ident)) {
         errors.push_back(Error(constr->pos(), "variable " + abs_ident->to_string() + " is already defined"));
         is_success = false;
