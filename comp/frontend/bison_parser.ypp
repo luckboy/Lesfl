@@ -1,5 +1,5 @@
 /****************************************************************************
- *   Copyright (C) 2016, 2021 Łukasz Szpakowski.                            *
+ *   Copyright (C) 2016, 2021-2022 Łukasz Szpakowski.                       *
  *                                                                          *
  *   This software is licensed under the GNU Lesser General Public          *
  *   License v3 or later. See the LICENSE file and the GPL file for         *
@@ -1171,8 +1171,10 @@ namespace lesfl
     {
       void BisonParser::error(const location_type &loc, const std::string &msg)
       { driver.add_error(Error(loc_to_pos(loc, driver), msg)); }
-      
+
+#ifdef OLD_BISON_VERSION
       BisonParser::syntax_error::syntax_error(const location_type &l, const std::string &m) : std::runtime_error(m), location(l) {}
+#endif
     }
   }
 }
